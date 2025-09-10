@@ -4,7 +4,7 @@
     "title": "Brand im Keller",
     "description": "Im Keller eines Wohnhauses ist Rauchentwicklung festgestellt worden.",
     "fileType": "image",
-    "file": "/images/Kellerband.jpg",
+    "file": "/images/Kellerbrand.jpg",
     "tasks": [
       "Lagemeldung per Funk an Einsatzleitung",
       "Wasserversorgung sicherstellen",
@@ -14,15 +14,15 @@
   },
   {
     "code": "5678",
-    "title": "Gefahrgutunfall",
-    "description": "LKW mit Gefahrgut ist verunglückt. Leckage sichtbar.",
+    "title": "Gefahrstoffaustritt",
+    "description": "In einem Labor kam es zu einem Chemieunfall.",
     "fileType": "pdf",
-    "file": "/pdfs/gefahrgut-uebung.pdf",
+    "file": "/pdfs/chemieunfall.pdf",
     "tasks": [
-      "Absperrung der Unfallstelle",
-      "Dekon-Platz einrichten",
-      "Atemschutztrupp vorbereiten",
-      "Einsatzleitung informieren"
+      "Absperrung des Bereichs",
+      "Sicherheitsabstand einhalten",
+      "Meldung an Einsatzleitung",
+      "Dekontamination vorbereiten"
     ]
   }
 ]
