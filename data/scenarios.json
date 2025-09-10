@@ -24,5 +24,18 @@
       "Meldung an Einsatzleitung",
       "Dekontamination vorbereiten"
     ]
+  },
+  {
+    "code": "9123",
+    "title": "Gefahrstoffaustritt",
+    "description": "In einem Labor kam es zu einem Chemieunfall.",
+    "fileType": "image",
+    "file": "/images/chemieunfall.jpg",
+    "tasks": [
+      "Absperrung des Bereichs",
+      "Sicherheitsabstand einhalten",
+      "Meldung an Einsatzleitung",
+      "Dekontamination vorbereiten"
+    ]
   }
 ]
