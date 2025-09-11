@@ -6,7 +6,7 @@ export default function Impressum() {
         <p className="mt-4 text-sm text-slate-700">
           Diese App dient der Organisation der Funkübungen der FF Imsum.
         </p>
-        <p className="mt-4 text-xs text-slate-400">Entwicklung: Dein Team</p>
+        <p className="mt-4 text-xs text-slate-400">Entwicklung: FF Imsum</p>
       </div>
     </div>
   )
