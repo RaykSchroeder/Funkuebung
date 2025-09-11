@@ -8,7 +8,7 @@ export default function Layout({ children }) {
       <header className="flex justify-between items-center p-4 bg-red-700 text-white shadow">
         <div className="flex items-center space-x-2">
           <img
-            src="/images/FFImsum.png"
+            src="/images/ff-imsum.png"
             alt="FF Imsum Wappen"
             className="h-12 w-auto"
           />
@@ -17,7 +17,7 @@ export default function Layout({ children }) {
 
         <div>
           <img
-            src="/images/FFGeestland.jpg"
+            src="/images/stadt-geestland.png"
             alt="Stadt Geestland Wappen"
             className="h-12 w-auto"
           />
@@ -29,7 +29,10 @@ export default function Layout({ children }) {
 
       {/* FOOTER */}
       <footer className="p-4 bg-slate-100 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} Freiwillige Feuerwehr Imsum
+        © {new Date().getFullYear()} Freiwillige Feuerwehr Imsum ·{" "}
+        <Link href="/impressum" className="underline hover:text-slate-700">
+          Impressum
+        </Link>
       </footer>
     </div>
   );
