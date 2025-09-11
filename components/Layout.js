@@ -12,7 +12,7 @@ export default function Layout({ children }) {
             alt="FF Imsum Wappen"
             className="h-12 w-auto"
           />
-          <span className="font-bold">FF Imsum – Funkübung</span>
+          <span className="font-bold">Feuerwehr Geestland - OT Imsum – Funkübung 2025</span>
         </div>
 
         <div>
