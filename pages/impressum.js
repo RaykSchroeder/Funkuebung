@@ -1,13 +1,17 @@
+// pages/impressum.js
 export default function Impressum() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="max-w-2xl bg-white p-6 rounded shadow">
-        <h1 className="text-xl font-bold">Info / Impressum</h1>
-        <p className="mt-4 text-sm text-slate-700">
-          Diese App dient der Organisation der Funkübungen der FF Imsum.
-        </p>
-        <p className="mt-4 text-xs text-slate-400">Entwicklung: FF Imsum</p>
-      </div>
+    <div className="max-w-2xl mx-auto space-y-4">
+      <h1 className="text-2xl font-bold">Impressum</h1>
+      <p>Freiwillige Feuerwehr Imsum</p>
+      <p>Vertreten durch: [TvH, Wehrführer]</p> 
+      <p>Verantwortliche Funkübung: [TM, Funkwart]</p>
+      <p>Technischer Support: [RS, Kinderwart AD]</p>
+      <p>Auch mit dabei: [TS, Alles, aber nichts richtig]</p>
+      <p>Adresse: [Starße: Alte Bahnhofstraße, PLZ: 27607]</p>
+      <p>Telefon: [112]</p>
+      <p>E-Mail: [ichbinboss@geestland.de]</p>
+      <p>Stadt Geestland</p>
     </div>
-  )
+  );
 }
