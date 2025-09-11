@@ -39,7 +39,7 @@ export default function Home() {
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Team-Code (z. B. 1234)"
+            placeholder="Szenario-Code eingeben"
             maxLength={4}
             className="flex-1 border px-3 py-2 rounded"
           />
