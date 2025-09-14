@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Send } from "lucide-react";
 
 export default function FeedbackForm() {
   const [message, setMessage] = useState("");
@@ -35,9 +34,9 @@ export default function FeedbackForm() {
         />
         <button
           type="submit"
-          className="mt-3 px-5 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 flex items-center gap-2"
+          className="mt-3 px-5 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700"
         >
-          <Send size={18} /> Absenden
+          Absenden
         </button>
       </form>
       {status && <p className="mt-2 text-sm text-gray-600">{status}</p>}
