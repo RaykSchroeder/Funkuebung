@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { Send } from "lucide-react";
 
 export default function FeedbackForm() {
-  const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
 
@@ -16,54 +16,31 @@ export default function FeedbackForm() {
     if (res.ok) {
       setStatus("✅ Danke für dein Feedback!");
       setMessage("");
+      setTimeout(() => setStatus(""), 3000);
     } else {
       setStatus("❌ Fehler beim Absenden.");
     }
   };
 
   return (
-    <div className="mt-6">
-      {/* Button */}
-      {!open && (
+    <div className="p-4 border rounded-xl shadow-md bg-white mt-8">
+      <h2 className="text-lg font-bold mb-3 text-gray-800">Feedback geben</h2>
+      <form onSubmit={handleSubmit}>
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 min-h-[120px]"
+          placeholder="Dein Feedback..."
+          required
+        />
         <button
-          onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
+          type="submit"
+          className="mt-3 px-5 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 flex items-center gap-2"
         >
-          Feedback geben
+          <Send size={18} /> Absenden
         </button>
-      )}
-
-      {/* Formular */}
-      {open && (
-        <div className="p-4 border rounded-xl shadow-md bg-white">
-          <h2 className="text-lg font-bold mb-2">Dein Feedback</h2>
-          <form onSubmit={handleSubmit}>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder="Schreib uns dein Feedback..."
-              required
-            />
-            <div className="mt-2 flex gap-2">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Absenden
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Abbrechen
-              </button>
-            </div>
-          </form>
-          {status && <p className="mt-2 text-sm">{status}</p>}
-        </div>
-      )}
+      </form>
+      {status && <p className="mt-2 text-sm text-gray-600">{status}</p>}
     </div>
   );
 }
