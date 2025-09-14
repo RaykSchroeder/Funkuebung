@@ -46,6 +46,14 @@ export default function ScenarioViewer({ scenario, onBack }) {
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
           onClick={() => setOpenImage(null)} // Klick auf Hintergrund = schließen
         >
+          {/* ❌ Schließen-Button */}
+          <button
+            className="absolute top-4 right-4 text-white text-3xl font-bold hover:text-red-400"
+            onClick={() => setOpenImage(null)}
+          >
+            &times;
+          </button>
+
           <img
             src={openImage}
             alt="Zoom"
