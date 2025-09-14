@@ -1,41 +1,54 @@
+// pages/feedbacks.js
 import { useEffect, useState } from "react";
+import Layout from "../components/Layout";
 
 export default function FeedbacksPage() {
-  const [feedbacks, setFeedbacks] = useState([]);
+  const [items, setItems] = useState([]);
+  const [status, setStatus] = useState("Lade …");
 
   useEffect(() => {
-    async function loadFeedbacks() {
-      const res = await fetch("/api/feedback");
+    async function load() {
+      const pass = prompt("Admin-Passwort:");
+      if (pass === null) {
+        setStatus("Abgebrochen.");
+        return;
+      }
+      const res = await fetch("/api/feedback", {
+        headers: { "x-admin-pass": pass },
+      });
+      if (res.status === 401) {
+        alert("❌ Falsches Passwort");
+        setStatus("Nicht berechtigt.");
+        return;
+      }
       const data = await res.json();
-
-      // 👉 neueste zuerst
-      setFeedbacks(data.reverse());
+      setItems(Array.isArray(data) ? data : []);
+      setStatus("");
     }
-    loadFeedbacks();
+    load();
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <Layout>
       <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6">
         <h1 className="text-2xl font-bold mb-4">📋 Feedbacks</h1>
-        {feedbacks.length === 0 ? (
+        {status && <p className="text-slate-500">{status}</p>}
+        {!status && items.length === 0 && (
           <p className="text-slate-500">Noch kein Feedback vorhanden</p>
-        ) : (
+        )}
+        {!status && items.length > 0 && (
           <ul className="space-y-3">
-            {feedbacks.map((f) => (
-              <li
-                key={f.id}
-                className="p-3 border rounded bg-slate-100 text-slate-800"
-              >
-                <p className="font-medium">{f.message}</p>
+            {items.map((f) => (
+              <li key={f.id} className="p-3 border rounded bg-slate-100">
+                <p className="font-medium whitespace-pre-wrap">{f.message}</p>
                 <p className="text-xs text-slate-500 mt-1">
-                  {new Date(f.date).toLocaleString()}
+                  {new Date(f.created_at ?? f.date).toLocaleString()}
                 </p>
               </li>
             ))}
           </ul>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }
