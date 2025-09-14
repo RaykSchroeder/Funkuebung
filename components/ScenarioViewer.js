@@ -48,8 +48,11 @@ export default function ScenarioViewer({ scenario, onBack }) {
         >
           {/* ❌ Schließen-Button */}
           <button
-            className="absolute top-4 right-4 text-white text-3xl font-bold hover:text-red-400"
-            onClick={() => setOpenImage(null)}
+            className="absolute top-6 right-6 text-white text-4xl font-bold z-50"
+            onClick={(e) => {
+              e.stopPropagation(); // verhindert Schließen durch Overlay
+              setOpenImage(null);
+            }}
           >
             &times;
           </button>
