@@ -25,7 +25,10 @@ export default function FeedbacksPage() {
                 key={f.id}
                 className="p-3 border rounded bg-slate-100 text-slate-800"
               >
-                <p>{f.message}</p>
+                {/* Hier Nachricht anzeigen */}
+                <p className="font-medium">{f.message}</p>
+
+                {/* Datum darunter */}
                 <p className="text-xs text-slate-500 mt-1">
                   {new Date(f.date).toLocaleString()}
                 </p>
