@@ -1,18 +1,23 @@
+import { useState } from "react";
+
 export default function ScenarioViewer({ scenario, onBack }) {
+  const [openImage, setOpenImage] = useState(null);
+
   return (
     <article className="space-y-4">
       <h2 className="text-xl font-semibold">{scenario.title}</h2>
       <p className="text-slate-700">{scenario.description}</p>
 
-      {scenario.fileType === 'image' && (
+      {scenario.fileType === "image" && (
         <img
           src={scenario.file}
           alt={scenario.title}
-          className="w-full max-w-md rounded shadow"
+          className="w-full max-w-md rounded shadow cursor-zoom-in"
+          onClick={() => setOpenImage(scenario.file)} // 👈 Bild in Modal öffnen
         />
       )}
 
-      {scenario.fileType === 'pdf' && (
+      {scenario.fileType === "pdf" && (
         <iframe
           src={scenario.file}
           title={scenario.title}
@@ -34,6 +39,20 @@ export default function ScenarioViewer({ scenario, onBack }) {
       >
         Neues Szenario
       </button>
+
+      {/* Modal Overlay */}
+      {openImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+          onClick={() => setOpenImage(null)} // Klick schließt Modal
+        >
+          <img
+            src={openImage}
+            alt="Zoom"
+            className="max-h-[90vh] max-w-[90vw] object-contain"
+          />
+        </div>
+      )}
     </article>
-  )
+  );
 }
