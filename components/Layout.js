@@ -30,7 +30,7 @@ export default function Layout({ children }) {
       {/* FOOTER */}
       <footer className="p-4 bg-slate-100 text-center text-sm text-slate-500">
         © {new Date().getFullYear()} Freiwillige Feuerwehr Imsum ·{" "}
-        <Link href="/inpressum" className="underline hover:text-slate-700">
+        <Link href="/impressum" className="underline hover:text-slate-700">
           Impressum
         </Link>
       </footer>
