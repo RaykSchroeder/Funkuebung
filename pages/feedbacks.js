@@ -1,6 +1,7 @@
 // pages/feedbacks.js
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import Link from "next/link";
 
 export default function FeedbacksPage() {
   const [items, setItems] = useState([]);
@@ -31,6 +32,11 @@ export default function FeedbacksPage() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6">
+        {/* 🔙 Zurück-Pfeil */}
+        <Link href="/" className="text-red-600 hover:underline flex items-center mb-4">
+          <span className="mr-2">⬅️</span> Zurück
+        </Link>
+
         <h1 className="text-2xl font-bold mb-4">📋 Feedbacks</h1>
         {status && <p className="text-slate-500">{status}</p>}
         {!status && items.length === 0 && (
