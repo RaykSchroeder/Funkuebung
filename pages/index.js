@@ -1,34 +1,44 @@
-import Layout from "../components/Layout";
-import { useState } from "react";
-import ScenarioViewer from "../components/ScenarioViewer";
-import FeedbackForm from "../components/FeedbackForm";
+import { useState } from 'react'
+import ScenarioViewer from '../components/ScenarioViewer'
+import FeedbackForm from '../components/FeedbackForm'
+import Layout from '../components/Layout'
 
 export default function Home() {
-  const [code, setCode] = useState("");
-  const [scenario, setScenario] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState('')
+  const [scenario, setScenario] = useState(null)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   async function fetchScenario(e) {
-    e.preventDefault();
-    setError(null);
-    setScenario(null);
+    e.preventDefault()
+    setError(null)
+    setScenario(null)
 
     if (!/^\d{4}$/.test(code.trim())) {
-      setError("Bitte 4-stelligen Code eingeben");
-      return;
+      setError('Bitte 4-stelligen Code eingeben')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const res = await fetch(`/api/scenarios?code=${code.trim()}`);
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      setScenario(data);
+      const res = await fetch(`/api/scenarios?code=${code.trim()}`)
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setScenario(data)
     } catch {
-      setError("Ungültiger Code oder Szenario nicht gefunden");
+      setError('Ungültiger Code oder Szenario nicht gefunden')
     } finally {
-      setLoading(false);
+      setLoading(false)
+    }
+  }
+
+  // Admin-Login Funktion
+  function handleAdminClick() {
+    const password = prompt("Bitte Admin-Passwort eingeben:");
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASS) {
+      window.location.href = "/feedbacks";
+    } else if (password !== null) {
+      alert("❌ Falsches Passwort!");
     }
   }
 
@@ -52,16 +62,24 @@ export default function Home() {
         {loading && <div className="text-slate-500 mb-4">Lade …</div>}
 
         {scenario ? (
-          <ScenarioViewer
-            scenario={scenario}
-            onBack={() => setScenario(null)}
-          />
+          <ScenarioViewer scenario={scenario} onBack={() => setScenario(null)} />
         ) : (
           <p className="text-slate-500">Noch kein Szenario geladen</p>
         )}
 
+        {/* Feedback unten */}
         <FeedbackForm />
+
+        {/* Admin Button */}
+        <div className="mt-6 text-right">
+          <button
+            onClick={handleAdminClick}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            🔑 Admin
+          </button>
+        </div>
       </div>
     </Layout>
-  );
+  )
 }
