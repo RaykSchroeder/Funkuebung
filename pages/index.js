@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ScenarioViewer from '../components/ScenarioViewer'
+import FeedbackForm from '../components/FeedbackForm'   // 👈 Import hinzufügen
 
 export default function Home() {
   const [code, setCode] = useState('')
@@ -56,6 +57,11 @@ export default function Home() {
         ) : (
           <p className="text-slate-500">Noch kein Szenario geladen</p>
         )}
+
+        {/* 👇 Feedback Button einfügen */}
+        <div className="mt-6">
+          <FeedbackForm />
+        </div>
       </div>
     </div>
   )
