@@ -11,6 +11,7 @@ export default function FeedbackForm() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
     });
+
     if (res.ok) {
       setStatus("✅ Danke für dein Feedback!");
       setMessage("");
