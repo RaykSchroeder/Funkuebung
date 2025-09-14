@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Send } from "lucide-react";
 import { RefreshCcw, X } from "lucide-react";
+
 
 export default function ScenarioViewer({ scenario, onBack }) {
   const [openImage, setOpenImage] = useState(null);
