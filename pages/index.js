@@ -32,13 +32,13 @@ export default function Home() {
     }
   }
 
-  // Admin-Login Funktion
+  // 👉 Admin-Login Funktion
   function handleAdminClick() {
     const password = prompt("Bitte Admin-Passwort eingeben:");
     if (password === process.env.NEXT_PUBLIC_ADMIN_PASS) {
-      window.location.href = "/feedbacks";
+      window.location.href = "/feedbacks"
     } else if (password !== null) {
-      alert("❌ Falsches Passwort!");
+      alert("❌ Falsches Passwort!")
     }
   }
 
@@ -70,7 +70,7 @@ export default function Home() {
         {/* Feedback unten */}
         <FeedbackForm />
 
-        {/* Admin Button */}
+        {/* 🔑 Admin Button */}
         <div className="mt-6 text-right">
           <button
             onClick={handleAdminClick}
