@@ -14,7 +14,7 @@ export default function Impressum() {
           <span className="mr-2">⬅️</span> Zurück
         </Link>
 
-        <h1 className="text-2xl font-bold">Impressum</h1>
+        <h1 className="text-2xl font-bold">Inpressum</h1>
         <p>Feuerwehr Stadt Geestland - OT Imsum</p>
         <p>Vertreten durch: [TvH, Wehrführer]</p>
         <p>Verantwortliche Funkübung: [TM, Funkwart]</p>
