@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
-import { RefreshCcw, X } from "lucide-react";
-
 
 export default function FeedbackForm() {
   const [message, setMessage] = useState("");
