@@ -1,4 +1,4 @@
-let feedbacks = []; // Speicher im Arbeitsspeicher (flüchtig!)
+let feedbacks = [];
 
 export default function handler(req, res) {
   if (req.method === "POST") {
@@ -8,8 +8,10 @@ export default function handler(req, res) {
       message,
       date: new Date().toISOString(),
     };
-    feedbacks.push(entry);
-    console.log("📩 Feedback empfangen:", entry);
+
+    // 👉 fügt vorne ein, nicht hinten
+    feedbacks.unshift(entry);
+
     res.status(200).json({ success: true });
   } else if (req.method === "GET") {
     res.status(200).json(feedbacks);
