@@ -32,53 +32,39 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">🚒 FF Imsum – Funkübung</h1>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* 🔴 Roter Balken oben */}
+      <header className="bg-red-600 text-white py-4 px-6 shadow">
+        <h1 className="text-2xl font-bold">🚒 FF Imsum – Funkübung</h1>
+      </header>
 
-        <form onSubmit={fetchScenario} className="flex gap-2 mb-6">
-          <div className="flex-1">
-            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
-              Szenario-Code
-            </label>
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6">
+          <form onSubmit={fetchScenario} className="flex gap-2 mb-4">
             <input
-              id="code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="z. B. 1234"
+              placeholder="Szenario-Code eingeben"
               maxLength={4}
-              className="w-full border px-3 py-3 rounded-lg text-lg shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className="flex-1 border px-3 py-2 rounded"
             />
-          </div>
-          <button className="px-5 py-3 bg-red-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-red-700 flex items-center gap-2">
-            🔍 Abrufen
-          </button>
-        </form>
+            <button className="px-4 py-2 bg-slate-800 text-white rounded">
+              Abrufen
+            </button>
+          </form>
 
-        {error && (
-          <div className="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-300">
-            ⚠️ {error}
-          </div>
-        )}
+          {error && <div className="text-red-600 mb-4">{error}</div>}
+          {loading && <div className="text-slate-500 mb-4">Lade …</div>}
 
-        {loading && (
-          <div className="flex items-center gap-2 text-gray-500 mb-4">
-            <svg className="animate-spin h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>
-            Lade …
-          </div>
-        )}
+          {scenario ? (
+            <ScenarioViewer scenario={scenario} onBack={() => setScenario(null)} />
+          ) : (
+            <p className="text-slate-500">Noch kein Szenario geladen</p>
+          )}
 
-        {scenario ? (
-          <ScenarioViewer scenario={scenario} onBack={() => setScenario(null)} />
-        ) : (
-          <p className="text-gray-500">Noch kein Szenario geladen</p>
-        )}
-
-        <FeedbackForm />
-      </div>
+          <FeedbackForm />
+        </div>
+      </main>
     </div>
   )
 }
