@@ -13,7 +13,7 @@ export default function ScenarioViewer({ scenario, onBack }) {
           src={scenario.file}
           alt={scenario.title}
           className="w-full max-w-md rounded shadow cursor-zoom-in"
-          onClick={() => setOpenImage(scenario.file)} // 👈 Bild öffnen
+          onClick={() => setOpenImage(scenario.file)}
         />
       )}
 
@@ -40,17 +40,17 @@ export default function ScenarioViewer({ scenario, onBack }) {
         Neues Szenario
       </button>
 
-      {/* Modal Overlay */}
+      {/* Modal */}
       {openImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={() => setOpenImage(null)} // Klick außerhalb = schließen
+          onClick={() => setOpenImage(null)} // Klick auf Hintergrund = schließen
         >
           <img
             src={openImage}
             alt="Zoom"
             className="max-h-[90vh] max-w-[90vw] object-contain"
-            onClick={(e) => e.stopPropagation()} // 👈 verhindert Schließen beim Bild-Klick
+            onClick={(e) => e.stopPropagation()} // Klick aufs Bild NICHT schließen
           />
         </div>
       )}
