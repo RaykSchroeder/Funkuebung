@@ -122,4 +122,10 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
           {scenarios.map((s, i) => (
-            <ScenarioViewer k
+            <ScenarioViewer key={i} scenario={s} onBack={() => {}} mode="admin" />
+          ))}
+        </div>
+      </Layout>
+    );
+  }
+}
