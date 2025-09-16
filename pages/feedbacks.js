@@ -122,7 +122,7 @@ export default function AdminDashboard() {
 
   // Team-Ansicht
   if (view.startsWith("team")) {
-    const teamNr = view.replace("team", ""); // z.B. "1" → Team 1
+    const teamNr = parseInt(view.replace("team", ""), 10);
 
     return (
       <Layout>
@@ -136,15 +136,17 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
 
-          {scenarios.map((s, i) => (
-            <ScenarioViewer
-              key={i}
-              scenario={s}
-              onBack={() => {}}
-              mode="admin"
-              teamId={parseInt(teamNr)} // 👈 Fix: teamId wird übergeben
-            />
-          ))}
+          {scenarios
+            .filter((s) => s.team === teamNr) // 🔑 Nur Szenarien des Teams
+            .map((s, i) => (
+              <ScenarioViewer
+                key={i}
+                scenario={s}
+                onBack={() => {}}
+                mode="admin"
+                teamId={teamNr}
+              />
+            ))}
         </div>
       </Layout>
     );
