@@ -4,12 +4,13 @@ import { X } from "lucide-react";
 export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId }) {
   const [openImage, setOpenImage] = useState(null);
 
+  // lokaler State
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
 
-  // ✅ Admin-Passwort aus .env
+  // Admin-Passwort aus .env
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
   // Fortschritt laden (nur Admin)
@@ -17,14 +18,19 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     if (mode !== "admin") return;
 
     async function loadProgress() {
+      console.log("➡️ GET progress for", { teamId, scenarioCode: scenario.code });
+
       const res = await fetch(
         `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
         {
           headers: { "x-admin-pass": adminPass },
         }
       );
-      if (!res.ok) return;
+
       const data = await res.json();
+      console.log("⬅️ GET response", res.status, data);
+
+      if (!res.ok) return;
 
       // normale Tasks
       const tasksState = [...checkedTasks];
@@ -47,20 +53,27 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
 
   // Fortschritt speichern
   const saveProgress = async (taskIndex, type, done) => {
-    await fetch("/api/task-progress", {
+    const payload = {
+      teamId,
+      scenarioCode: scenario.code,
+      taskIndex,
+      type,
+      done,
+    };
+
+    console.log("➡️ PATCH sending", payload);
+
+    const res = await fetch("/api/task-progress", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         "x-admin-pass": adminPass,
       },
-      body: JSON.stringify({
-        teamId,
-        scenarioCode: scenario.code,
-        taskIndex,
-        type,
-        done,
-      }),
+      body: JSON.stringify(payload),
     });
+
+    const data = await res.json().catch(() => ({}));
+    console.log("⬅️ PATCH response", res.status, data);
   };
 
   const toggleTask = (index) => {
