@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 
-export default function ScenarioViewer({ scenario, onBack }) {
+export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
   const [openImage, setOpenImage] = useState(null);
 
   return (
@@ -26,13 +26,16 @@ export default function ScenarioViewer({ scenario, onBack }) {
         />
       )}
 
-      <ul className="mt-3 space-y-2">
-        {scenario.tasks.map((t, i) => (
-          <li key={i} className="bg-slate-100 p-2 rounded">
-            {i + 1}. {t}
-          </li>
-        ))}
-      </ul>
+      {/* Tasks nur im Admin-Modus */}
+      {mode === "admin" && (
+        <ul className="mt-3 space-y-2">
+          {scenario.tasks.map((t, i) => (
+            <li key={i} className="bg-slate-100 p-2 rounded">
+              {i + 1}. {t}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <button
         onClick={onBack}
