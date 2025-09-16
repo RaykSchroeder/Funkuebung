@@ -1,41 +1,61 @@
-[
+const scenarios = [
   {
-    "code": "1234",
-    "title": "Brand im Keller",
-    "description": "Im Keller eines Wohnhauses ist Rauchentwicklung festgestellt worden.",
-    "fileType": "image",
-    "file": "/images/Kellerbrand.jpg",
-    "tasks": [
+    code: "1234",
+    title: "Brand im Keller",
+    description: "Im Keller eines Wohnhauses ist Rauchentwicklung festgestellt worden.",
+    fileType: "image",
+    file: "/images/Kellerbrand.jpg",
+    tasks: [
       "Lagemeldung per Funk an Einsatzleitung",
       "Wasserversorgung sicherstellen",
       "Personensuche im Keller",
-      "Löschangriff vorbereiten"
-    ]
+      "Löschangriff vorbereiten",
+    ],
+    solutionTasks: [
+      "Richtige Lageeinschätzung vorgenommen",
+      "Wasserversorgung vollständig aufgebaut",
+      "Alle Personen im Keller gefunden",
+      "Brandbekämpfung eingeleitet",
+    ],
   },
   {
-    "code": "5678",
-    "title": "Gefahrstoffaustritt",
-    "description": "In einem Labor kam es zu einem Chemieunfall.",
-    "fileType": "pdf",
-    "file": "/pdfs/chemieunfall.pdf",
-    "tasks": [
+    code: "5678",
+    title: "Gefahrstoffaustritt",
+    description: "In einem Labor kam es zu einem Chemieunfall.",
+    fileType: "pdf",
+    file: "/pdfs/chemieunfall.pdf",
+    tasks: [
       "Absperrung des Bereichs",
       "Sicherheitsabstand einhalten",
       "Meldung an Einsatzleitung",
-      "Dekontamination vorbereiten"
-    ]
+      "Dekontamination vorbereiten",
+    ],
+    solutionTasks: [
+      "Absperrung im Radius von 50m korrekt eingerichtet",
+      "Keine Einsatzkräfte im Gefahrenbereich",
+      "Einsatzleitung sofort informiert",
+      "Dekonplatz vorbereitet",
+    ],
   },
   {
-    "code": "9123",
-    "title": "Gefahrstoffaustritt",
-    "description": "In einem Labor kam es zu einem Chemieunfall.",
-    "fileType": "image",
-    "file": "/images/chemieunfall.jpg",
-    "tasks": [
+    code: "9123",
+    title: "Gefahrstoffaustritt",
+    description: "In einem Labor kam es zu einem Chemieunfall.",
+    fileType: "image",
+    file: "/images/chemieunfall.jpg",
+    tasks: [
       "Absperrung des Bereichs",
       "Sicherheitsabstand einhalten",
       "Meldung an Einsatzleitung",
-      "Dekontamination vorbereiten"
-    ]
-  }
-]
+      "Dekontamination vorbereiten",
+    ],
+    solutionTasks: [
+      "Absperrung im Radius von 50m korrekt eingerichtet",
+      "Keine Einsatzkräfte im Gefahrenbereich",
+      "Einsatzleitung sofort informiert",
+      "Dekonplatz vorbereitet",
+    ],
+  },
+];
+
+export default scenarios;
