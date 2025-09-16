@@ -2,11 +2,12 @@ import { useState } from "react";
 import ScenarioViewer from "../components/ScenarioViewer";
 import FeedbackForm from "../components/FeedbackForm";
 import Layout from "../components/Layout";
-import scenarios from "../data/scenarios"; // 👈 damit wir direkt die Szenarien abgleichen können
+import scenarios from "../data/scenarios";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [activeScenarios, setActiveScenarios] = useState([]); // Liste mit allen angezeigten Szenarien
+  const [activeScenarios, setActiveScenarios] = useState([]); // Liste von Szenarien
+  const [mainScenario, setMainScenario] = useState(null); // aktuelles Hauptszenario
   const [error, setError] = useState(null);
 
   const handleAddScenario = (e) => {
@@ -20,27 +21,36 @@ export default function Home() {
 
     let found = null;
 
-    // Hauptszenario suchen
+    // 1. Hauptszenario suchen
     found = scenarios.find((s) => s.code === code.trim());
 
-    // Wenn nicht Hauptszenario → Sub-Szenarien durchsuchen
-    if (!found) {
-      scenarios.forEach((s) => {
-        const sub = s.subScenarios?.find((sub) => sub.code === code.trim());
-        if (sub) {
-          found = { ...sub, team: s.team }; // Sub-Szenario gefunden
-        }
-      });
-    }
-
-    if (!found) {
-      setError("Ungültiger Code oder Szenario nicht gefunden");
+    if (found) {
+      // Hauptszenario hinzufügen
+      if (!activeScenarios.some((s) => s.code === found.code)) {
+        setActiveScenarios([found]); // nur ein Hauptszenario aktiv
+        setMainScenario(found);
+      }
+      setCode("");
       return;
     }
 
-    // Nur hinzufügen, wenn noch nicht aktiv
-    if (!activeScenarios.some((s) => s.code === found.code)) {
-      setActiveScenarios((prev) => [...prev, found]);
+    // 2. Sub-Szenario prüfen (nur wenn Hauptszenario vorhanden)
+    if (!mainScenario) {
+      setError("Bitte zuerst das Hauptszenario starten.");
+      return;
+    }
+
+    const sub = mainScenario.subScenarios?.find(
+      (sub) => sub.code === code.trim()
+    );
+
+    if (sub) {
+      // Sub-Szenario gefunden → hinzufügen
+      if (!activeScenarios.some((s) => s.code === sub.code)) {
+        setActiveScenarios((prev) => [...prev, { ...sub, team: mainScenario.team }]);
+      }
+    } else {
+      setError("Ungültiger Code oder gehört nicht zu diesem Team.");
     }
 
     setCode("");
@@ -74,7 +84,7 @@ export default function Home() {
                 key={i}
                 scenario={s}
                 onBack={() => {}}
-                mode="team" // 👈 Teams sehen keinen Admin-Modus
+                mode="team"
                 teamId={s.team}
               />
             ))}
