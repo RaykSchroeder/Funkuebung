@@ -170,12 +170,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
         </div>
       )}
 
-      <button
-        onClick={onBack}
-        className="mt-4 px-4 py-2 border rounded bg-slate-100"
-      >
-        Neues Szenario
-      </button>
 
       {openImage && (
         <div
