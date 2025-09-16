@@ -140,7 +140,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
                     : ""
                 }
               >
-                {i + 1}. {t}
+                {t}
               </span>
             </li>
           ))}
