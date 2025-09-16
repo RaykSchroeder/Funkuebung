@@ -1,34 +1,80 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
+export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId }) {
   const [openImage, setOpenImage] = useState(null);
 
-  // Admin: lokaler State für abgehakte Tasks
-  const [checkedTasks, setCheckedTasks] = useState(
-    scenario.tasks.map(() => false)
-  );
+  // lokaler State für Tasks
+  const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
 
+  // ✅ Fortschritt aus Supabase laden (nur im Admin-Modus)
+  useEffect(() => {
+    if (mode !== "admin") return;
+
+    async function loadProgress() {
+      const res = await fetch(
+        `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // Aufgaben
+      const tasksState = [...checkedTasks];
+      data.filter(d => d.type === "task").forEach(d => {
+        if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
+      });
+      setCheckedTasks(tasksState);
+
+      // Lösungstasks
+      const solState = [...checkedSolutions];
+      data.filter(d => d.type === "solution").forEach(d => {
+        if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
+      });
+      setCheckedSolutions(solState);
+    }
+
+    loadProgress();
+  }, [scenario.code, teamId, mode]);
+
+  // ✅ Fortschritt in Supabase speichern
+  const saveProgress = async (taskIndex, type, done) => {
+    await fetch("/api/task-progress", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        teamId,
+        scenarioCode: scenario.code,
+        taskIndex,
+        type,
+        done,
+      }),
+    });
+  };
+
   const toggleTask = (index) => {
-    setCheckedTasks((prev) =>
-      prev.map((val, i) => (i === index ? !val : val))
-    );
+    if (mode !== "admin") return;
+    const newVal = !checkedTasks[index];
+    setCheckedTasks((prev) => prev.map((v, i) => (i === index ? newVal : v)));
+    saveProgress(index, "task", newVal);
   };
 
   const toggleSolution = (index) => {
-    setCheckedSolutions((prev) =>
-      prev.map((val, i) => (i === index ? !val : val))
-    );
+    if (mode !== "admin") return;
+    const newVal = !checkedSolutions[index];
+    setCheckedSolutions((prev) => prev.map((v, i) => (i === index ? newVal : v)));
+    saveProgress(index, "solution", newVal);
   };
 
   return (
     <article className="space-y-4">
+      {/* Titel + Beschreibung */}
       <h2 className="text-xl font-semibold">{scenario.title}</h2>
       <p className="text-slate-700">{scenario.description}</p>
 
+      {/* Bild */}
       {scenario.fileType === "image" && (
         <img
           src={scenario.file}
@@ -38,6 +84,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         />
       )}
 
+      {/* PDF */}
       {scenario.fileType === "pdf" && (
         <iframe
           src={scenario.file}
@@ -46,40 +93,34 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         />
       )}
 
-      {/* Normale Aufgaben */}
-      {(mode === "admin" || mode === "team") && (
-        <div>
-          <h3 className="font-semibold mt-4">Aufgaben</h3>
-          <ul className="mt-2 space-y-2">
-            {scenario.tasks.map((t, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
-                onClick={() => mode === "admin" && toggleTask(i)}
+      {/* Aufgaben */}
+      <div>
+        <h3 className="font-semibold mt-4">Aufgaben</h3>
+        <ul className="mt-2 space-y-2">
+          {scenario.tasks.map((t, i) => (
+            <li
+              key={i}
+              className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
+              onClick={() => toggleTask(i)}
+            >
+              {mode === "admin" && (
+                <input type="checkbox" checked={checkedTasks[i]} readOnly />
+              )}
+              <span
+                className={
+                  mode === "admin" && checkedTasks[i]
+                    ? "line-through text-gray-500"
+                    : ""
+                }
               >
-                {mode === "admin" && (
-                  <input
-                    type="checkbox"
-                    checked={checkedTasks[i]}
-                    readOnly
-                  />
-                )}
-                <span
-                  className={
-                    mode === "admin" && checkedTasks[i]
-                      ? "line-through text-gray-500"
-                      : ""
-                  }
-                >
-                  {i + 1}. {t}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                {i + 1}. {t}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-      {/* Lösungstasks nur für Admin */}
+      {/* Lösungstasks */}
       {mode === "admin" && scenario.solutionTasks && (
         <div>
           <h3 className="font-semibold mt-4 text-green-700">Lösungstasks</h3>
@@ -92,9 +133,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
               >
                 <input type="checkbox" checked={checkedSolutions[i]} readOnly />
                 <span
-                  className={
-                    checkedSolutions[i] ? "line-through text-gray-500" : ""
-                  }
+                  className={checkedSolutions[i] ? "line-through text-gray-500" : ""}
                 >
                   {t}
                 </span>
@@ -104,6 +143,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         </div>
       )}
 
+      {/* Zurück */}
       <button
         onClick={onBack}
         className="mt-4 px-4 py-2 border rounded bg-slate-100"
@@ -111,6 +151,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         Neues Szenario
       </button>
 
+      {/* Modal für Zoom */}
       {openImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
