@@ -8,7 +8,7 @@ import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 export default function Home() {
   const [code, setCode] = useState("");
   const [activeScenarios, setActiveScenarios] = useState([]); // Liste von Szenarien
-  const [mainScenario, setMainScenario] = useState(null); // aktuelles Hauptszenario
+  const [mainScenario, setMainScenario] = useState(null); // aktives Hauptszenario
   const [error, setError] = useState(null);
 
   const handleAddScenario = (e) => {
@@ -94,6 +94,9 @@ export default function Home() {
           <p className="text-slate-500">Noch kein Szenario geladen</p>
         )}
 
+        {/* Hilfesymbol */}
+        <FeuerwehrAlphabetModal />
+
         {/* Feedback-Formular */}
         <FeedbackForm />
 
@@ -110,25 +113,3 @@ export default function Home() {
     </Layout>
   );
 }
-{/* Szenarien-Liste */}
-{activeScenarios.length > 0 ? (
-  <div className="space-y-6">
-    {activeScenarios.map((s, i) => (
-      <ScenarioViewer
-        key={i}
-        scenario={s}
-        onBack={() => {}}
-        mode="team"
-        teamId={s.team}
-      />
-    ))}
-  </div>
-) : (
-  <p className="text-slate-500">Noch kein Szenario geladen</p>
-)}
-
-{/* Hilfesymbol */}
-<FeuerwehrAlphabetModal />
-
-{/* Feedback-Formular */}
-<FeedbackForm />
