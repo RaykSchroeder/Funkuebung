@@ -4,46 +4,55 @@ import { X } from "lucide-react";
 export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId }) {
   const [openImage, setOpenImage] = useState(null);
 
-  // lokaler State für Tasks
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
 
-  // ✅ Fortschritt aus Supabase laden (nur im Admin-Modus)
+  // ✅ Admin-Passwort aus .env
+  const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
+
+  // Fortschritt laden (nur Admin)
   useEffect(() => {
     if (mode !== "admin") return;
 
     async function loadProgress() {
       const res = await fetch(
-        `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`
+        `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
+        {
+          headers: { "x-admin-pass": adminPass },
+        }
       );
       if (!res.ok) return;
       const data = await res.json();
 
-      // Aufgaben
+      // normale Tasks
       const tasksState = [...checkedTasks];
-      data.filter(d => d.type === "task").forEach(d => {
+      data.filter((d) => d.type === "task").forEach((d) => {
         if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
       });
       setCheckedTasks(tasksState);
 
       // Lösungstasks
       const solState = [...checkedSolutions];
-      data.filter(d => d.type === "solution").forEach(d => {
+      data.filter((d) => d.type === "solution").forEach((d) => {
         if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
       });
       setCheckedSolutions(solState);
     }
 
     loadProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario.code, teamId, mode]);
 
-  // ✅ Fortschritt in Supabase speichern
+  // Fortschritt speichern
   const saveProgress = async (taskIndex, type, done) => {
     await fetch("/api/task-progress", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-pass": adminPass,
+      },
       body: JSON.stringify({
         teamId,
         scenarioCode: scenario.code,
@@ -70,11 +79,9 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
 
   return (
     <article className="space-y-4">
-      {/* Titel + Beschreibung */}
       <h2 className="text-xl font-semibold">{scenario.title}</h2>
       <p className="text-slate-700">{scenario.description}</p>
 
-      {/* Bild */}
       {scenario.fileType === "image" && (
         <img
           src={scenario.file}
@@ -84,7 +91,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
         />
       )}
 
-      {/* PDF */}
       {scenario.fileType === "pdf" && (
         <iframe
           src={scenario.file}
@@ -143,7 +149,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
         </div>
       )}
 
-      {/* Zurück */}
       <button
         onClick={onBack}
         className="mt-4 px-4 py-2 border rounded bg-slate-100"
@@ -151,7 +156,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
         Neues Szenario
       </button>
 
-      {/* Modal für Zoom */}
       {openImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
