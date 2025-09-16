@@ -69,7 +69,7 @@ export default function Home() {
         {/* Admin Button */}
         <div className="mt-6 text-right">
           <button
-            onClick={() => (window.location.href = "/feedbacks")}
+            onClick={() => (window.location.href = "/admin-dashboard")}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             🔑 Admin
