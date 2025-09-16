@@ -68,8 +68,8 @@ const scenarios = [
     code: "2221",
     title: "Gefahrstoffaustritt",
     description: "In einem Labor kam es zu einem Chemieunfall.",
-    fileType: "pdf",
-    file: "/pdfs/chemieunfall.pdf",
+    fileType: "image",
+    file: "/image/chemieunfall.jpg",
     tasks: [
       "Absperrung des Bereichs",
       "Sicherheitsabstand einhalten",
