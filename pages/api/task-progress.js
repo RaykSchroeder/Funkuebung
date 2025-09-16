@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Supabase-Umgebungsvariablen fehlen." });
   }
 
-  // 🔒 Admin-Check (wie bei Feedback)
+  // 🔒 Admin-Check
   if (!process.env.ADMIN_PASS) {
     return res.status(500).json({ error: "ADMIN_PASS ist nicht gesetzt." });
   }
@@ -15,9 +15,13 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // ✅ GET: Fortschritt abrufen
+  // ✅ GET
   if (req.method === "GET") {
     const { teamId, scenarioCode } = req.query;
+    if (!teamId || !scenarioCode) {
+      return res.status(400).json({ error: "teamId und scenarioCode sind erforderlich" });
+    }
+
     try {
       const r = await fetch(
         `${url}/rest/v1/task_progress?team_id=eq.${teamId}&scenario_code=eq.${scenarioCode}`,
@@ -36,10 +40,17 @@ export default async function handler(req, res) {
     }
   }
 
-  // ✅ PATCH: Fortschritt speichern/aktualisieren
+  // ✅ PATCH
   if (req.method === "PATCH") {
     const { teamId, scenarioCode, taskIndex, type, done } = req.body;
+
+    if (!teamId || !scenarioCode) {
+      return res.status(400).json({ error: "teamId und scenarioCode sind erforderlich" });
+    }
+
     try {
+      console.log("➡️ Speichern:", { teamId, scenarioCode, taskIndex, type, done });
+
       const r = await fetch(`${url}/rest/v1/task_progress`, {
         method: "POST",
         headers: {
@@ -57,9 +68,11 @@ export default async function handler(req, res) {
         }),
       });
 
-      const data = await r.json();
-      if (!r.ok) return res.status(r.status).json(data);
-      return res.status(200).json(data);
+      const text = await r.text();
+      console.log("⬅️ Antwort Supabase:", r.status, text);
+
+      if (!r.ok) return res.status(r.status).json({ error: text });
+      return res.status(200).json({ success: true });
     } catch (e) {
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
