@@ -69,7 +69,7 @@ const scenarios = [
     title: "Gefahrstoffaustritt",
     description: "In einem Labor kam es zu einem Chemieunfall.",
     fileType: "image",
-    file: "/image/chemieunfall.png",
+    file: "/images/chemieunfall.png",
     tasks: [
       "Absperrung des Bereichs",
       "Sicherheitsabstand einhalten",
