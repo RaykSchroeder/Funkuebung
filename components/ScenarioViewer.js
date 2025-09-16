@@ -6,9 +6,11 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
 
   return (
     <article className="space-y-4">
+      {/* Titel + Beschreibung */}
       <h2 className="text-xl font-semibold">{scenario.title}</h2>
       <p className="text-slate-700">{scenario.description}</p>
 
+      {/* Bildanzeige */}
       {scenario.fileType === "image" && (
         <img
           src={scenario.file}
@@ -18,6 +20,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         />
       )}
 
+      {/* PDF-Anzeige */}
       {scenario.fileType === "pdf" && (
         <iframe
           src={scenario.file}
@@ -26,17 +29,35 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         />
       )}
 
-      {/* Tasks nur im Admin-Modus */}
-      {mode === "admin" && (
-        <ul className="mt-3 space-y-2">
-          {scenario.tasks.map((t, i) => (
-            <li key={i} className="bg-slate-100 p-2 rounded">
-              {i + 1}. {t}
-            </li>
-          ))}
-        </ul>
+      {/* Normale Aufgaben */}
+      {mode === "admin" || mode === "team" ? (
+        <div>
+          <h3 className="font-semibold mt-4">Aufgaben</h3>
+          <ul className="mt-2 space-y-2">
+            {scenario.tasks.map((t, i) => (
+              <li key={i} className="bg-slate-100 p-2 rounded">
+                {i + 1}. {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {/* Lösungstasks – nur für Admin sichtbar */}
+      {mode === "admin" && scenario.solutionTasks && (
+        <div>
+          <h3 className="font-semibold mt-4 text-green-700">Lösungstasks</h3>
+          <ul className="mt-2 space-y-2">
+            {scenario.solutionTasks.map((t, i) => (
+              <li key={i} className="bg-green-100 p-2 rounded">
+                ✅ {t}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
+      {/* Zurück-Button */}
       <button
         onClick={onBack}
         className="mt-4 px-4 py-2 border rounded bg-slate-100"
@@ -44,7 +65,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team" }) {
         Neues Szenario
       </button>
 
-      {/* Modal */}
+      {/* Modal für Zoom auf Bilder */}
       {openImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
