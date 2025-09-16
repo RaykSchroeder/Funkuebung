@@ -121,52 +121,47 @@ export default function AdminDashboard() {
     );
 
   // Team-Ansicht
-  // Team-Ansicht
-if (view.startsWith("team")) {
-  const teamNr = parseInt(view.replace("team", ""), 10);
+  if (view.startsWith("team")) {
+    const teamNr = parseInt(view.replace("team", ""), 10);
 
-  // Hauptszenario des Teams holen
-  const mainScenario = scenarios.find((s) => s.team === teamNr);
+    // Hauptszenario für Team X finden
+    const mainScenario = scenarios.find((s) => s.team === teamNr);
 
-  return (
-    <Layout>
-      <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6">
-        <button
-          onClick={() => setView("menu")}
-          className="text-red-600 hover:underline flex items-center mb-4"
-        >
-          <span className="mr-2">⬅️</span> Zurück
-        </button>
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6">
+          <button
+            onClick={() => setView("menu")}
+            className="text-red-600 hover:underline flex items-center mb-4"
+          >
+            <span className="mr-2">⬅️</span> Zurück
+          </button>
 
-        <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
+          <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
 
-        {/* Hauptszenario */}
-        {mainScenario && (
-          <ScenarioViewer
-            scenario={mainScenario}
-            onBack={() => {}}
-            mode="admin"
-            teamId={teamNr}
-          />
-        )}
+          {/* Hauptszenario */}
+          {mainScenario && (
+            <ScenarioViewer
+              scenario={mainScenario}
+              onBack={() => {}}
+              mode="admin"
+              teamId={teamNr}
+            />
+          )}
 
-        {/* Unter-Szenarien */}
-        {mainScenario?.subScenarios?.map((sub, i) => (
-          <ScenarioViewer
-            key={`sub-${i}`}
-            scenario={{
-              ...sub,
-              team: teamNr, // Team mitgeben
-            }}
-            onBack={() => {}}
-            mode="admin"
-            teamId={teamNr}
-          />
-        ))}
-      </div>
-    </Layout>
-  );
-}
+          {/* Unter-Szenarien */}
+          {mainScenario?.subScenarios?.map((sub, i) => (
+            <ScenarioViewer
+              key={`sub-${i}`}
+              scenario={{
+                ...sub,
+                team: teamNr, // Team mitgeben
+              }}
+              onBack={() => {}}
+              mode="admin"
+              teamId={teamNr}
+            />
+          ))}
         </div>
       </Layout>
     );
