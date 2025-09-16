@@ -150,7 +150,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
       {/* Lösungstasks */}
       {mode === "admin" && scenario.solutionTasks && (
         <div>
-          <h3 className="font-semibold mt-4 text-green-700">Lösungstasks</h3>
+          <h3 className="font-semibold mt-4 text-green-700">Lösungen</h3>
           <ul className="mt-2 space-y-2">
             {scenario.solutionTasks.map((t, i) => (
               <li
