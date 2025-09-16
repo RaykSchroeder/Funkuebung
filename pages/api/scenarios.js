@@ -1,4 +1,4 @@
-import scenarios from '../../data/scenarios.json'
+import scenarios from '../../data/scenarios.js'
 
 export default function handler(req, res) {
   const { code } = req.query
