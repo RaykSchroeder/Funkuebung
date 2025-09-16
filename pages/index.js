@@ -3,6 +3,7 @@ import ScenarioViewer from "../components/ScenarioViewer";
 import FeedbackForm from "../components/FeedbackForm";
 import Layout from "../components/Layout";
 import scenarios from "../data/scenarios";
+import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 
 export default function Home() {
   const [code, setCode] = useState("");
@@ -109,3 +110,25 @@ export default function Home() {
     </Layout>
   );
 }
+{/* Szenarien-Liste */}
+{activeScenarios.length > 0 ? (
+  <div className="space-y-6">
+    {activeScenarios.map((s, i) => (
+      <ScenarioViewer
+        key={i}
+        scenario={s}
+        onBack={() => {}}
+        mode="team"
+        teamId={s.team}
+      />
+    ))}
+  </div>
+) : (
+  <p className="text-slate-500">Noch kein Szenario geladen</p>
+)}
+
+{/* Hilfesymbol */}
+<FeuerwehrAlphabetModal />
+
+{/* Feedback-Formular */}
+<FeedbackForm />
