@@ -93,6 +93,14 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
   return (
     <article className="space-y-4">
       <h2 className="text-xl font-semibold">{scenario.title}</h2>
+
+      {/* 🔑 Code nur im Admin-Modus */}
+      {mode === "admin" && (
+        <p className="text-sm text-slate-500">
+          🔑 Code: <span className="font-mono">{scenario.code}</span>
+        </p>
+      )}
+
       <p className="text-slate-700">{scenario.description}</p>
 
       {scenario.fileType === "image" && (
