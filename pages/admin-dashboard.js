@@ -1,3 +1,4 @@
+// pages/admin-dashboard.js
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import ScenarioViewer from "../components/ScenarioViewer";
@@ -68,14 +69,6 @@ export default function AdminDashboard() {
             className="block w-full px-4 py-2 border rounded bg-slate-100"
           >
             📋 Feedbacks
-          </button>
-
-          {/* 👇 Neuer Button fürs Statusboard */}
-          <button
-            onClick={() => (window.location.href = "/statusboard")}
-            className="block w-full px-4 py-2 border rounded bg-blue-100 hover:bg-blue-200"
-          >
-            📊 Live-Statusboard
           </button>
 
           <h2 className="mt-4 font-semibold">Szenarien</h2>
@@ -150,6 +143,7 @@ export default function AdminDashboard() {
           {/* Hauptszenario */}
           {mainScenario && (
             <ScenarioViewer
+              key={mainScenario.code} // 👈 stabiler key
               scenario={mainScenario}
               onBack={() => {}}
               mode="admin"
@@ -158,13 +152,10 @@ export default function AdminDashboard() {
           )}
 
           {/* Unter-Szenarien */}
-          {mainScenario?.subScenarios?.map((sub, i) => (
+          {mainScenario?.subScenarios?.map((sub) => (
             <ScenarioViewer
-              key={`sub-${i}`}
-              scenario={{
-                ...sub,
-                team: teamNr, // Team mitgeben
-              }}
+              key={sub.code} // 👈 stabiler key
+              scenario={{ ...sub, team: teamNr }}
               onBack={() => {}}
               mode="admin"
               teamId={teamNr}
