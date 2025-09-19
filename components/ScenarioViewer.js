@@ -3,7 +3,7 @@ import { X, ChevronDown, ChevronRight } from "lucide-react";
 
 export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId }) {
   const [openImage, setOpenImage] = useState(null);
-  const [isOpen, setIsOpen] = useState(false); // 👈 Start: eingeklappt
+  const [isOpen, setIsOpen] = useState(mode === "team"); // 👈 Team = true, Admin = false
 
   // lokaler State
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
@@ -49,12 +49,11 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
   // Fortschritt speichern
   const saveProgress = async (taskIndex, type, done) => {
     const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
-    const res = await fetch("/api/task-progress", {
+    await fetch("/api/task-progress", {
       method: "PATCH",
       headers: { "Content-Type": "application/json", "x-admin-pass": adminPass },
       body: JSON.stringify(payload),
-    });
-    await res.json().catch(() => ({}));
+    }).catch(() => {});
   };
 
   const toggleTask = (index) => {
@@ -87,7 +86,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
         )}
       </header>
 
-      {/* Inhalt einklappbar */}
+      {/* Inhalt */}
       {isOpen && (
         <div className="space-y-4">
           <p className="text-slate-700">{scenario.description}</p>
