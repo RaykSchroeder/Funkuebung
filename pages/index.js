@@ -11,7 +11,7 @@ export default function Home() {
   const [mainScenario, setMainScenario] = useState(null); // aktives Hauptszenario
   const [error, setError] = useState(null);
 
-  const handleAddScenario = (e) => {
+  const handleAddScenario = async (e) => {
     e.preventDefault();
     setError(null);
 
@@ -46,6 +46,23 @@ export default function Home() {
     );
 
     if (sub) {
+      // 🔒 Check für Final-Szenario
+      if (sub.title === "Übung Ende") {
+        try {
+          const res = await fetch(`/api/can-unlock-final?teamId=${mainScenario.team}`);
+          const data = await res.json();
+          if (!res.ok || !data.allowed) {
+            setError("❌ Abschlusslage noch nicht freigegeben. Bitte Aufgaben erledigen lassen.");
+            setCode("");
+            return;
+          }
+        } catch (err) {
+          setError("Serverfehler bei Freigabeprüfung.");
+          setCode("");
+          return;
+        }
+      }
+
       // Sub-Szenario gefunden → hinzufügen
       if (!activeScenarios.some((s) => s.code === sub.code)) {
         setActiveScenarios((prev) => [...prev, { ...sub, team: mainScenario.team }]);
