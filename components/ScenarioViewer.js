@@ -6,7 +6,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
   const [openImage, setOpenImage] = useState(null);
 
   // Zustand, ob ausgeklappt oder nicht
-  const [expanded, setExpanded] = useState(mode === "team"); // 👉 Teams: ausgeklappt, Admin: eingeklappt
+  const [expanded, setExpanded] = useState(mode === "team");
 
   // lokaler State für Checkboxen
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
@@ -14,15 +14,12 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
 
-  // Admin-Passwort
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
-  // 👇 Finale gesperrt, bis Freigabe von API kommt
-  const [canShowFinal, setCanShowFinal] = useState(
-    scenario.isFinal ? false : true
-  );
+  // 👇 Finale erst nach API-Freigabe anzeigen
+  const [canShowFinal, setCanShowFinal] = useState(!scenario.isFinal);
 
-  // Fortschritt laden (nur Admin)
+  // Admin lädt Fortschritt
   useEffect(() => {
     if (mode !== "admin") return;
 
@@ -31,7 +28,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
         `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
         { headers: { "x-admin-pass": adminPass } }
       );
-
       const data = await res.json();
       if (!res.ok) return;
 
@@ -69,21 +65,18 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     }
   }, [scenario.isFinal, teamId, mode]);
 
-  // Fortschritt speichern
+  // Fortschritt speichern (nur Admin)
   const saveProgress = async (taskIndex, type, done) => {
     if (mode !== "admin") return;
-
     const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
-    const res = await fetch("/api/task-progress", {
+    await fetch("/api/task-progress", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         "x-admin-pass": adminPass,
       },
       body: JSON.stringify(payload),
-    });
-
-    await res.json().catch(() => ({}));
+    }).catch(() => {});
   };
 
   // Checkboxen toggeln
@@ -100,6 +93,18 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     setCheckedSolutions((prev) => prev.map((v, i) => (i === index ? newVal : v)));
     saveProgress(index, "solution", newVal);
   };
+
+  // 🚫 Block: Finale für Team, aber nicht freigeschaltet
+  if (scenario.isFinal && mode === "team" && !canShowFinal) {
+    return (
+      <article className="border rounded-lg shadow bg-white p-4">
+        <h2 className="text-lg font-semibold mb-2">{scenario.title}</h2>
+        <p className="text-red-600 font-semibold">
+          🚫 Finale noch nicht freigeschaltet! Bitte zuerst alle Aufgaben erledigen.
+        </p>
+      </article>
+    );
+  }
 
   return (
     <article className="border rounded-lg shadow bg-white">
@@ -123,87 +128,75 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
             </p>
           )}
 
-          {/* 🚫 Finale gesperrt */}
-          {scenario.isFinal && mode === "team" && !canShowFinal && (
-            <p className="text-red-600 font-semibold">
-              🚫 Finale noch nicht freigeschaltet! Erledige zuerst alle Aufgaben.
-            </p>
+          <p className="text-slate-700">{scenario.description}</p>
+
+          {scenario.fileType === "image" && (
+            <img
+              src={scenario.file}
+              alt={scenario.title}
+              className="w-full max-w-md rounded shadow cursor-zoom-in"
+              onClick={() => setOpenImage(scenario.file)}
+            />
           )}
 
-          {/* Inhalt nur anzeigen, wenn erlaubt */}
-          {(!scenario.isFinal || canShowFinal) && (
-            <>
-              <p className="text-slate-700">{scenario.description}</p>
+          {scenario.fileType === "pdf" && (
+            <iframe
+              src={scenario.file}
+              title={scenario.title}
+              className="w-full h-96 border rounded"
+            />
+          )}
 
-              {scenario.fileType === "image" && (
-                <img
-                  src={scenario.file}
-                  alt={scenario.title}
-                  className="w-full max-w-md rounded shadow cursor-zoom-in"
-                  onClick={() => setOpenImage(scenario.file)}
-                />
-              )}
+          {/* Aufgaben */}
+          <div>
+            <h3 className="font-semibold mt-4">Aufgaben</h3>
+            <ul className="mt-2 space-y-2">
+              {scenario.tasks.map((t, i) => (
+                <li
+                  key={i}
+                  className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
+                  onClick={() => toggleTask(i)}
+                >
+                  {mode === "admin" && (
+                    <input type="checkbox" checked={checkedTasks[i]} readOnly />
+                  )}
+                  <span
+                    className={
+                      mode === "admin" && checkedTasks[i]
+                        ? "line-through text-gray-500"
+                        : ""
+                    }
+                  >
+                    {t}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              {scenario.fileType === "pdf" && (
-                <iframe
-                  src={scenario.file}
-                  title={scenario.title}
-                  className="w-full h-96 border rounded"
-                />
-              )}
-
-              {/* Aufgaben */}
-              <div>
-                <h3 className="font-semibold mt-4">Aufgaben</h3>
-                <ul className="mt-2 space-y-2">
-                  {scenario.tasks.map((t, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
-                      onClick={() => toggleTask(i)}
+          {/* Lösungstasks */}
+          {mode === "admin" && scenario.solutionTasks && (
+            <div>
+              <h3 className="font-semibold mt-4 text-green-700">Lösungen</h3>
+              <ul className="mt-2 space-y-2">
+                {scenario.solutionTasks.map((t, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 bg-green-100 p-2 rounded cursor-pointer"
+                    onClick={() => toggleSolution(i)}
+                  >
+                    <input type="checkbox" checked={checkedSolutions[i]} readOnly />
+                    <span
+                      className={
+                        checkedSolutions[i] ? "line-through text-gray-500" : ""
+                      }
                     >
-                      {mode === "admin" && (
-                        <input type="checkbox" checked={checkedTasks[i]} readOnly />
-                      )}
-                      <span
-                        className={
-                          mode === "admin" && checkedTasks[i]
-                            ? "line-through text-gray-500"
-                            : ""
-                        }
-                      >
-                        {t}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Lösungstasks */}
-              {mode === "admin" && scenario.solutionTasks && (
-                <div>
-                  <h3 className="font-semibold mt-4 text-green-700">Lösungen</h3>
-                  <ul className="mt-2 space-y-2">
-                    {scenario.solutionTasks.map((t, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-2 bg-green-100 p-2 rounded cursor-pointer"
-                        onClick={() => toggleSolution(i)}
-                      >
-                        <input type="checkbox" checked={checkedSolutions[i]} readOnly />
-                        <span
-                          className={
-                            checkedSolutions[i] ? "line-through text-gray-500" : ""
-                          }
-                        >
-                          {t}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
+                      {t}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
           {/* Zoom-Bild */}
