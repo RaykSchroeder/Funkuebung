@@ -1,3 +1,4 @@
+// pages/api/can-unlock-final.js
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL;
   const service = process.env.SUPABASE_SERVICE_ROLE;
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
   if (!teamId) return res.status(400).json({ error: "teamId fehlt" });
 
   try {
-    // Szenarien aus /data/scenarios.js laden
+    // Szenarien für das Team laden
     const scenariosModule = await import("../../data/scenarios.js");
     const teamScenarios = scenariosModule.default.filter(
       (s) => String(s.team) === String(teamId)
@@ -25,22 +26,22 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Keine Szenarien für Team gefunden" });
     }
 
-    // Erwartete "letzte Tasks" sammeln
-    const requiredTasks = [];
+    // Erwartete Codes (alle ohne isFinal)
+    const expectedCodes = [];
     teamScenarios.forEach((s) => {
-      if (s.tasks && s.tasks.length > 0) {
-        requiredTasks.push({ code: s.code, index: s.tasks.length - 1 });
+      if (!s.isFinal) {
+        expectedCodes.push(s.code);
       }
       if (s.subScenarios) {
         s.subScenarios.forEach((sub) => {
-          if (sub.tasks && sub.tasks.length > 0) {
-            requiredTasks.push({ code: sub.code, index: sub.tasks.length - 1 });
+          if (!sub.isFinal) {
+            expectedCodes.push(sub.code);
           }
         });
       }
     });
 
-    // Fortschritt aus DB laden
+    // Fortschritt abrufen
     const r = await fetch(
       `${url}/rest/v1/task_progress?team_id=eq.${teamId}&done=eq.true`,
       {
@@ -53,21 +54,20 @@ export default async function handler(req, res) {
     const progress = await r.json();
     if (!r.ok) return res.status(r.status).json(progress);
 
-    // Check: für jeden requiredTask existiert ein done=true Eintrag
-    const allDone = requiredTasks.every((reqTask) =>
-      progress.some(
-        (p) =>
-          p.scenario_code === reqTask.code &&
-          p.task_index === reqTask.index &&
-          p.done === true
-      )
+    // Gefundene Szenarien mit mindestens einer abgehakten Aufgabe
+    const foundCodes = [...new Set(progress.map((p) => p.scenario_code))];
+
+    // Check: Alle expectedCodes müssen in foundCodes drin sein
+    const allCovered = expectedCodes.every((code) =>
+      foundCodes.includes(code)
     );
 
     return res.status(200).json({
-      allowed: allDone,
-      requiredTasks,
-      totalRequired: requiredTasks.length,
-      totalDone: progress.filter((p) => p.done).length,
+      allowed: allCovered,
+      expectedCodes,
+      foundCodes,
+      totalExpected: expectedCodes.length,
+      totalFound: foundCodes.length,
     });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Serverfehler" });
