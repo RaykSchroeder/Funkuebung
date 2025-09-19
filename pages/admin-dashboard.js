@@ -9,7 +9,6 @@ export default function AdminDashboard() {
   const [view, setView] = useState("menu");
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState("");
-  const [finalCheck, setFinalCheck] = useState(null);
 
   // Passwort-Abfrage
   useEffect(() => {
@@ -42,14 +41,6 @@ export default function AdminDashboard() {
     load();
   }, [view]);
 
-  async function checkFinal(teamNr) {
-    const res = await fetch(`/api/can-unlock-final?teamId=${teamNr}`, {
-      headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
-    });
-    const data = await res.json();
-    setFinalCheck(data);
-  }
-
   if (!authenticated) {
     return (
       <Layout>
@@ -77,6 +68,14 @@ export default function AdminDashboard() {
             className="block w-full px-4 py-2 border rounded bg-slate-100"
           >
             📋 Feedbacks
+          </button>
+
+          {/* 👇 Neuer Button fürs Statusboard */}
+          <button
+            onClick={() => (window.location.href = "/statusboard")}
+            className="block w-full px-4 py-2 border rounded bg-blue-100 hover:bg-blue-200"
+          >
+            📊 Live-Statusboard
           </button>
 
           <h2 className="mt-4 font-semibold">Szenarien</h2>
@@ -164,46 +163,13 @@ export default function AdminDashboard() {
               key={`sub-${i}`}
               scenario={{
                 ...sub,
-                team: teamNr,
+                team: teamNr, // Team mitgeben
               }}
               onBack={() => {}}
               mode="admin"
               teamId={teamNr}
             />
           ))}
-
-          {/* Final Check Debug */}
-          <div className="mt-6">
-            <button
-              onClick={() => checkFinal(teamNr)}
-              className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300"
-            >
-              🔍 Status prüfen
-            </button>
-
-            {finalCheck && (
-              <div className="mt-3 p-3 border rounded bg-slate-50">
-                {finalCheck.allowed ? (
-                  <p className="text-green-600 font-semibold">
-                    ✅ Finale freigegeben – Team darf „Übung Ende“ aufrufen
-                  </p>
-                ) : (
-                  <div>
-                    <p className="text-red-600 font-semibold">
-                      ❌ Finale noch gesperrt. Es fehlen Aufgaben in:
-                    </p>
-                    <ul className="list-disc pl-5 text-red-500">
-                      {finalCheck.missingCodes?.map((m, i) => (
-                        <li key={i}>
-                          {m.title} (Code: {m.code})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       </Layout>
     );
