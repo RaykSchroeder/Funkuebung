@@ -47,7 +47,7 @@ export default function Home() {
 
     if (sub) {
       // 🔒 Check für Final-Szenario
-      if (sub.title === "Übung Ende") {
+      if (sub.isFinal) {
         try {
           const res = await fetch(`/api/can-unlock-final?teamId=${mainScenario.team}`);
           const data = await res.json();
