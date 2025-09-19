@@ -1,4 +1,5 @@
 // pages/api/can-unlock-final.js
+//V1
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL;
   const service = process.env.SUPABASE_SERVICE_ROLE;
