@@ -1,7 +1,7 @@
-// pages/statusboard.js
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import scenarios from "../data/scenarios";
+import Link from "next/link";
 
 export default function Statusboard() {
   const [progress, setProgress] = useState({});
@@ -12,7 +12,7 @@ export default function Statusboard() {
     async function load() {
       const results = {};
       for (const teamId of teams) {
-        const res = await fetch(`/api/task-progress?teamId=${teamId}&scenarioCode=*`, {
+        const res = await fetch(`/api/task-progress?teamId=${teamId}`, {
           headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
         });
         const data = await res.json();
@@ -26,6 +26,14 @@ export default function Statusboard() {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* Zurück-Button */}
+        <Link
+          href="/admin-dashboard"
+          className="text-red-600 hover:underline flex items-center mb-4"
+        >
+          <span className="mr-2">⬅️</span> Zurück zum Admin-Dashboard
+        </Link>
+
         <h1 className="text-3xl font-bold">📊 Statusboard</h1>
         <p className="text-slate-600">Übersicht aller Teams</p>
 
@@ -35,7 +43,10 @@ export default function Statusboard() {
             const teamProgress = progress[teamId] || [];
 
             return (
-              <div key={teamId} className="border rounded-xl p-4 bg-white shadow">
+              <div
+                key={teamId}
+                className="border rounded-xl p-4 bg-white shadow"
+              >
                 <h2 className="text-xl font-semibold mb-2">🚒 Team {teamId}</h2>
 
                 {teamScenarios.map((sc) => {
@@ -43,7 +54,8 @@ export default function Statusboard() {
                   const done = teamProgress.filter(
                     (p) => p.scenario_code === sc.code && p.done
                   ).length;
-                  const total = sc.tasks.length + (sc.solutionTasks?.length || 0);
+                  const total =
+                    sc.tasks.length + (sc.solutionTasks?.length || 0);
 
                   return (
                     <div
