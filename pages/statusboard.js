@@ -5,8 +5,7 @@ import scenarios from "../data/scenarios";
 
 export default function Statusboard() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [expanded, setExpanded] = useState({}); // Steuerung für Auf-/Zuklappen
-  const [timers, setTimers] = useState({}); // Timer für Admins
+  const [expanded, setExpanded] = useState({});
 
   // Passwort-Abfrage
   useEffect(() => {
@@ -18,37 +17,8 @@ export default function Statusboard() {
     }
   }, []);
 
-  // Timer für Admins
-  useEffect(() => {
-    if (!authenticated) return; // Nur Admins sehen Timer
-
-    const interval = setInterval(() => {
-      setTimers((prev) => {
-        const updated = { ...prev };
-        for (const key in updated) {
-          updated[key] += 1;
-        }
-        return updated;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [authenticated]);
-
-  // Hilfsfunktion: Sekunden → mm:ss
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
-    const s = (seconds % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
-  };
-
   const toggleExpand = (key) => {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
-    if (authenticated && !timers[key]) {
-      setTimers((prev) => ({ ...prev, [key]: 0 })); // Timer starten
-    }
   };
 
   return (
@@ -66,21 +36,16 @@ export default function Statusboard() {
 
           return (
             <div key={team} className="mb-6 border rounded-lg p-4 bg-slate-50">
+              {/* Hauptszenario */}
               <div
                 className="flex justify-between items-center cursor-pointer"
-                onClick={() => toggleExpand(key)}
+                onClick={() => authenticated && toggleExpand(key)}
               >
                 <h2 className="text-xl font-semibold">
                   Team {team}: {mainScenario.title}
                 </h2>
-                {authenticated && (
-                  <span className="text-slate-600">
-                    ⏱ {timers[key] ? formatTime(timers[key]) : "00:00"}
-                  </span>
-                )}
               </div>
 
-              {/* Hauptszenario-Inhalt */}
               {(expanded[key] || !authenticated) && (
                 <div className="mt-2 text-slate-700">
                   <p>{mainScenario.description}</p>
@@ -94,17 +59,9 @@ export default function Statusboard() {
                   <div
                     key={i}
                     className="ml-6 mt-2 border-l-2 pl-4 cursor-pointer"
-                    onClick={() => toggleExpand(subKey)}
+                    onClick={() => authenticated && toggleExpand(subKey)}
                   >
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-medium">{sub.title}</h3>
-                      {authenticated && (
-                        <span className="text-slate-600">
-                          ⏱ {timers[subKey] ? formatTime(timers[subKey]) : "00:00"}
-                        </span>
-                      )}
-                    </div>
-
+                    <h3 className="font-medium">{sub.title}</h3>
                     {(expanded[subKey] || !authenticated) && (
                       <p className="text-slate-600 mt-1">{sub.description}</p>
                     )}
