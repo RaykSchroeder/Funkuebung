@@ -17,40 +17,22 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
   // Admin-Passwort
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
-  // 👇 NEU: ob Finale erlaubt ist
-  const [canShowFinal, setCanShowFinal] = useState(!scenario.isFinal);
-
-  useEffect(() => {
-    if (mode === "team" && scenario.isFinal) {
-      async function checkFinal() {
-        try {
-          const res = await fetch(`/api/can-unlock-final?teamId=${teamId}`);
-          const data = await res.json();
-          setCanShowFinal(data.allowed);
-        } catch (e) {
-          console.error("❌ Fehler bei can-unlock-final:", e);
-          setCanShowFinal(false);
-        }
-      }
-      checkFinal();
-    }
-  }, [scenario.isFinal, teamId, mode]);
+  // 👇 Finale gesperrt, bis Freigabe von API kommt
+  const [canShowFinal, setCanShowFinal] = useState(
+    scenario.isFinal ? false : true
+  );
 
   // Fortschritt laden (nur Admin)
   useEffect(() => {
     if (mode !== "admin") return;
 
     async function loadProgress() {
-      console.log("➡️ GET progress for", { teamId, scenarioCode: scenario.code });
-
       const res = await fetch(
         `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
         { headers: { "x-admin-pass": adminPass } }
       );
 
       const data = await res.json();
-      console.log("⬅️ GET response", res.status, data);
-
       if (!res.ok) return;
 
       const tasksState = [...checkedTasks];
@@ -70,13 +52,28 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario.code, teamId, mode]);
 
+  // Finale prüfen (nur Team)
+  useEffect(() => {
+    if (mode === "team" && scenario.isFinal) {
+      async function checkFinal() {
+        try {
+          const res = await fetch(`/api/can-unlock-final?teamId=${teamId}`);
+          const data = await res.json();
+          setCanShowFinal(data.allowed);
+        } catch (e) {
+          console.error("❌ Fehler bei can-unlock-final:", e);
+          setCanShowFinal(false);
+        }
+      }
+      checkFinal();
+    }
+  }, [scenario.isFinal, teamId, mode]);
+
   // Fortschritt speichern
   const saveProgress = async (taskIndex, type, done) => {
     if (mode !== "admin") return;
 
     const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
-    console.log("➡️ PATCH sending", payload);
-
     const res = await fetch("/api/task-progress", {
       method: "PATCH",
       headers: {
@@ -86,8 +83,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json().catch(() => ({}));
-    console.log("⬅️ PATCH response", res.status, data);
+    await res.json().catch(() => ({}));
   };
 
   // Checkboxen toggeln
@@ -210,6 +206,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
             </>
           )}
 
+          {/* Zoom-Bild */}
           {openImage && (
             <div
               className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
