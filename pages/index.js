@@ -59,7 +59,7 @@ export default function Home() {
         const data = await res.json().catch(() => ({}));
         // falls API fehlschlägt oder allowed=false -> wie ungültiger Code behandeln
         if (!res.ok || !data.allowed) {
-          setError("Ungültiger Code oder Abschlusslage noch nicht freigeschaltet.");
+          setError("Abschlusslage noch nicht freigeschaltet.");
           setCode("");
           return;
         }
