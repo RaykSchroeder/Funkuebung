@@ -15,11 +15,13 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // ✅ GET: Fortschritt abrufen
+  // ✅ GET
   if (req.method === "GET") {
     const { teamId, scenarioCode } = req.query;
     if (!teamId || !scenarioCode) {
-      return res.status(400).json({ error: "teamId und scenarioCode sind erforderlich" });
+      return res
+        .status(400)
+        .json({ error: "teamId und scenarioCode sind erforderlich" });
     }
 
     try {
@@ -40,25 +42,56 @@ export default async function handler(req, res) {
     }
   }
 
-  // ✅ PATCH: Fortschritt speichern/aktualisieren
+  // ✅ PATCH
   if (req.method === "PATCH") {
     const { teamId, scenarioCode, taskIndex, type, done } = req.body;
 
     if (!teamId || !scenarioCode) {
-      return res.status(400).json({ error: "teamId und scenarioCode sind erforderlich" });
+      return res
+        .status(400)
+        .json({ error: "teamId und scenarioCode sind erforderlich" });
     }
 
     try {
-      console.log("➡️ Speichern:", { teamId, scenarioCode, taskIndex, type, done });
+      console.log("➡️ Speichern:", {
+        teamId,
+        scenarioCode,
+        taskIndex,
+        type,
+        done,
+      });
 
       const r = await fetch(
         `${url}/rest/v1/task_progress?on_conflict=team_id,scenario_code,task_index,type`,
         {
-          method: "POST", // 👈 wichtig: bleibt POST (Upsert)
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             apikey: service,
             Authorization: `Bearer ${service}`,
             Prefer: "resolution=merge-duplicates",
           },
-          body:
+          body: JSON.stringify({
+            team_id: teamId,
+            scenario_code: scenarioCode,
+            task_index: taskIndex,
+            type,
+            done: !!done,
+          }),
+        }
+      );
+
+      const text = await r.text();
+      console.log("⬅️ Antwort Supabase:", r.status, text);
+
+      if (!r.ok) return res.status(r.status).json({ error: text });
+      return res.status(200).json({ success: true });
+    } catch (e) {
+      return res.status(500).json({ error: e.message || "Serverfehler" });
+    }
+  }
+
+  // ❌ Andere Methoden blocken
+  res.setHeader("Allow", ["GET", "PATCH"]);
+  return res.status(405).json({ message: "Method not allowed" });
+}
