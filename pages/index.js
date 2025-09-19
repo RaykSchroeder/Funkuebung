@@ -1,3 +1,4 @@
+// pages/index.js
 import { useState } from "react";
 import ScenarioViewer from "../components/ScenarioViewer";
 import FeedbackForm from "../components/FeedbackForm";
@@ -10,8 +11,9 @@ export default function Home() {
   const [activeScenarios, setActiveScenarios] = useState([]); // Liste von Szenarien
   const [mainScenario, setMainScenario] = useState(null); // aktives Hauptszenario
   const [error, setError] = useState(null);
+  const [openScenarioCode, setOpenScenarioCode] = useState(null); // aktuell aufgeklappt
 
-  const handleAddScenario = async (e) => {
+  const handleAddScenario = (e) => {
     e.preventDefault();
     setError(null);
 
@@ -22,20 +24,20 @@ export default function Home() {
 
     let found = null;
 
-    // 1. Hauptszenario suchen
+    // Hauptszenario suchen
     found = scenarios.find((s) => s.code === code.trim());
 
     if (found) {
-      // Hauptszenario hinzufügen
       if (!activeScenarios.some((s) => s.code === found.code)) {
         setActiveScenarios([found]); // nur ein Hauptszenario aktiv
         setMainScenario(found);
+        setOpenScenarioCode(found.code); // 👈 aufklappen
       }
       setCode("");
       return;
     }
 
-    // 2. Sub-Szenario prüfen (nur wenn Hauptszenario vorhanden)
+    // Sub-Szenario prüfen (nur wenn Hauptszenario vorhanden)
     if (!mainScenario) {
       setError("Bitte zuerst das Hauptszenario starten.");
       return;
@@ -46,26 +48,10 @@ export default function Home() {
     );
 
     if (sub) {
-      // 🔒 Check für Final-Szenario
-      if (sub.isFinal) {
-        try {
-          const res = await fetch(`/api/can-unlock-final?teamId=${mainScenario.team}`);
-          const data = await res.json();
-          if (!res.ok || !data.allowed) {
-            setError("❌ Abschlusslage noch nicht freigegeben. Bitte Aufgaben erledigen lassen.");
-            setCode("");
-            return;
-          }
-        } catch (err) {
-          setError("Serverfehler bei Freigabeprüfung.");
-          setCode("");
-          return;
-        }
-      }
-
-      // Sub-Szenario gefunden → hinzufügen
       if (!activeScenarios.some((s) => s.code === sub.code)) {
-        setActiveScenarios((prev) => [...prev, { ...sub, team: mainScenario.team }]);
+        const newScenario = { ...sub, team: mainScenario.team };
+        setActiveScenarios((prev) => [...prev, newScenario]);
+        setOpenScenarioCode(newScenario.code); // 👈 nur das neue Sub-Szenario aufklappen
       }
     } else {
       setError("Ungültiger Code oder gehört nicht zu diesem Team.");
@@ -96,7 +82,7 @@ export default function Home() {
 
         {/* Szenarien-Liste */}
         {activeScenarios.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {activeScenarios.map((s, i) => (
               <ScenarioViewer
                 key={i}
@@ -104,6 +90,12 @@ export default function Home() {
                 onBack={() => {}}
                 mode="team"
                 teamId={s.team}
+                isOpen={openScenarioCode === s.code} // 👈 nur dieses offen
+                onToggle={() =>
+                  setOpenScenarioCode(
+                    openScenarioCode === s.code ? null : s.code
+                  )
+                }
               />
             ))}
           </div>
