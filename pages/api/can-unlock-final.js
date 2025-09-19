@@ -16,7 +16,6 @@ export default async function handler(req, res) {
   if (!teamId) return res.status(400).json({ error: "teamId fehlt" });
 
   try {
-    // Szenarien für das Team laden
     const scenariosModule = await import("../../data/scenarios.js");
     const teamScenarios = scenariosModule.default.filter(
       (s) => String(s.team) === String(teamId)
@@ -26,17 +25,14 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Keine Szenarien für Team gefunden" });
     }
 
-    // Erwartete Codes (alle ohne isFinal)
+    // Alle Codes sammeln (ohne isFinal)
     const expectedCodes = [];
     teamScenarios.forEach((s) => {
-      if (!s.isFinal) {
-        expectedCodes.push(s.code);
-      }
+      if (!s.isFinal) expectedCodes.push({ code: s.code, title: s.title });
       if (s.subScenarios) {
         s.subScenarios.forEach((sub) => {
-          if (!sub.isFinal) {
-            expectedCodes.push(sub.code);
-          }
+          if (!sub.isFinal)
+            expectedCodes.push({ code: sub.code, title: sub.title });
         });
       }
     });
@@ -54,20 +50,20 @@ export default async function handler(req, res) {
     const progress = await r.json();
     if (!r.ok) return res.status(r.status).json(progress);
 
-    // Gefundene Szenarien mit mindestens einer abgehakten Aufgabe
     const foundCodes = [...new Set(progress.map((p) => p.scenario_code))];
 
-    // Check: Alle expectedCodes müssen in foundCodes drin sein
-    const allCovered = expectedCodes.every((code) =>
-      foundCodes.includes(code)
+    // Welche fehlen?
+    const missing = expectedCodes.filter(
+      (exp) => !foundCodes.includes(exp.code)
     );
+
+    const allCovered = missing.length === 0;
 
     return res.status(200).json({
       allowed: allCovered,
       expectedCodes,
       foundCodes,
-      totalExpected: expectedCodes.length,
-      totalFound: foundCodes.length,
+      missingCodes: missing, // 👈 Neu
     });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Serverfehler" });
