@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // ✅ GET
+  // ✅ GET: Fortschritt abrufen
   if (req.method === "GET") {
     const { teamId, scenarioCode } = req.query;
     if (!teamId || !scenarioCode) {
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // ✅ PATCH
+  // ✅ PATCH: Fortschritt speichern/aktualisieren
   if (req.method === "PATCH") {
     const { teamId, scenarioCode, taskIndex, type, done } = req.body;
 
@@ -51,35 +51,14 @@ export default async function handler(req, res) {
     try {
       console.log("➡️ Speichern:", { teamId, scenarioCode, taskIndex, type, done });
 
-      // 👇 wichtig: resolution=merge-duplicates sorgt dafür, dass bei gleichem
-      // teamId+scenarioCode+taskIndex+type der Eintrag überschrieben wird
-      const r = await fetch(`${url}/rest/v1/task_progress`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: service,
-          Authorization: `Bearer ${service}`,
-          Prefer: "resolution=merge-duplicates",
-        },
-        body: JSON.stringify({
-          team_id: teamId,
-          scenario_code: scenarioCode,
-          task_index: taskIndex,
-          type,
-          done: !!done, // 👈 true oder false sauber speichern
-        }),
-      });
-
-      const text = await r.text();
-      console.log("⬅️ Antwort Supabase:", r.status, text);
-
-      if (!r.ok) return res.status(r.status).json({ error: text });
-      return res.status(200).json({ success: true });
-    } catch (e) {
-      return res.status(500).json({ error: e.message || "Serverfehler" });
-    }
-  }
-
-  res.setHeader("Allow", ["GET", "PATCH"]);
-  return res.status(405).json({ message: "Method not allowed" });
-}
+      const r = await fetch(
+        `${url}/rest/v1/task_progress?on_conflict=team_id,scenario_code,task_index,type`,
+        {
+          method: "POST", // 👈 wichtig: bleibt POST (Upsert)
+          headers: {
+            "Content-Type": "application/json",
+            apikey: service,
+            Authorization: `Bearer ${service}`,
+            Prefer: "resolution=merge-duplicates",
+          },
+          body:
