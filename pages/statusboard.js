@@ -1,93 +1,119 @@
+// pages/statusboard.js
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import scenarios from "../data/scenarios";
 
 export default function Statusboard() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [progress, setProgress] = useState({});
-  const [status, setStatus] = useState("Lade …");
+  const [expanded, setExpanded] = useState({}); // Steuerung für Auf-/Zuklappen
+  const [timers, setTimers] = useState({}); // Timer für Admins
 
-  // 🔑 Passwort-Abfrage
+  // Passwort-Abfrage
   useEffect(() => {
-    const pass = prompt("Admin-Passwort:");
+    const pass = prompt("Admin-Passwort (leer lassen für Team-Ansicht):");
     if (pass === process.env.NEXT_PUBLIC_ADMIN_PASS) {
       setAuthenticated(true);
     } else {
-      alert("❌ Kein Zugriff");
-      window.location.href = "/";
+      setAuthenticated(false); // Teams ohne Passwort
     }
   }, []);
 
-  // Fortschritt für alle Teams laden
+  // Timer für Admins
   useEffect(() => {
-    if (!authenticated) return;
+    if (!authenticated) return; // Nur Admins sehen Timer
 
-    async function loadAll() {
-      try {
-        const res = await fetch("/api/status-progress", {
-          headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setStatus("Fehler beim Laden");
-          return;
+    const interval = setInterval(() => {
+      setTimers((prev) => {
+        const updated = { ...prev };
+        for (const key in updated) {
+          updated[key] += 1;
         }
-        setProgress(data);
-        setStatus("");
-      } catch (e) {
-        setStatus("Serverfehler");
-      }
-    }
+        return updated;
+      });
+    }, 1000);
 
-    loadAll();
-    const interval = setInterval(loadAll, 5000); // ⏱ alle 5s neu laden
     return () => clearInterval(interval);
   }, [authenticated]);
 
-  if (!authenticated) {
-    return (
-      <Layout>
-        <p className="p-6 text-center text-slate-500">⏳ Überprüfung …</p>
-      </Layout>
-    );
-  }
+  // Hilfsfunktion: Sekunden → mm:ss
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  const toggleExpand = (key) => {
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+    if (authenticated && !timers[key]) {
+      setTimers((prev) => ({ ...prev, [key]: 0 })); // Timer starten
+    }
+  };
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto bg-white shadow rounded-xl p-6">
-        <h1 className="text-2xl font-bold mb-4">📊 Live-Statusboard</h1>
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+        <h1 className="text-2xl font-bold mb-6">
+          📊 Statusboard ({authenticated ? "Admin" : "Team"})
+        </h1>
 
-        {status && <p className="text-slate-500">{status}</p>}
+        {[1, 2, 3, 4, 5, 6].map((team) => {
+          const mainScenario = scenarios.find((s) => s.team === team);
+          if (!mainScenario) return null;
 
-        {!status && (
-          <div className="space-y-6">
-            {[1, 2, 3, 4, 5, 6].map((team) => {
-              const teamScenarios = scenarios.filter((s) => s.team === team);
-              const teamProgress = progress[team] || {};
+          const key = `team${team}-main`;
 
-              return (
-                <div key={team} className="border rounded p-4 bg-slate-50">
-                  <h2 className="font-semibold mb-2">🚒 Team {team}</h2>
-                  <ul className="space-y-1">
-                    {teamScenarios.map((s) => {
-                      const total = s.tasks.length + (s.solutionTasks?.length || 0);
-                      const done = teamProgress[s.code] || 0;
+          return (
+            <div key={team} className="mb-6 border rounded-lg p-4 bg-slate-50">
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={() => toggleExpand(key)}
+              >
+                <h2 className="text-xl font-semibold">
+                  Team {team}: {mainScenario.title}
+                </h2>
+                {authenticated && (
+                  <span className="text-slate-600">
+                    ⏱ {timers[key] ? formatTime(timers[key]) : "00:00"}
+                  </span>
+                )}
+              </div>
 
-                      return (
-                        <li key={s.code} className="flex justify-between">
-                          <span>{s.title}</span>
-                          <span>
-                            {done}/{total} erledigt
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
+              {/* Hauptszenario-Inhalt */}
+              {(expanded[key] || !authenticated) && (
+                <div className="mt-2 text-slate-700">
+                  <p>{mainScenario.description}</p>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              )}
+
+              {/* Sub-Szenarien */}
+              {mainScenario.subScenarios?.map((sub, i) => {
+                const subKey = `team${team}-sub${i}`;
+                return (
+                  <div
+                    key={i}
+                    className="ml-6 mt-2 border-l-2 pl-4 cursor-pointer"
+                    onClick={() => toggleExpand(subKey)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium">{sub.title}</h3>
+                      {authenticated && (
+                        <span className="text-slate-600">
+                          ⏱ {timers[subKey] ? formatTime(timers[subKey]) : "00:00"}
+                        </span>
+                      )}
+                    </div>
+
+                    {(expanded[subKey] || !authenticated) && (
+                      <p className="text-slate-600 mt-1">{sub.description}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </Layout>
   );
