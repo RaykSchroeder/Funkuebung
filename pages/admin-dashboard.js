@@ -64,12 +64,20 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">⚙️ Admin-Dashboard</h1>
 
+          {/* Buttons */}
           <button
             onClick={() => setView("feedback")}
             className="block w-full px-4 py-2 border rounded bg-slate-100"
           >
             📋 Feedbacks
           </button>
+
+          <Link
+            href="/statusboard"
+            className="block w-full px-4 py-2 border rounded bg-slate-100 text-center"
+          >
+            📊 Statusboard
+          </Link>
 
           <h2 className="mt-4 font-semibold">Szenarien</h2>
           <div className="grid grid-cols-3 gap-2 mt-2">
@@ -125,6 +133,7 @@ export default function AdminDashboard() {
   if (view.startsWith("team")) {
     const teamNr = parseInt(view.replace("team", ""), 10);
 
+    // Hauptszenario für Team X finden
     const mainScenario = scenarios.find((s) => s.team === teamNr);
 
     return (
@@ -139,6 +148,7 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
 
+          {/* Hauptszenario */}
           {mainScenario && (
             <ScenarioViewer
               key={mainScenario.code}
@@ -149,6 +159,7 @@ export default function AdminDashboard() {
             />
           )}
 
+          {/* Unter-Szenarien */}
           {mainScenario?.subScenarios?.map((sub) => (
             <ScenarioViewer
               key={sub.code}
