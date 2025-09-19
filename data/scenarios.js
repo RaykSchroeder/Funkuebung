@@ -103,6 +103,11 @@ const scenarios = [
        file: "/images/2841.png",
        tasks: [""],
        solutionTasks: ["WT1 Aufgabe", "Alle Aufgaben erledigt"],},
+      {code: "9999",
+      title: "Übung Ende",   // 👈 WICHTIG! Titel genau so
+      description: "Abschlusslage: Lagemeldung abgeben und zurück zur Feuerwehr kommen.",
+      tasks: ["Abschlussmeldung erstellen"],
+      solutionTasks: ["Lagemeldung korrekt abgegeben"]"],},
     ],
   },
 
