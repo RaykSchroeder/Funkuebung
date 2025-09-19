@@ -1,17 +1,22 @@
 import { useEffect, useState } from "react";
 import { X, ChevronDown, ChevronRight } from "lucide-react";
 
-export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId }) {
+export default function ScenarioViewer({
+  scenario,
+  onBack,
+  mode = "team",
+  teamId,
+  isOpen,
+  onToggle,
+}) {
   const [openImage, setOpenImage] = useState(null);
-  const [isOpen, setIsOpen] = useState(mode === "team"); // 👈 Team = true, Admin = false
 
-  // lokaler State
+  // lokaler State für Checkboxen
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
 
-  // Admin-Passwort aus .env
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
   // Fortschritt laden (nur Admin)
@@ -75,7 +80,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
       {/* Header mit Toggle */}
       <header
         className="flex justify-between items-center cursor-pointer"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={onToggle}
       >
         <h2 className="text-lg font-semibold flex items-center gap-2">
           {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
