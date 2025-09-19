@@ -107,7 +107,7 @@ const scenarios = [
       title: "Übung Ende",   // 👈 WICHTIG! Titel genau so
       description: "Abschlusslage: Lagemeldung abgeben und zurück zur Feuerwehr kommen.",
       tasks: ["Abschlussmeldung erstellen"],
-      solutionTasks: ["Lagemeldung korrekt abgegeben"]"],},
+      solutionTasks: ["Lagemeldung korrekt abgegeben"],},
     ],
   },
 
