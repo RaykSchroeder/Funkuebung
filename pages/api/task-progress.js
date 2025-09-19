@@ -51,6 +51,8 @@ export default async function handler(req, res) {
     try {
       console.log("➡️ Speichern:", { teamId, scenarioCode, taskIndex, type, done });
 
+      // 👇 wichtig: resolution=merge-duplicates sorgt dafür, dass bei gleichem
+      // teamId+scenarioCode+taskIndex+type der Eintrag überschrieben wird
       const r = await fetch(`${url}/rest/v1/task_progress`, {
         method: "POST",
         headers: {
@@ -64,7 +66,7 @@ export default async function handler(req, res) {
           scenario_code: scenarioCode,
           task_index: taskIndex,
           type,
-          done,
+          done: !!done, // 👈 true oder false sauber speichern
         }),
       });
 
