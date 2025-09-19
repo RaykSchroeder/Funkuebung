@@ -24,7 +24,7 @@ const scenarios = [
             "Nach 800m links abbiegen auch Lebsteterweg",
             "Links abbiegen auf Deichverteidigungsweg",
             "Dem Streckenverlauf folgen"],
-    solutionTasks: ["Gruppenaufgabe", "Alle Aufgaben erledigt",],
+    solutionTasks: ["GF1 Aufgabe", "Alle Aufgaben erledigt",],
     subScenarios: [
       {code: "4633",
        title: "Einfahrt 1",
