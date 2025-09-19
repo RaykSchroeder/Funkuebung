@@ -1,195 +1,168 @@
+// pages/admin-dashboard.js
 import { useEffect, useState } from "react";
-import { X, ChevronDown, ChevronRight } from "lucide-react";
+import Layout from "../components/Layout";
+import ScenarioViewer from "../components/ScenarioViewer";
+import Link from "next/link";
+import scenarios from "../data/scenarios";
 
-export default function ScenarioViewer({
-  scenario,
-  onBack,
-  mode = "team",
-  teamId,
-  isOpen,
-  onToggle,
-}) {
-  const [openImage, setOpenImage] = useState(null);
+export default function AdminDashboard() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [view, setView] = useState("menu");
+  const [items, setItems] = useState([]);
+  const [status, setStatus] = useState("");
 
-  // lokaler State für Checkboxen
-  const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
-  const [checkedSolutions, setCheckedSolutions] = useState(
-    scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
-  );
-
-  const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
-
-  // Fortschritt laden (nur Admin)
+  // Passwort-Abfrage
   useEffect(() => {
-    if (mode !== "admin") return;
+    const pass = prompt("Admin-Passwort:");
+    if (pass === process.env.NEXT_PUBLIC_ADMIN_PASS) {
+      setAuthenticated(true);
+    } else {
+      alert("❌ Kein Zugriff");
+      window.location.href = "/";
+    }
+  }, []);
 
-    async function loadProgress() {
-      const res = await fetch(
-        `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
-        { headers: { "x-admin-pass": adminPass } }
-      );
+  // Feedback laden
+  useEffect(() => {
+    if (view !== "feedback") return;
 
+    async function load() {
+      const res = await fetch("/api/feedback", {
+        headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
+      });
+      if (res.status === 401) {
+        setStatus("Nicht berechtigt.");
+        return;
+      }
       const data = await res.json();
-      if (!res.ok) return;
-
-      // normale Tasks
-      const tasksState = [...checkedTasks];
-      data.filter((d) => d.type === "task").forEach((d) => {
-        if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
-      });
-      setCheckedTasks(tasksState);
-
-      // Lösungstasks
-      const solState = [...checkedSolutions];
-      data.filter((d) => d.type === "solution").forEach((d) => {
-        if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
-      });
-      setCheckedSolutions(solState);
+      setItems(Array.isArray(data) ? data : []);
+      setStatus("");
     }
 
-    loadProgress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenario.code, teamId, mode]);
+    load();
+  }, [view]);
 
-  // Fortschritt speichern
-  const saveProgress = async (taskIndex, type, done) => {
-    const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
-    await fetch("/api/task-progress", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", "x-admin-pass": adminPass },
-      body: JSON.stringify(payload),
-    }).catch(() => {});
-  };
+  if (!authenticated) {
+    return (
+      <Layout>
+        <p className="p-6 text-center text-slate-500">⏳ Überprüfung …</p>
+      </Layout>
+    );
+  }
 
-  const toggleTask = (index) => {
-    if (mode !== "admin") return;
-    const newVal = !checkedTasks[index];
-    setCheckedTasks((prev) => prev.map((v, i) => (i === index ? newVal : v)));
-    saveProgress(index, "task", newVal);
-  };
+  // Hauptmenü
+  if (view === "menu")
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6 space-y-4">
+          <Link
+            href="/"
+            className="text-red-600 hover:underline flex items-center mb-4"
+          >
+            <span className="mr-2">⬅️</span> Zurück
+          </Link>
 
-  const toggleSolution = (index) => {
-    if (mode !== "admin") return;
-    const newVal = !checkedSolutions[index];
-    setCheckedSolutions((prev) => prev.map((v, i) => (i === index ? newVal : v)));
-    saveProgress(index, "solution", newVal);
-  };
+          <h1 className="text-2xl font-bold mb-4">⚙️ Admin-Dashboard</h1>
 
-  return (
-    <article className="space-y-4 border rounded-lg shadow p-4 bg-slate-50">
-      {/* Header mit Toggle */}
-      <header
-        className="flex justify-between items-center cursor-pointer"
-        onClick={onToggle}
-      >
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-          {scenario.title}
-        </h2>
-        {mode === "admin" && (
-          <span className="text-xs text-slate-500">Code: {scenario.code}</span>
-        )}
-      </header>
+          <button
+            onClick={() => setView("feedback")}
+            className="block w-full px-4 py-2 border rounded bg-slate-100"
+          >
+            📋 Feedbacks
+          </button>
 
-      {/* Inhalt */}
-      {isOpen && (
-        <div className="space-y-4">
-          <p className="text-slate-700">{scenario.description}</p>
+          <h2 className="mt-4 font-semibold">Szenarien</h2>
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {[1, 2, 3, 4, 5, 6].map((t) => (
+              <button
+                key={t}
+                onClick={() => setView(`team${t}`)}
+                className="px-4 py-2 border rounded bg-slate-100"
+              >
+                Team {t}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Layout>
+    );
 
-          {scenario.fileType === "image" && (
-            <img
-              src={scenario.file}
-              alt={scenario.title}
-              className="w-full max-w-md rounded shadow cursor-zoom-in"
-              onClick={() => setOpenImage(scenario.file)}
-            />
+  // Feedback-Ansicht
+  if (view === "feedback")
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6">
+          <button
+            onClick={() => setView("menu")}
+            className="text-red-600 hover:underline flex items-center mb-4"
+          >
+            <span className="mr-2">⬅️</span> Zurück
+          </button>
+
+          <h1 className="text-2xl font-bold mb-4">📋 Feedbacks</h1>
+
+          {status && <p className="text-slate-500">{status}</p>}
+          {!status && items.length === 0 && (
+            <p className="text-slate-500">Noch kein Feedback vorhanden</p>
           )}
-
-          {scenario.fileType === "pdf" && (
-            <iframe
-              src={scenario.file}
-              title={scenario.title}
-              className="w-full h-96 border rounded"
-            />
-          )}
-
-          {/* Aufgaben */}
-          <div>
-            <h3 className="font-semibold mt-4">Aufgaben</h3>
-            <ul className="mt-2 space-y-2">
-              {scenario.tasks.map((t, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
-                  onClick={() => toggleTask(i)}
-                >
-                  {mode === "admin" && (
-                    <input type="checkbox" checked={checkedTasks[i]} readOnly />
-                  )}
-                  <span
-                    className={
-                      mode === "admin" && checkedTasks[i]
-                        ? "line-through text-gray-500"
-                        : ""
-                    }
-                  >
-                    {t}
-                  </span>
+          {!status && items.length > 0 && (
+            <ul className="space-y-3">
+              {items.map((f) => (
+                <li key={f.id} className="p-3 border rounded bg-slate-100">
+                  <p className="font-medium whitespace-pre-wrap">{f.message}</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {new Date(f.created_at ?? f.date).toLocaleString()}
+                  </p>
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* Lösungstasks */}
-          {mode === "admin" && scenario.solutionTasks && (
-            <div>
-              <h3 className="font-semibold mt-4 text-green-700">Lösungen</h3>
-              <ul className="mt-2 space-y-2">
-                {scenario.solutionTasks.map((t, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 bg-green-100 p-2 rounded cursor-pointer"
-                    onClick={() => toggleSolution(i)}
-                  >
-                    <input type="checkbox" checked={checkedSolutions[i]} readOnly />
-                    <span
-                      className={checkedSolutions[i] ? "line-through text-gray-500" : ""}
-                    >
-                      {t}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
           )}
         </div>
-      )}
+      </Layout>
+    );
 
-      {/* Bild-Zoom */}
-      {openImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={() => setOpenImage(null)}
-        >
+  // Team-Ansicht
+  if (view.startsWith("team")) {
+    const teamNr = parseInt(view.replace("team", ""), 10);
+
+    // Hauptszenario für Team X finden
+    const mainScenario = scenarios.find((s) => s.team === teamNr);
+
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto bg-white shadow rounded-xl p-6">
           <button
-            className="absolute top-6 right-6 text-white p-2 bg-black/50 rounded-full hover:bg-red-600"
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpenImage(null);
-            }}
-            aria-label="Schließen"
+            onClick={() => setView("menu")}
+            className="text-red-600 hover:underline flex items-center mb-4"
           >
-            <X size={28} />
+            <span className="mr-2">⬅️</span> Zurück
           </button>
 
-          <img
-            src={openImage}
-            alt="Zoom"
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
+
+          {/* Hauptszenario */}
+          {mainScenario && (
+            <ScenarioViewer
+              key={mainScenario.code} // 👈 stabiler key
+              scenario={mainScenario}
+              onBack={() => {}}
+              mode="admin"
+              teamId={teamNr}
+            />
+          )}
+
+          {/* Unter-Szenarien */}
+          {mainScenario?.subScenarios?.map((sub) => (
+            <ScenarioViewer
+              key={sub.code} // 👈 stabiler key
+              scenario={{ ...sub, team: teamNr }}
+              onBack={() => {}}
+              mode="admin"
+              teamId={teamNr}
+            />
+          ))}
         </div>
-      )}
-    </article>
-  );
+      </Layout>
+    );
+  }
 }
