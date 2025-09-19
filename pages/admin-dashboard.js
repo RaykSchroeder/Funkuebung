@@ -14,13 +14,22 @@ export default function AdminDashboard() {
   // Passwort-Abfrage
   useEffect(() => {
     const pass = prompt("Admin-Passwort:");
-    if (pass === process.env.NEXT_PUBLIC_ADMIN_PASS) {
+    if (pass && pass === process.env.NEXT_PUBLIC_ADMIN_PASS) {
       setAuthenticated(true);
     } else {
-      alert("❌ Kein Zugriff");
-      window.location.href = "/";
+      setAuthenticated(false);
     }
   }, []);
+
+  if (!authenticated) {
+    return (
+      <Layout>
+        <div className="p-6 text-center text-slate-500">
+          ❌ Kein Zugriff – falsches Passwort
+        </div>
+      </Layout>
+    );
+  }
 
   // Feedback laden
   useEffect(() => {
@@ -42,14 +51,6 @@ export default function AdminDashboard() {
     load();
   }, [view]);
 
-  if (!authenticated) {
-    return (
-      <Layout>
-        <p className="p-6 text-center text-slate-500">⏳ Überprüfung …</p>
-      </Layout>
-    );
-  }
-
   // Hauptmenü
   if (view === "menu")
     return (
@@ -64,6 +65,7 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">⚙️ Admin-Dashboard</h1>
 
+          {/* Feedback */}
           <button
             onClick={() => setView("feedback")}
             className="block w-full px-4 py-2 border rounded bg-slate-100"
@@ -71,6 +73,15 @@ export default function AdminDashboard() {
             📋 Feedbacks
           </button>
 
+          {/* Statusboard */}
+          <button
+            onClick={() => (window.location.href = "/statusboard")}
+            className="block w-full px-4 py-2 border rounded bg-slate-100"
+          >
+            📊 Statusboard
+          </button>
+
+          {/* Szenarien */}
           <h2 className="mt-4 font-semibold">Szenarien</h2>
           <div className="grid grid-cols-3 gap-2 mt-2">
             {[1, 2, 3, 4, 5, 6].map((t) => (
@@ -124,8 +135,6 @@ export default function AdminDashboard() {
   // Team-Ansicht
   if (view.startsWith("team")) {
     const teamNr = parseInt(view.replace("team", ""), 10);
-
-    // Hauptszenario für Team X finden
     const mainScenario = scenarios.find((s) => s.team === teamNr);
 
     return (
@@ -143,7 +152,7 @@ export default function AdminDashboard() {
           {/* Hauptszenario */}
           {mainScenario && (
             <ScenarioViewer
-              key={mainScenario.code} // 👈 stabiler key
+              key={mainScenario.code}
               scenario={mainScenario}
               onBack={() => {}}
               mode="admin"
@@ -154,7 +163,7 @@ export default function AdminDashboard() {
           {/* Unter-Szenarien */}
           {mainScenario?.subScenarios?.map((sub) => (
             <ScenarioViewer
-              key={sub.code} // 👈 stabiler key
+              key={sub.code}
               scenario={{ ...sub, team: teamNr }}
               onBack={() => {}}
               mode="admin"
