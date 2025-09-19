@@ -11,7 +11,7 @@ const scenarios = [
     file: "/images/FFImsum.png",
     tasks: ["Herzlich Willkommen zur Funkübung der Feuerwehr Stadt Geestland in Imsum",
             "Folgenden Sie der folgenden Navigaion zu Ihrem Einsatzort",
-            "Personensuche im Keller","Auf Alte Bahnhofstraße in Richutng Wurster Landstraße starten",
+            "Auf Alte Bahnhofstraße in Richutng Wurster Landstraße starten",
             "Rechts abbiegen auf Wurster Landstarße",
             "Nach 800m links abbiegen auch Lebsteterweg",
             "Links abbiegen auf Deichverteidigungsweg",
