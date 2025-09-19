@@ -8,19 +8,23 @@ export default function Statusboard() {
   const teams = [1, 2, 3, 4, 5, 6];
 
   // Fortschritt laden
-  useEffect(() => {
-    async function load() {
-      const results = {};
-      for (const teamId of teams) {
-        const res = await fetch(`/api/task-progress?teamId=${teamId}`, {
-          headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
-        });
-        const data = await res.json();
-        results[teamId] = data;
-      }
-      setProgress(results);
+  async function loadProgress() {
+    const results = {};
+    for (const teamId of teams) {
+      const res = await fetch(`/api/task-progress?teamId=${teamId}`, {
+        headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
+      });
+      const data = await res.json();
+      results[teamId] = data;
     }
-    load();
+    setProgress(results);
+  }
+
+  // Initial laden + Auto-Refresh alle 10 Sekunden
+  useEffect(() => {
+    loadProgress();
+    const interval = setInterval(loadProgress, 10000); // alle 10s
+    return () => clearInterval(interval); // cleanup
   }, []);
 
   return (
@@ -35,7 +39,9 @@ export default function Statusboard() {
         </Link>
 
         <h1 className="text-3xl font-bold">📊 Statusboard</h1>
-        <p className="text-slate-600">Übersicht aller Teams</p>
+        <p className="text-slate-600">
+          Übersicht aller Teams (aktualisiert automatisch alle 10 Sekunden)
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {teams.map((teamId) => {
