@@ -37,7 +37,6 @@ export default function AdminDashboard() {
       }
       const data = await res.json();
 
-      // Neues API-Format: { average_rating, count, feedback }
       if (data.feedback) {
         setItems(data.feedback);
         setAverage(data.average_rating);
@@ -75,7 +74,6 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">⚙️ Admin-Dashboard</h1>
 
-          {/* Buttons */}
           <button
             onClick={() => setView("feedback")}
             className="block w-full px-4 py-2 border rounded bg-slate-100"
@@ -125,18 +123,16 @@ export default function AdminDashboard() {
             <p className="text-slate-500">Noch kein Feedback vorhanden</p>
           )}
 
-          {/* Zusammenfassung */}
           {!status && count > 0 && (
             <div className="mb-4 p-3 border rounded bg-slate-50">
               <p className="font-semibold">
                 Durchschnittliche Bewertung:{" "}
-                {average ? `${average} / 5 ⭐` : "–"}
+                {average !== null ? `${average} / 5 ⭐` : "–"}
               </p>
               <p className="text-sm text-slate-600">Anzahl Feedbacks: {count}</p>
             </div>
           )}
 
-          {/* Einzelne Feedbacks */}
           {!status && items.length > 0 && (
             <ul className="space-y-3">
               {items.map((f) => (
@@ -168,7 +164,6 @@ export default function AdminDashboard() {
   // Team-Ansicht
   if (view.startsWith("team")) {
     const teamNr = parseInt(view.replace("team", ""), 10);
-
     const mainScenario = scenarios.find((s) => s.team === teamNr);
 
     return (
