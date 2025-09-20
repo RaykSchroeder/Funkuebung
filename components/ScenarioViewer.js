@@ -1,25 +1,28 @@
-// components/ScenarioViewer.js
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId }) {
+export default function ScenarioViewer({
+  scenario,
+  onBack,
+  mode = "team",
+  teamId,
+  expandedCode,
+  setExpandedCode
+}) {
   const [openImage, setOpenImage] = useState(null);
 
-  // Zustand, ob ausgeklappt oder nicht
-  const [expanded, setExpanded] = useState(mode === "team");
-
-  // lokaler State für Checkboxen
+  // Lokaler State für Checkboxen
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
 
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
-
-  // 👇 Finale erst nach API-Freigabe anzeigen
   const [canShowFinal, setCanShowFinal] = useState(!scenario.isFinal);
 
-  // Admin lädt Fortschritt
+  const expanded = scenario.code === expandedCode;
+
+  // Fortschritt laden (nur Admin)
   useEffect(() => {
     if (mode !== "admin") return;
 
@@ -79,7 +82,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     }).catch(() => {});
   };
 
-  // Checkboxen toggeln
   const toggleTask = (index) => {
     if (mode !== "admin") return;
     const newVal = !checkedTasks[index];
@@ -94,7 +96,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
     saveProgress(index, "solution", newVal);
   };
 
-  // 🚫 Block: Finale für Team, aber nicht freigeschaltet
   if (scenario.isFinal && mode === "team" && !canShowFinal) {
     return (
       <article className="border rounded-lg shadow bg-white p-4">
@@ -108,10 +109,10 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
 
   return (
     <article className="border rounded-lg shadow bg-white">
-      {/* Header mit Toggle */}
+      {/* Header */}
       <header
         className="flex justify-between items-center px-4 py-2 cursor-pointer bg-slate-100 rounded-t-lg"
-        onClick={() => setExpanded((prev) => !prev)}
+        onClick={() => setExpandedCode(expanded ? null : scenario.code)}
       >
         <h2 className="text-lg font-semibold">{scenario.title}</h2>
         <span className="text-sm text-slate-600">
@@ -121,7 +122,6 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
 
       {expanded && (
         <div className="p-4 space-y-4">
-          {/* Code nur für Admin */}
           {mode === "admin" && (
             <p className="text-sm text-slate-500">
               🔑 Code: <span className="font-mono">{scenario.code}</span>
@@ -174,7 +174,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
             </ul>
           </div>
 
-          {/* Lösungstasks */}
+          {/* Lösungen */}
           {mode === "admin" && scenario.solutionTasks && (
             <div>
               <h3 className="font-semibold mt-4 text-green-700">Lösungen</h3>
@@ -199,7 +199,7 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
             </div>
           )}
 
-          {/* Zoom-Bild */}
+          {/* Bild-Zoom */}
           {openImage && (
             <div
               className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
@@ -211,11 +211,9 @@ export default function ScenarioViewer({ scenario, onBack, mode = "team", teamId
                   e.stopPropagation();
                   setOpenImage(null);
                 }}
-                aria-label="Schließen"
               >
                 <X size={28} />
               </button>
-
               <img
                 src={openImage}
                 alt="Zoom"
