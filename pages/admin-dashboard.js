@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const [items, setItems] = useState([]);
   const [average, setAverage] = useState(null);
   const [count, setCount] = useState(0);
+  const [countWithRating, setCountWithRating] = useState(0);
   const [status, setStatus] = useState("");
 
   // Passwort-Abfrage
@@ -41,10 +42,12 @@ export default function AdminDashboard() {
         setItems(data.feedback);
         setCount(data.count);
 
-        // Durchschnitt lokal berechnen
+        // Sterne herausfiltern
         const ratings = data.feedback
           .map((f) => f.rating)
           .filter((r) => typeof r === "number" && !isNaN(r));
+
+        setCountWithRating(ratings.length);
 
         if (ratings.length > 0) {
           const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
@@ -56,12 +59,29 @@ export default function AdminDashboard() {
         setItems([]);
         setAverage(null);
         setCount(0);
+        setCountWithRating(0);
       }
       setStatus("");
     }
 
     load();
   }, [view]);
+
+  // Helferfunktion: Durchschnitt als Sterne rendern
+  function renderStars(avg) {
+    if (!avg) return "–";
+    const fullStars = Math.floor(avg);
+    const halfStar = avg - fullStars >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+    return (
+      <span className="text-yellow-600">
+        {"⭐".repeat(fullStars)}
+        {halfStar && "✩"}
+        {"☆".repeat(emptyStars)}
+      </span>
+    );
+  }
 
   if (!authenticated) {
     return (
@@ -138,9 +158,17 @@ export default function AdminDashboard() {
             <div className="mb-4 p-3 border rounded bg-slate-50">
               <p className="font-semibold">
                 Durchschnittliche Bewertung:{" "}
-                {average !== null ? `${average} / 5 ⭐` : "–"}
+                {average !== null ? (
+                  <>
+                    {average} / 5 ⭐ ({renderStars(Number(average))})
+                  </>
+                ) : (
+                  "–"
+                )}
               </p>
-              <p className="text-sm text-slate-600">Anzahl Feedbacks: {count}</p>
+              <p className="text-sm text-slate-600">
+                Anzahl Feedbacks: {count} (davon {countWithRating} mit Bewertung)
+              </p>
             </div>
           )}
 
