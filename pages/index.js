@@ -8,39 +8,41 @@ import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [activeScenarios, setActiveScenarios] = useState([]); // Liste der aktuell angezeigten Szenarien (Haupt + Subs)
-  const [mainScenario, setMainScenario] = useState(null); // aktives Hauptszenario (einziges)
+  const [activeScenarios, setActiveScenarios] = useState([]);
+  const [mainScenario, setMainScenario] = useState(null);
   const [error, setError] = useState(null);
 
-  // Handler für Code-Eingabe (Haupt- oder Sub-Szenario)
   const handleAddScenario = async (e) => {
     e.preventDefault();
     setError(null);
 
     const cleaned = code.trim();
-    if (!/^\d{4}$/.test(cleaned)) {
-      setError("Bitte Teamnummer eingeben");
-      return;
-    }
 
-    // 1) Prüfen, ob Code ein Hauptszenario ist
-    const foundMain = scenarios.find((s) => s.code === cleaned);
-
-    if (foundMain) {
-      // Hauptszenario setzen (nur eins aktiv)
-      if (!activeScenarios.some((s) => s.code === foundMain.code)) {
-        setActiveScenarios([foundMain]);
-      } else {
-        setActiveScenarios([foundMain]);
+    // --- 1) Hauptszenario (Teamnummer 1-6) ---
+    if (!mainScenario) {
+      if (!/^[1-6]$/.test(cleaned)) {
+        setError("Bitte eine gültige Teamnummer (1–6) eingeben.");
+        return;
       }
+
+      const foundMain = scenarios.find(
+        (s) => String(s.team) === cleaned && !s.subScenarios
+      );
+
+      if (!foundMain) {
+        setError("Kein Hauptszenario für dieses Team gefunden.");
+        return;
+      }
+
+      setActiveScenarios([foundMain]);
       setMainScenario(foundMain);
       setCode("");
       return;
     }
 
-    // 2) Falls kein Hauptszenario: Sub-Szenario nur zulassen, wenn Hauptszenario bereits gesetzt
-    if (!mainScenario) {
-      setError("Bitte zuerst die Teamnummer eingeben.");
+    // --- 2) Sub-Szenario (nur 4-stellig erlaubt) ---
+    if (!/^\d{4}$/.test(cleaned)) {
+      setError("Bitte einen gültigen 4-stelligen Szenario-Code eingeben.");
       return;
     }
 
@@ -51,7 +53,7 @@ export default function Home() {
       return;
     }
 
-    // 3) Falls Sub ein finales Szenario ist -> Freigabe prüfen (API)
+    // --- 3) Finale prüfen ---
     if (sub.isFinal || sub.title === "Übung Ende") {
       try {
         const res = await fetch(`/api/can-unlock-final?teamId=${mainScenario.team}`);
@@ -69,7 +71,7 @@ export default function Home() {
       }
     }
 
-    // 4) Sub-Szenario hinzufügen (nur einmal)
+    // --- 4) Szenario hinzufügen ---
     if (!activeScenarios.some((s) => s.code === sub.code)) {
       setActiveScenarios((prev) => [...prev, { ...sub, team: mainScenario.team }]);
     }
@@ -86,22 +88,21 @@ export default function Home() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder={
-              activeScenarios.length === 0
-                ? "🔑 Team-Nummer eingeben"
-                : "➡️ Nächsten Szenario-Code eingeben"
+              !mainScenario
+                ? "🔑 Teamnummer (1–6) eingeben"
+                : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
-            maxLength={4}
+            maxLength={mainScenario ? 4 : 1}
             className="flex-1 border px-3 py-2 rounded"
           />
           <button className="px-4 py-2 bg-slate-800 text-white rounded">
-            {activeScenarios.length === 0 ? "Start" : "Nächster Code"}
+            {!mainScenario ? "Start" : "Nächster Code"}
           </button>
         </form>
 
-        {/* Fehlermeldung */}
         {error && <div className="text-red-600 mb-4">{error}</div>}
 
-        {/* Szenarien-Liste */}
+        {/* Szenarien */}
         {activeScenarios.length > 0 ? (
           <div className="space-y-6">
             {activeScenarios.map((s) => (
@@ -118,13 +119,9 @@ export default function Home() {
           <p className="text-slate-500">Noch kein Szenario geladen</p>
         )}
 
-        {/* Hilfesymbol (Feuerwehr-Alphabet) */}
         <FeuerwehrAlphabetModal />
-
-        {/* Feedback-Formular */}
         <FeedbackForm />
 
-        {/* Admin Button */}
         <div className="mt-6 text-right">
           <button
             onClick={() => (window.location.href = "/admin-dashboard")}
