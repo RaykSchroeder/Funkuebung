@@ -13,7 +13,7 @@ const scenarios = [
   {
     team: 0001,
     code: "1",
-    title: "",
+    title: "Team 1",
     description: "",
     tasks: ["",],
     subScenarios: [
