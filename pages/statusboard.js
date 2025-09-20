@@ -9,7 +9,7 @@ export default function Statusboard() {
   const [lastUpdated, setLastUpdated] = useState(null);
 
   const teams = [1, 2, 3, 4, 5, 6];
-  const excludeFinal = true; // Finale aus den Szenario-Zählern herausnehmen
+  const excludeFinal = true;
 
   async function loadProgress() {
     setLoading(true);
@@ -34,7 +34,6 @@ export default function Statusboard() {
   }
 
   useEffect(() => {
-    // Einmal beim Seitenladen
     loadProgress();
   }, []);
 
@@ -48,7 +47,6 @@ export default function Statusboard() {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Kopfzeile */}
         <div className="flex items-center justify-between">
           <Link
             href="/admin-dashboard"
@@ -75,37 +73,41 @@ export default function Statusboard() {
 
         <h1 className="text-3xl font-bold">📊 Statusboard</h1>
         <p className="text-slate-600">
-          Szenario-Fortschritt (Sub-Szenarien) und Aufgaben-Fortschritt je Team
+          Szenario-Fortschritt und Lösungs-Fortschritt je Team
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {teams.map((teamId) => {
             const teamScenarios = scenarios.filter((s) => s.team === teamId);
 
-            // Alle Sub-Szenarien (optional Finale ausschließen)
             const allSubs = teamScenarios.flatMap((s) =>
-              (s.subScenarios || []).filter(sub => (excludeFinal ? !sub.isFinal : true))
+              (s.subScenarios || []).filter((sub) =>
+                excludeFinal ? !sub.isFinal : true
+              )
             );
 
-            // Szenario-Fortschritt: Sub gilt als "erledigt", wenn mind. 1 Eintrag (task/solution) erledigt
+            // Szenario-Fortschritt
             const subTotal = allSubs.length;
             const subDone = allSubs.filter((sub) => {
-              const count = progress[String(teamId)]?.[String(sub.code)] || 0;
-              return count > 0;
+              const entry = progress[String(teamId)]?.[String(sub.code)];
+              return entry && (entry.task > 0 || entry.solution > 0);
             }).length;
 
-            // Aufgaben-Fortschritt: Summe aller Haken (done=true) vs. Summe aller Aufgaben
-            const allTasks = allSubs.reduce(
-              (sum, sub) => sum + sub.tasks.length + (sub.solutionTasks?.length || 0),
+            // Lösungs-Fortschritt
+            const allSolutions = allSubs.reduce(
+              (sum, sub) => sum + (sub.solutionTasks?.length || 0),
               0
             );
-            const doneTasks = allSubs.reduce(
-              (sum, sub) => sum + (progress[String(teamId)]?.[String(sub.code)] || 0),
-              0
-            );
+            const doneSolutions = allSubs.reduce((sum, sub) => {
+              const entry = progress[String(teamId)]?.[String(sub.code)];
+              return sum + (entry?.solution || 0);
+            }, 0);
 
             return (
-              <div key={teamId} className="border rounded-xl p-4 bg-white shadow">
+              <div
+                key={teamId}
+                className="border rounded-xl p-4 bg-white shadow"
+              >
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-xl font-semibold">🚒 Team {teamId}</h2>
                   <span className="text-2xl">{getTrafficLight(subDone, subTotal)}</span>
@@ -122,9 +124,9 @@ export default function Statusboard() {
 
                 <div className="p-3 mb-1 border rounded bg-slate-50 shadow-sm">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">✅ Aufgaben</span>
+                    <span className="font-medium">✅ Lösungen</span>
                     <span className="text-sm text-slate-600">
-                      {doneTasks}/{allTasks}
+                      {doneSolutions}/{allSolutions}
                     </span>
                   </div>
                 </div>
