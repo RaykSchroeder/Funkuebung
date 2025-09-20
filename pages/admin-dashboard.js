@@ -39,8 +39,19 @@ export default function AdminDashboard() {
 
       if (data.feedback) {
         setItems(data.feedback);
-        setAverage(data.average_rating);
         setCount(data.count);
+
+        // Durchschnitt lokal berechnen
+        const ratings = data.feedback
+          .map((f) => f.rating)
+          .filter((r) => typeof r === "number" && !isNaN(r));
+
+        if (ratings.length > 0) {
+          const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+          setAverage(avg.toFixed(2));
+        } else {
+          setAverage(null);
+        }
       } else {
         setItems([]);
         setAverage(null);
@@ -127,9 +138,7 @@ export default function AdminDashboard() {
             <div className="mb-4 p-3 border rounded bg-slate-50">
               <p className="font-semibold">
                 Durchschnittliche Bewertung:{" "}
-                {average !== null && !isNaN(Number(average))
-                  ? `${Number(average).toFixed(2)} / 5 ⭐`
-                  : "–"}
+                {average !== null ? `${average} / 5 ⭐` : "–"}
               </p>
               <p className="text-sm text-slate-600">Anzahl Feedbacks: {count}</p>
             </div>
