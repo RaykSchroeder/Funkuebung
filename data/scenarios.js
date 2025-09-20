@@ -11,8 +11,8 @@ const scenarios = [
   //     tasks: [""],
   //     solutionTasks: ["GF1 Aufgabe", "Alle Aufgaben erledigt"],},
   {
-    team: 0001,
-    code: "1",
+    team: 1,
+    code: "0001",
     title: "Team 1",
     description: "",
     tasks: ["",],
