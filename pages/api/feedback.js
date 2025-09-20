@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   // --- POST: Feedback speichern ---
   if (req.method === "POST") {
-    console.log("📥 Feedback API – Body empfangen:", req.body); // DEBUG-LOG
+    console.log("📥 Feedback API – Body empfangen:", req.body);
 
     const { message, rating } = req.body || {};
 
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       rating: hasRating ? rating : null,
     };
 
-    console.log("📤 Feedback API – Payload an Supabase:", payload); // DEBUG-LOG
+    console.log("📤 Feedback API – Payload an Supabase:", payload);
 
     try {
       const r = await fetch(`${url}/rest/v1/feedback`, {
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
       if (!r.ok) {
         const err = await r.text();
-        console.error("❌ Supabase-Fehler:", err); // DEBUG-LOG
+        console.error("❌ Supabase-Fehler:", err);
         return res
           .status(r.status)
           .json({ error: err || "Fehler beim Speichern" });
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ success: true });
     } catch (e) {
-      console.error("❌ Feedback API – Serverfehler:", e); // DEBUG-LOG
+      console.error("❌ Feedback API – Serverfehler:", e);
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
   }
@@ -78,6 +78,7 @@ export default async function handler(req, res) {
     }
 
     try {
+      // 1. Alle Feedbacks holen
       const r = await fetch(
         `${url}/rest/v1/feedback?select=*&order=created_at.desc`,
         {
@@ -90,6 +91,7 @@ export default async function handler(req, res) {
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
+      // 2. Durchschnitt berechnen
       const rAvg = await fetch(`${url}/rest/v1/feedback?select=avg(rating)`, {
         headers: {
           apikey: service,
@@ -97,19 +99,21 @@ export default async function handler(req, res) {
         },
       });
       const avgData = await rAvg.json();
-      const avgRating = avgData?.[0]?.avg || null;
+      const avgRaw = avgData?.[0]?.avg;
+      const avgRating = avgRaw !== null ? parseFloat(avgRaw) : null;
 
       return res.status(200).json({
-        average_rating: avgRating ? Number(avgRating).toFixed(2) : null,
+        average_rating: avgRating !== null ? avgRating.toFixed(2) : null,
         count: data.length,
         feedback: data,
       });
     } catch (e) {
-      console.error("❌ Feedback API – Fehler beim GET:", e); // DEBUG-LOG
+      console.error("❌ Feedback API – Fehler beim GET:", e);
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
   }
 
+  // --- Method not allowed ---
   res.setHeader("Allow", ["GET", "POST"]);
   return res.status(405).json({ message: "Method not allowed" });
 }
