@@ -67,7 +67,7 @@ export default function AdminDashboard() {
     load();
   }, [view]);
 
-  // Helferfunktion: Durchschnitt als Sterne rendern
+  // Durchschnitt als Sterne rendern
   function renderStars(avg) {
     if (!avg) return "–";
     const fullStars = Math.floor(avg);
@@ -81,6 +81,34 @@ export default function AdminDashboard() {
         {"☆".repeat(emptyStars)}
       </span>
     );
+  }
+
+  // CSV-Export
+  function exportCSV() {
+    if (items.length === 0) {
+      alert("Kein Feedback vorhanden.");
+      return;
+    }
+
+    const header = ["ID", "Nachricht", "Bewertung", "Datum"];
+    const rows = items.map((f) => [
+      f.id,
+      f.message ? `"${f.message.replace(/"/g, '""')}"` : "",
+      f.rating ?? "",
+      new Date(f.created_at ?? f.date).toLocaleString("de-DE"),
+    ]);
+
+    const csvContent =
+      [header, ...rows].map((r) => r.join(";")).join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "feedbacks.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   if (!authenticated) {
@@ -169,6 +197,12 @@ export default function AdminDashboard() {
               <p className="text-sm text-slate-600">
                 Anzahl Feedbacks: {count} (davon {countWithRating} mit Bewertung)
               </p>
+              <button
+                onClick={exportCSV}
+                className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                📥 Export als CSV
+              </button>
             </div>
           )}
 
