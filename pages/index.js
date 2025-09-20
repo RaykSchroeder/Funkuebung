@@ -8,8 +8,8 @@ import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [activeScenarios, setActiveScenarios] = useState([]);
-  const [mainScenario, setMainScenario] = useState(null);
+  const [activeScenarios, setActiveScenarios] = useState([]); // nur Subs
+  const [teamNr, setTeamNr] = useState(null); // merkt sich das aktive Team
   const [error, setError] = useState(null);
 
   const handleAddScenario = async (e) => {
@@ -18,24 +18,13 @@ export default function Home() {
 
     const cleaned = code.trim();
 
-    // --- 1) Hauptszenario (Teamnummer 1-6) ---
-    if (!mainScenario) {
+    // --- 1) Teamnummer wählen ---
+    if (!teamNr) {
       if (!/^[1-6]$/.test(cleaned)) {
-        setError("Bitte eine gültige Teamnummer (1–6) eingeben.");
+        setError("Bitte eine gültige Teamnummer eingeben.");
         return;
       }
-
-      const foundMain = scenarios.find(
-        (s) => String(s.team) === cleaned && !s.subScenarios
-      );
-
-      if (!foundMain) {
-        setError("Kein Hauptszenario für dieses Team gefunden.");
-        return;
-      }
-
-      setActiveScenarios([foundMain]);
-      setMainScenario(foundMain);
+      setTeamNr(Number(cleaned));
       setCode("");
       return;
     }
@@ -46,7 +35,10 @@ export default function Home() {
       return;
     }
 
-    const sub = mainScenario.subScenarios?.find((sub) => sub.code === cleaned);
+    // passendes Hauptszenario für dieses Team suchen
+    const mainScenario = scenarios.find((s) => s.team === teamNr);
+    const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
+
     if (!sub) {
       setError("Ungültiger Code oder gehört nicht zu diesem Team.");
       setCode("");
@@ -56,7 +48,7 @@ export default function Home() {
     // --- 3) Finale prüfen ---
     if (sub.isFinal || sub.title === "Übung Ende") {
       try {
-        const res = await fetch(`/api/can-unlock-final?teamId=${mainScenario.team}`);
+        const res = await fetch(`/api/can-unlock-final?teamId=${teamNr}`);
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.allowed) {
           setError("Abschlusslage noch nicht freigeschaltet.");
@@ -71,9 +63,9 @@ export default function Home() {
       }
     }
 
-    // --- 4) Szenario hinzufügen ---
+    // --- 4) Sub-Szenario hinzufügen (nur einmal) ---
     if (!activeScenarios.some((s) => s.code === sub.code)) {
-      setActiveScenarios((prev) => [...prev, { ...sub, team: mainScenario.team }]);
+      setActiveScenarios((prev) => [...prev, { ...sub, team: teamNr }]);
     }
 
     setCode("");
@@ -88,35 +80,45 @@ export default function Home() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder={
-              !mainScenario
+              !teamNr
                 ? "🔑 Teamnummer (1–6) eingeben"
                 : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
-            maxLength={mainScenario ? 4 : 1}
+            maxLength={teamNr ? 4 : 1}
             className="flex-1 border px-3 py-2 rounded"
           />
           <button className="px-4 py-2 bg-slate-800 text-white rounded">
-            {!mainScenario ? "Start" : "Nächster Code"}
+            {!teamNr ? "Start" : "Nächster Code"}
           </button>
         </form>
 
         {error && <div className="text-red-600 mb-4">{error}</div>}
 
-        {/* Szenarien */}
-        {activeScenarios.length > 0 ? (
-          <div className="space-y-6">
-            {activeScenarios.map((s) => (
-              <ScenarioViewer
-                key={s.code}
-                scenario={s}
-                onBack={() => {}}
-                mode="team"
-                teamId={s.team}
-              />
-            ))}
-          </div>
+        {/* Wenn Team gewählt */}
+        {teamNr ? (
+          <>
+            <h2 className="text-2xl font-bold mb-4">🚒 Team {teamNr}</h2>
+
+            {activeScenarios.length > 0 ? (
+              <div className="space-y-6">
+                {activeScenarios.map((s) => (
+                  <ScenarioViewer
+                    key={s.code}
+                    scenario={s}
+                    onBack={() => {}}
+                    mode="team"
+                    teamId={teamNr}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500">
+                Noch kein Szenario-Code für Team {teamNr} eingegeben
+              </p>
+            )}
+          </>
         ) : (
-          <p className="text-slate-500">Noch kein Szenario geladen</p>
+          <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
         <FeuerwehrAlphabetModal />
