@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // --- GET: Feedback abrufen (Admin) ---
+  // --- GET: Feedback + Durchschnittsbewertung (Admin) ---
   if (req.method === "GET") {
     if (!process.env.ADMIN_PASS) {
       return res.status(500).json({ error: "ADMIN_PASS ist nicht gesetzt." });
@@ -58,6 +58,7 @@ export default async function handler(req, res) {
     }
 
     try {
+      // 1. Alle Feedbacks holen
       const r = await fetch(
         `${url}/rest/v1/feedback?select=*&order=created_at.desc`,
         {
@@ -67,11 +68,24 @@ export default async function handler(req, res) {
           },
         }
       );
-
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
-      return res.status(200).json(data);
+      // 2. Durchschnitt berechnen (über Supabase-Query)
+      const rAvg = await fetch(`${url}/rest/v1/feedback?select=avg(rating)`, {
+        headers: {
+          apikey: service,
+          Authorization: `Bearer ${service}`,
+        },
+      });
+      const avgData = await rAvg.json();
+      const avgRating = avgData?.[0]?.avg || null;
+
+      return res.status(200).json({
+        average_rating: avgRating ? Number(avgRating).toFixed(2) : null,
+        count: data.length,
+        feedback: data,
+      });
     } catch (e) {
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
