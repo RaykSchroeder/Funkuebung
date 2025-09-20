@@ -127,7 +127,9 @@ export default function AdminDashboard() {
             <div className="mb-4 p-3 border rounded bg-slate-50">
               <p className="font-semibold">
                 Durchschnittliche Bewertung:{" "}
-                {average !== null ? `${average} / 5 ⭐` : "–"}
+                {average !== null && !isNaN(Number(average))
+                  ? `${Number(average).toFixed(2)} / 5 ⭐`
+                  : "–"}
               </p>
               <p className="text-sm text-slate-600">Anzahl Feedbacks: {count}</p>
             </div>
