@@ -93,3 +93,14 @@ export default async function handler(req, res) {
       return res.status(200).json({
         average_rating: avgRating ? Number(avgRating).toFixed(2) : null,
         count: data.length,
+        feedback: data,
+      });
+    } catch (e) {
+      return res.status(500).json({ error: e.message || "Serverfehler" });
+    }
+  }
+
+  // --- Method not allowed ---
+  res.setHeader("Allow", ["GET", "POST"]);
+  return res.status(405).json({ message: "Method not allowed" });
+}
