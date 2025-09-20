@@ -1,4 +1,3 @@
-// pages/index.js
 import { useState } from "react";
 import ScenarioViewer from "../components/ScenarioViewer";
 import FeedbackForm from "../components/FeedbackForm";
@@ -11,6 +10,7 @@ export default function Home() {
   const [activeScenarios, setActiveScenarios] = useState([]); // nur Subs
   const [teamNr, setTeamNr] = useState(null); // merkt sich das aktive Team
   const [error, setError] = useState(null);
+  const [expandedCode, setExpandedCode] = useState(null); // 👈 nur 1 Szenario offen
 
   const handleAddScenario = async (e) => {
     e.preventDefault();
@@ -68,6 +68,7 @@ export default function Home() {
       setActiveScenarios((prev) => [...prev, { ...sub, team: teamNr }]);
     }
 
+    setExpandedCode(sub.code); // 👈 neu: nur dieses Szenario aufklappen
     setCode("");
   };
 
@@ -108,6 +109,8 @@ export default function Home() {
                     onBack={() => {}}
                     mode="team"
                     teamId={teamNr}
+                    expandedCode={expandedCode}
+                    setExpandedCode={setExpandedCode}
                   />
                 ))}
               </div>
