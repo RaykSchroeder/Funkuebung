@@ -21,7 +21,6 @@ export default function Statusboard() {
     setProgress(results);
   }
 
-  // Initial laden + Auto-Refresh alle 10 Sekunden
   useEffect(() => {
     loadProgress();
     const interval = setInterval(loadProgress, 10000);
@@ -49,28 +48,23 @@ export default function Statusboard() {
             const teamScenarios = scenarios.filter((s) => s.team === teamId);
             const teamProgress = progress[teamId] || [];
 
-            // Nur Sub-Szenarien (ohne isFinal)
+            // Nur Sub-Szenarien (ohne Final)
             const subScenarios = teamScenarios.flatMap((sc) =>
               sc.subScenarios?.filter((sub) => !sub.isFinal) || []
             );
 
-            // y = Anzahl Sub-Szenarien
             const y = subScenarios.length;
-
-            // x = Anzahl Sub-Szenarien mit mindestens einer erledigten Aufgabe/Lösung
             const x = subScenarios.filter((sub) =>
               teamProgress.some(
                 (p) => p.scenario_code === sub.code && p.done === true
               )
             ).length;
 
-            // j = alle Lösungstasks
             const j = subScenarios.reduce(
               (acc, sub) => acc + (sub.solutionTasks?.length || 0),
               0
             );
 
-            // i = erledigte Lösungstasks
             const i = subScenarios.reduce((acc, sub) => {
               const doneSolutions = teamProgress.filter(
                 (p) =>
@@ -81,12 +75,19 @@ export default function Statusboard() {
               return acc + doneSolutions;
             }, 0);
 
+            // Ampel-Status berechnen
+            let statusIcon = "🔴";
+            if (x > 0 && (x < y || i < j)) statusIcon = "🟡";
+            if (x === y && i === j && y > 0) statusIcon = "🟢";
+
             return (
               <div
                 key={teamId}
                 className="border rounded-xl p-4 bg-white shadow"
               >
-                <h2 className="text-xl font-semibold mb-2">🚒 Team {teamId}</h2>
+                <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
+                  {statusIcon} Team {teamId}
+                </h2>
 
                 <div className="p-3 mb-3 border rounded bg-slate-50 shadow-sm">
                   <div className="font-medium">Sub-Szenarien</div>
