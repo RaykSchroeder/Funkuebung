@@ -19,7 +19,7 @@ export default function Home() {
 
     const cleaned = code.trim();
     if (!/^\d{4}$/.test(cleaned)) {
-      setError("Bitte 4-stelligen Code eingeben");
+      setError("Bitte Teamnummer oder 4-stelligen Code eingeben");
       return;
     }
 
@@ -41,7 +41,7 @@ export default function Home() {
 
     // 2) Falls kein Hauptszenario: Sub-Szenario nur zulassen, wenn Hauptszenario bereits gesetzt
     if (!mainScenario) {
-      setError("Bitte zuerst das Hauptszenario starten.");
+      setError("Bitte zuerst das Teamnummer eingeben.");
       return;
     }
 
