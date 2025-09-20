@@ -6,10 +6,12 @@ import Link from "next/link";
 
 export default function Statusboard() {
   const [progress, setProgress] = useState({});
+  const [loading, setLoading] = useState(false);
   const teams = [1, 2, 3, 4, 5, 6];
 
-  // Fortschritt einmal laden
+  // Fortschritt laden
   async function loadProgress() {
+    setLoading(true);
     const results = {};
     for (const teamId of teams) {
       const res = await fetch(`/api/task-progress?teamId=${teamId}`, {
@@ -19,10 +21,11 @@ export default function Statusboard() {
       results[teamId] = data;
     }
     setProgress(results);
+    setLoading(false);
   }
 
   useEffect(() => {
-    loadProgress(); // ✅ nur 1x beim ersten Render
+    loadProgress(); // ✅ nur beim ersten Render
   }, []);
 
   return (
@@ -36,8 +39,16 @@ export default function Statusboard() {
           <span className="mr-2">⬅️</span> Zurück zum Admin-Dashboard
         </Link>
 
-        <h1 className="text-3xl font-bold">📊 Statusboard</h1>
-        <p className="text-slate-600">Übersicht aller Teams (Stand beim Laden)</p>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">📊 Statusboard</h1>
+          <button
+            onClick={loadProgress}
+            className="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-900"
+          >
+            {loading ? "⏳ Lädt..." : "🔄 Aktualisieren"}
+          </button>
+        </div>
+        <p className="text-slate-600">Übersicht aller Teams (manuell aktualisierbar)</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {teams.map((teamId) => {
