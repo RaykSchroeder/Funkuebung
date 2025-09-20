@@ -1,4 +1,3 @@
-// pages/admin-dashboard.js
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import ScenarioViewer from "../components/ScenarioViewer";
@@ -9,6 +8,8 @@ export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState(false);
   const [view, setView] = useState("menu");
   const [items, setItems] = useState([]);
+  const [average, setAverage] = useState(null);
+  const [count, setCount] = useState(0);
   const [status, setStatus] = useState("");
 
   // Passwort-Abfrage
@@ -35,7 +36,17 @@ export default function AdminDashboard() {
         return;
       }
       const data = await res.json();
-      setItems(Array.isArray(data) ? data : []);
+
+      // Neues API-Format: { average_rating, count, feedback }
+      if (data.feedback) {
+        setItems(data.feedback);
+        setAverage(data.average_rating);
+        setCount(data.count);
+      } else {
+        setItems([]);
+        setAverage(null);
+        setCount(0);
+      }
       setStatus("");
     }
 
@@ -110,14 +121,39 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold mb-4">📋 Feedbacks</h1>
 
           {status && <p className="text-slate-500">{status}</p>}
-          {!status && items.length === 0 && (
+          {!status && count === 0 && (
             <p className="text-slate-500">Noch kein Feedback vorhanden</p>
           )}
+
+          {/* Zusammenfassung */}
+          {!status && count > 0 && (
+            <div className="mb-4 p-3 border rounded bg-slate-50">
+              <p className="font-semibold">
+                Durchschnittliche Bewertung:{" "}
+                {average ? `${average} / 5 ⭐` : "–"}
+              </p>
+              <p className="text-sm text-slate-600">Anzahl Feedbacks: {count}</p>
+            </div>
+          )}
+
+          {/* Einzelne Feedbacks */}
           {!status && items.length > 0 && (
             <ul className="space-y-3">
               {items.map((f) => (
                 <li key={f.id} className="p-3 border rounded bg-slate-100">
-                  <p className="font-medium whitespace-pre-wrap">{f.message}</p>
+                  {f.rating && (
+                    <p className="mb-1 text-yellow-600">
+                      {"⭐".repeat(f.rating)}{" "}
+                      <span className="text-sm text-slate-600">
+                        ({f.rating}/5)
+                      </span>
+                    </p>
+                  )}
+                  {f.message && (
+                    <p className="font-medium whitespace-pre-wrap">
+                      {f.message}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-500 mt-1">
                     {new Date(f.created_at ?? f.date).toLocaleString()}
                   </p>
@@ -133,7 +169,6 @@ export default function AdminDashboard() {
   if (view.startsWith("team")) {
     const teamNr = parseInt(view.replace("team", ""), 10);
 
-    // Hauptszenario für Team X finden
     const mainScenario = scenarios.find((s) => s.team === teamNr);
 
     return (
@@ -148,7 +183,6 @@ export default function AdminDashboard() {
 
           <h1 className="text-2xl font-bold mb-4">Team {teamNr} – Szenarien</h1>
 
-          {/* Hauptszenario */}
           {mainScenario && (
             <ScenarioViewer
               key={mainScenario.code}
@@ -159,7 +193,6 @@ export default function AdminDashboard() {
             />
           )}
 
-          {/* Unter-Szenarien */}
           {mainScenario?.subScenarios?.map((sub) => (
             <ScenarioViewer
               key={sub.code}
