@@ -31,7 +31,6 @@ export default function Home() {
       if (!activeScenarios.some((s) => s.code === foundMain.code)) {
         setActiveScenarios([foundMain]);
       } else {
-        // wenn schon vorhanden, nichts tun (oder man könnte eine Info anzeigen)
         setActiveScenarios([foundMain]);
       }
       setMainScenario(foundMain);
@@ -57,13 +56,11 @@ export default function Home() {
       try {
         const res = await fetch(`/api/can-unlock-final?teamId=${mainScenario.team}`);
         const data = await res.json().catch(() => ({}));
-        // falls API fehlschlägt oder allowed=false -> wie ungültiger Code behandeln
         if (!res.ok || !data.allowed) {
           setError("Abschlusslage noch nicht freigeschaltet.");
           setCode("");
           return;
         }
-        // wenn allowed -> weiter (wird normal hinzugefügt)
       } catch (err) {
         console.error("Fehler bei Freigabeprüfung:", err);
         setError("Serverfehler bei Freigabeprüfung.");
@@ -74,7 +71,6 @@ export default function Home() {
 
     // 4) Sub-Szenario hinzufügen (nur einmal)
     if (!activeScenarios.some((s) => s.code === sub.code)) {
-      // wichtig: die team-Nummer mitgeben, damit ScenarioViewer teamId hat
       setActiveScenarios((prev) => [...prev, { ...sub, team: mainScenario.team }]);
     }
 
@@ -89,29 +85,30 @@ export default function Home() {
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Szenario-Code eingeben"
+            placeholder={
+              activeScenarios.length === 0
+                ? "🔑 Team-Nummer eingeben"
+                : "➡️ Nächsten Szenario-Code eingeben"
+            }
             maxLength={4}
             className="flex-1 border px-3 py-2 rounded"
           />
           <button className="px-4 py-2 bg-slate-800 text-white rounded">
-            Nächster Code
+            {activeScenarios.length === 0 ? "Start" : "Nächster Code"}
           </button>
         </form>
 
-        {/* Fehlermeldung (unter dem Eingabefeld, genau wie bei ungültigem Code) */}
+        {/* Fehlermeldung */}
         {error && <div className="text-red-600 mb-4">{error}</div>}
 
         {/* Szenarien-Liste */}
         {activeScenarios.length > 0 ? (
           <div className="space-y-6">
-            {activeScenarios.map((s, i) => (
+            {activeScenarios.map((s) => (
               <ScenarioViewer
                 key={s.code}
                 scenario={s}
-                onBack={() => {
-                  // optional: einzelne Szenarien entfernen mit onBack (wenn gewünscht)
-                  // hier nichts tun, nur Platzhalter
-                }}
+                onBack={() => {}}
                 mode="team"
                 teamId={s.team}
               />
