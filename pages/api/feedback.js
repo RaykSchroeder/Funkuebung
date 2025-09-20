@@ -11,8 +11,6 @@ export default async function handler(req, res) {
 
   // --- POST: Feedback speichern ---
   if (req.method === "POST") {
-    console.log("📥 Feedback API – Body empfangen:", req.body);
-
     const { message, rating } = req.body || {};
 
     const hasMessage =
@@ -20,7 +18,6 @@ export default async function handler(req, res) {
     const hasRating = typeof rating === "number" && rating > 0;
 
     if (!hasMessage && !hasRating) {
-      console.log("❌ Feedback API – weder Text noch Sterne vorhanden");
       return res
         .status(400)
         .json({ error: "Bitte Feedbacktext oder Bewertung angeben." });
@@ -30,8 +27,6 @@ export default async function handler(req, res) {
       message: hasMessage ? message.trim() : null,
       rating: hasRating ? rating : null,
     };
-
-    console.log("📤 Feedback API – Payload an Supabase:", payload);
 
     try {
       const r = await fetch(`${url}/rest/v1/feedback`, {
@@ -47,7 +42,6 @@ export default async function handler(req, res) {
 
       if (!r.ok) {
         const err = await r.text();
-        console.error("❌ Supabase-Fehler:", err);
         return res
           .status(r.status)
           .json({ error: err || "Fehler beim Speichern" });
@@ -55,7 +49,6 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ success: true });
     } catch (e) {
-      console.error("❌ Feedback API – Serverfehler:", e);
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
   }
@@ -100,15 +93,21 @@ export default async function handler(req, res) {
       });
       const avgData = await rAvg.json();
       const avgRaw = avgData?.[0]?.avg;
-      const avgRating = avgRaw !== null ? parseFloat(avgRaw) : null;
+
+      let avgRating = null;
+      if (avgRaw !== null && avgRaw !== undefined) {
+        const parsed = Number(avgRaw);
+        if (!isNaN(parsed)) {
+          avgRating = parsed;
+        }
+      }
 
       return res.status(200).json({
-        average_rating: avgRating !== null ? avgRating.toFixed(2) : null,
+        average_rating: avgRating,
         count: data.length,
         feedback: data,
       });
     } catch (e) {
-      console.error("❌ Feedback API – Fehler beim GET:", e);
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
   }
