@@ -81,7 +81,7 @@ export default function Home() {
             onChange={(e) => setCode(e.target.value)}
             placeholder={
               !teamNr
-                ? "🔑 Teamnummer (1–6) eingeben"
+                ? "🔑 Teamnummer eingeben"
                 : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
             maxLength={teamNr ? 4 : 1}
