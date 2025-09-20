@@ -15,7 +15,8 @@ const scenarios = [
     code: "1",
     title: "Team 1",
     description: ,
-    tasks: ,
+    tasks: [],
+    solutionTasks: [],
     subScenarios: [
       {code: "5934",
       title: "Feuerwehr",
@@ -118,8 +119,8 @@ const scenarios = [
     code: "2",
     title: "Team 2",
     description: "",
-    tasks: ,
-    solutionTasks: ,
+    tasks: [],
+    solutionTasks: [],
     subScenarios: [
       { code: "2221", title: "Leck Gefahrstoffaustritt", description: "Das Leck ist sichtbar.",fileType: "image",file: "/images/chemieunfall.jpg",tasks: ["Absperrung des Bereichs","Sicherheitsabstand einhalten","Meldung an Einsatzleitung","Dekontamination vorbereiten",],solutionTasks: ["Absperrung im Radius von 50m korrekt eingerichtet","Keine Einsatzkräfte im Gefahrenbereich","Einsatzleitung sofort informiert","Dekonplatz vorbereitet",], },
       { code: "2222", title: "Leck erkannt", description: "Das Leck ist sichtbar.", tasks: ["Gefahrenbereich sichern"], solutionTasks: ["Absperrung erfolgreich"] },
@@ -158,8 +159,8 @@ const scenarios = [
     code: "4",
     title: "Team 4",
     description: "",
-    tasks: ,
-    solutionTasks: ,
+    tasks: [],
+    solutionTasks: [],
     subScenarios: [
       {code: "4441",title: "Verkehrsunfall",description: "Zwei PKW kollidieren frontal, mehrere Verletzte.",fileType: "image",file: "/images/verkehrsunfall.jpg",tasks: ["Einsatzstelle absichern", "Erste Hilfe leisten", "Rettungsgeräte vorbereiten"],solutionTasks: ["Absicherung korrekt", "Patienten versorgt", "Geräte in Stellung"],},
       { code: "4442", title: "Fahrzeug brennt", description: "Ein PKW beginnt zu brennen.", tasks: ["Löschangriff vorbereiten"], solutionTasks: ["Brand gelöscht"] },
@@ -178,8 +179,8 @@ const scenarios = [
     code: "5",
     title: "Team 5",
     description: "",
-    tasks: ,
-    solutionTasks: ,
+    tasks: [],
+    solutionTasks: [],
     subScenarios: [
       {code: "5551",title: "Flächenbrand",description: "Ein Feld steht in Flammen, Ausbreitung droht.",fileType: "image",file: "/images/flaechenbrand.jpg",tasks: ["Lagemeldung absetzen", "Wasserversorgung sicherstellen", "Löschangriff einleiten"],solutionTasks: ["Feuer eingegrenzt", "Nachlöscharbeiten begonnen"],},
       { code: "5552", title: "Wind dreht", description: "Flammen breiten sich in neue Richtung aus.", tasks: ["Abschnittsleiter informieren"], solutionTasks: ["Einsatz angepasst"] },
@@ -198,8 +199,8 @@ const scenarios = [
     code: "6",
     title: "Team 6",
     description: "",
-    tasks: ,
-    solutionTasks: ,
+    tasks: [],
+    solutionTasks: [],
     subScenarios: [
       {code: "6661",title: "Industrieunfall",description: "In einer Werkhalle kommt es zu einer Explosion.",fileType: "image",file: "/images/industrieunfall.jpg",tasks: ["Lagemeldung absetzen", "Gefahrenbereich absperren", "Verletzte versorgen"],solutionTasks: ["Gefahrenbereich gesichert", "Rettung eingeleitet"],},
       { code: "6662", title: "Sekundärexplosion", description: "Zweite Explosion folgt.", tasks: ["Trupps zurückziehen"], solutionTasks: ["Alle in Sicherheit"] },
