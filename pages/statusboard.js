@@ -1,3 +1,4 @@
+// pages/statusboard.js
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import scenarios from "../data/scenarios";
@@ -23,8 +24,8 @@ export default function Statusboard() {
   // Initial laden + Auto-Refresh alle 10 Sekunden
   useEffect(() => {
     loadProgress();
-    const interval = setInterval(loadProgress, 10000); // alle 10s
-    return () => clearInterval(interval); // cleanup
+    const interval = setInterval(loadProgress, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -48,6 +49,38 @@ export default function Statusboard() {
             const teamScenarios = scenarios.filter((s) => s.team === teamId);
             const teamProgress = progress[teamId] || [];
 
+            // Nur Sub-Szenarien (ohne isFinal)
+            const subScenarios = teamScenarios.flatMap((sc) =>
+              sc.subScenarios?.filter((sub) => !sub.isFinal) || []
+            );
+
+            // y = Anzahl Sub-Szenarien
+            const y = subScenarios.length;
+
+            // x = Anzahl Sub-Szenarien mit mindestens einer erledigten Aufgabe/Lösung
+            const x = subScenarios.filter((sub) =>
+              teamProgress.some(
+                (p) => p.scenario_code === sub.code && p.done === true
+              )
+            ).length;
+
+            // j = alle Lösungstasks
+            const j = subScenarios.reduce(
+              (acc, sub) => acc + (sub.solutionTasks?.length || 0),
+              0
+            );
+
+            // i = erledigte Lösungstasks
+            const i = subScenarios.reduce((acc, sub) => {
+              const doneSolutions = teamProgress.filter(
+                (p) =>
+                  p.scenario_code === sub.code &&
+                  p.type === "solution" &&
+                  p.done === true
+              ).length;
+              return acc + doneSolutions;
+            }, 0);
+
             return (
               <div
                 key={teamId}
@@ -55,28 +88,19 @@ export default function Statusboard() {
               >
                 <h2 className="text-xl font-semibold mb-2">🚒 Team {teamId}</h2>
 
-                {teamScenarios.map((sc) => {
-                  // erledigte Tasks zählen
-                  const done = teamProgress.filter(
-                    (p) => p.scenario_code === sc.code && p.done
-                  ).length;
-                  const total =
-                    sc.tasks.length + (sc.solutionTasks?.length || 0);
+                <div className="p-3 mb-3 border rounded bg-slate-50 shadow-sm">
+                  <div className="font-medium">Sub-Szenarien</div>
+                  <div className="mt-1 text-sm text-slate-600">
+                    {x} von {y} bearbeitet
+                  </div>
+                </div>
 
-                  return (
-                    <div
-                      key={sc.code}
-                      className="p-3 mb-3 border rounded bg-slate-50 shadow-sm"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{sc.title}</span>
-                      </div>
-                      <div className="mt-1 text-sm text-slate-600">
-                        Fortschritt: {done}/{total}
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="p-3 mb-3 border rounded bg-slate-50 shadow-sm">
+                  <div className="font-medium">Lösungstasks</div>
+                  <div className="mt-1 text-sm text-slate-600">
+                    {i} von {j} erledigt
+                  </div>
+                </div>
               </div>
             );
           })}
