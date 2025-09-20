@@ -14,7 +14,7 @@ const scenarios = [
     team: 1,
     code: "1",
     title: "Team 1",
-    description: ,
+    description: "",
     tasks: [],
     solutionTasks: [],
     subScenarios: [
