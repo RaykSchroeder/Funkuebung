@@ -4,15 +4,22 @@ export default async function handler(req, res) {
   const service = process.env.SUPABASE_SERVICE_ROLE;
 
   if (!url || !anon) {
-    return res.status(500).json({ error: "Supabase-Umgebungsvariablen fehlen." });
+    return res
+      .status(500)
+      .json({ error: "Supabase-Umgebungsvariablen fehlen." });
   }
 
   // --- POST: Feedback speichern ---
   if (req.method === "POST") {
     const { message, rating } = req.body || {};
 
-    // Mindestens Text oder Sterne müssen vorhanden sein
-    if ((!message || !message.trim()) && !rating) {
+    // sichere Prüfungen
+    const hasMessage =
+      typeof message === "string" && message.trim().length > 0;
+    const hasRating = typeof rating === "number" && rating > 0;
+
+    // mindestens eins muss vorhanden sein
+    if (!hasMessage && !hasRating) {
       return res
         .status(400)
         .json({ error: "Bitte Feedbacktext oder Bewertung angeben." });
@@ -28,11 +35,8 @@ export default async function handler(req, res) {
           Prefer: "return=minimal",
         },
         body: JSON.stringify({
-          message:
-            message && typeof message === "string" && message.trim()
-              ? message.trim()
-              : null,
-          rating: typeof rating === "number" && rating > 0 ? rating : null,
+          message: hasMessage ? message.trim() : null,
+          rating: hasRating ? rating : null,
         }),
       });
 
@@ -80,7 +84,7 @@ export default async function handler(req, res) {
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
-      // 2. Durchschnitt berechnen (über Supabase-Query)
+      // 2. Durchschnitt berechnen
       const rAvg = await fetch(`${url}/rest/v1/feedback?select=avg(rating)`, {
         headers: {
           apikey: service,
