@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // --- GET: Feedback + Durchschnittsbewertung (Admin) ---
+  // --- GET: Feedbacks laden ---
   if (req.method === "GET") {
     if (!process.env.ADMIN_PASS) {
       return res.status(500).json({ error: "ADMIN_PASS ist nicht gesetzt." });
@@ -71,7 +71,6 @@ export default async function handler(req, res) {
     }
 
     try {
-      // 1. Alle Feedbacks holen
       const r = await fetch(
         `${url}/rest/v1/feedback?select=*&order=created_at.desc`,
         {
@@ -84,29 +83,7 @@ export default async function handler(req, res) {
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
-      // 2. Durchschnitt berechnen (ignoriere NULL-Werte bei rating)
-      const rAvg = await fetch(
-        `${url}/rest/v1/feedback?select=avg(rating)::float8 as avg_rating&rating=not.is.null`,
-        {
-          headers: {
-            apikey: service,
-            Authorization: `Bearer ${service}`,
-          },
-        }
-      );
-      const avgData = await rAvg.json();
-      const avgRaw = avgData?.[0]?.avg_rating;
-
-      let avgRating = null;
-      if (avgRaw !== null && avgRaw !== undefined) {
-        const parsed = Number(avgRaw);
-        if (!isNaN(parsed)) {
-          avgRating = parsed;
-        }
-      }
-
       return res.status(200).json({
-        average_rating: avgRating,
         count: data.length,
         feedback: data,
       });
