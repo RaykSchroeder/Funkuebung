@@ -11,6 +11,9 @@ export default function ScenarioViewer({
 }) {
   const [openImage, setOpenImage] = useState(null);
 
+  // Lokaler State für Admin (kann mehrere Szenarien offen haben)
+  const [localExpanded, setLocalExpanded] = useState(false);
+
   // Lokaler State für Checkboxen
   const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
@@ -20,7 +23,9 @@ export default function ScenarioViewer({
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
   const [canShowFinal, setCanShowFinal] = useState(!scenario.isFinal);
 
-  const expanded = scenario.code === expandedCode;
+  // Unterschied: Admin nutzt eigenen State, Team nutzt expandedCode
+  const expanded =
+    mode === "admin" ? localExpanded : scenario.code === expandedCode;
 
   // Fortschritt laden (nur Admin)
   useEffect(() => {
@@ -96,6 +101,7 @@ export default function ScenarioViewer({
     saveProgress(index, "solution", newVal);
   };
 
+  // 🚫 Block: Finale für Team, aber nicht freigeschaltet
   if (scenario.isFinal && mode === "team" && !canShowFinal) {
     return (
       <article className="border rounded-lg shadow bg-white p-4">
@@ -112,7 +118,13 @@ export default function ScenarioViewer({
       {/* Header */}
       <header
         className="flex justify-between items-center px-4 py-2 cursor-pointer bg-slate-100 rounded-t-lg"
-        onClick={() => setExpandedCode(expanded ? null : scenario.code)}
+        onClick={() => {
+          if (mode === "admin") {
+            setLocalExpanded((prev) => !prev);
+          } else {
+            setExpandedCode(expanded ? null : scenario.code);
+          }
+        }}
       >
         <h2 className="text-lg font-semibold">{scenario.title}</h2>
         <span className="text-sm text-slate-600">
