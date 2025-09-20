@@ -84,15 +84,18 @@ export default async function handler(req, res) {
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
-      // 2. Durchschnitt berechnen
-      const rAvg = await fetch(`${url}/rest/v1/feedback?select=avg(rating)`, {
-        headers: {
-          apikey: service,
-          Authorization: `Bearer ${service}`,
-        },
-      });
+      // 2. Durchschnitt berechnen (mit Alias)
+      const rAvg = await fetch(
+        `${url}/rest/v1/feedback?select=avg(rating)::float8 as avg_rating`,
+        {
+          headers: {
+            apikey: service,
+            Authorization: `Bearer ${service}`,
+          },
+        }
+      );
       const avgData = await rAvg.json();
-      const avgRaw = avgData?.[0]?.avg;
+      const avgRaw = avgData?.[0]?.avg_rating;
 
       let avgRating = null;
       if (avgRaw !== null && avgRaw !== undefined) {
