@@ -84,9 +84,9 @@ export default async function handler(req, res) {
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
-      // 2. Durchschnitt berechnen (mit Alias)
+      // 2. Durchschnitt berechnen (ignoriere NULL-Werte bei rating)
       const rAvg = await fetch(
-        `${url}/rest/v1/feedback?select=avg(rating)::float8 as avg_rating`,
+        `${url}/rest/v1/feedback?select=avg(rating)::float8 as avg_rating&rating=not.is.null`,
         {
           headers: {
             apikey: service,
