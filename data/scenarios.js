@@ -23,7 +23,7 @@ const scenarios = [
       fileType: "image",
       file: "/images/FFImsum.png",
       tasks: ["Herzlich Willkommen zur Funkübung der Feuerwehr Stadt Geestland in Imsum","Folgenden Sie der folgenden Navigaion zu Ihrem Einsatzort","Auf Alte Bahnhofstraße in Richutng Wurster Landstraße starten","Rechts abbiegen auf Wurster Landstarße","Nach 800m links abbiegen auch Lebsteterweg","Links abbiegen auf Deichverteidigungsweg","Dem Streckenverlauf folgen"],
-      solutionTasks: ["GF1 Aufgabe", "Alle Aufgaben erledigt",],
+      solutionTasks: ["GF1 Aufgabe", "Alle Aufgaben erledigt",],},
       {code: "4633",
        title: "Einfahrt 1",
        description: "Sie haben die Einsatzstelle erreicht und sehen eine deutliche Rauchentwicklung aus einem Kuhstall",
