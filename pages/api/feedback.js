@@ -11,9 +11,11 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const { message, rating } = req.body || {};
 
-    // Validierung: mindestens Text ODER Sterne müssen da sein
-    if ((!message || typeof message !== "string" || !message.trim()) && !rating) {
-      return res.status(400).json({ error: "Bitte Feedbacktext oder Bewertung angeben." });
+    // Mindestens Text oder Sterne müssen vorhanden sein
+    if ((!message || !message.trim()) && !rating) {
+      return res
+        .status(400)
+        .json({ error: "Bitte Feedbacktext oder Bewertung angeben." });
     }
 
     try {
@@ -26,14 +28,19 @@ export default async function handler(req, res) {
           Prefer: "return=minimal",
         },
         body: JSON.stringify({
-          message: message && message.trim() ? message.trim() : null,
+          message:
+            message && typeof message === "string" && message.trim()
+              ? message.trim()
+              : null,
           rating: typeof rating === "number" && rating > 0 ? rating : null,
         }),
       });
 
       if (!r.ok) {
         const err = await r.text();
-        return res.status(r.status).json({ error: err || "Fehler beim Speichern" });
+        return res
+          .status(r.status)
+          .json({ error: err || "Fehler beim Speichern" });
       }
 
       return res.status(200).json({ success: true });
@@ -54,7 +61,9 @@ export default async function handler(req, res) {
     }
 
     if (!service) {
-      return res.status(500).json({ error: "SUPABASE_SERVICE_ROLE fehlt." });
+      return res
+        .status(500)
+        .json({ error: "SUPABASE_SERVICE_ROLE fehlt." });
     }
 
     try {
@@ -84,14 +93,3 @@ export default async function handler(req, res) {
       return res.status(200).json({
         average_rating: avgRating ? Number(avgRating).toFixed(2) : null,
         count: data.length,
-        feedback: data,
-      });
-    } catch (e) {
-      return res.status(500).json({ error: e.message || "Serverfehler" });
-    }
-  }
-
-  // --- Method not allowed ---
-  res.setHeader("Allow", ["GET", "POST"]);
-  return res.status(405).json({ message: "Method not allowed" });
-}
