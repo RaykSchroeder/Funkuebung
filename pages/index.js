@@ -116,12 +116,12 @@ export default function Home() {
               </div>
             ) : (
               <p className="text-slate-500">
-                Noch kein Szenario-Code für Team {teamNr} eingegeben
+                Noch kein Szenario-Code für Gruppe {teamNr} eingegeben
               </p>
             )}
           </>
         ) : (
-          <p className="text-slate-500">Noch kein Team gewählt</p>
+          <p className="text-slate-500">Noch keine Gruppe gewählt</p>
         )}
 
         <FeuerwehrAlphabetModal />
