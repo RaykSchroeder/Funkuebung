@@ -40,7 +40,7 @@ export default function Home() {
     const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
 
     if (!sub) {
-      setError("Ungültiger Code oder gehört nicht zu diesem Team.");
+      setError("Ungültiger Code oder gehört nicht zu diese Gruppe.");
       setCode("");
       return;
     }
@@ -82,7 +82,7 @@ export default function Home() {
             onChange={(e) => setCode(e.target.value)}
             placeholder={
               !teamNr
-                ? "🔑 Teamnummer eingeben"
+                ? "🔑 Gruppennummer eingeben"
                 : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
             maxLength={teamNr ? 4 : 1}
