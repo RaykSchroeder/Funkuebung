@@ -9,7 +9,7 @@ export default function Statusboard() {
   const [lastUpdated, setLastUpdated] = useState(null);
 
   const teams = [1, 2, 3, 4, 5, 6];
-  const excludeFinal = true;
+  const excludeFinal = true; // Letztes Sub-Szenario (Übungsende) ignorieren
 
   async function loadProgress() {
     setLoading(true);
@@ -80,11 +80,13 @@ export default function Statusboard() {
           {teams.map((teamId) => {
             const teamScenarios = scenarios.filter((s) => s.team === teamId);
 
-            const allSubs = teamScenarios.flatMap((s) =>
-              (s.subScenarios || []).filter((sub) =>
-                excludeFinal ? !sub.isFinal : true
-              )
-            );
+            // Sub-Szenarien pro Team, letztes ggf. ignorieren
+            const allSubs = teamScenarios.flatMap((s) => {
+              if (!s.subScenarios) return [];
+              return excludeFinal
+                ? s.subScenarios.slice(0, -1) // letztes ignorieren
+                : s.subScenarios;
+            });
 
             // Szenario-Fortschritt
             const subTotal = allSubs.length;
@@ -110,7 +112,9 @@ export default function Statusboard() {
               >
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-xl font-semibold">🚒 Team {teamId}</h2>
-                  <span className="text-2xl">{getTrafficLight(subDone, subTotal)}</span>
+                  <span className="text-2xl">
+                    {getTrafficLight(subDone, subTotal)}
+                  </span>
                 </div>
 
                 <div className="p-3 mb-3 border rounded bg-slate-50 shadow-sm">
