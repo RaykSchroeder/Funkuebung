@@ -8,7 +8,7 @@ export default function Layout({ children }) {
       <header className="flex justify-between items-center p-4 bg-red-700 text-white shadow">
         <div className="flex items-center space-x-2">
           <img
-            src="/images/FFImsum.png"
+            src="/images/FFImsum2.png"
             alt="FF Imsum Wappen"
             className="h-12 w-auto"
           />
