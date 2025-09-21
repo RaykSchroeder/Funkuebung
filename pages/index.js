@@ -98,7 +98,7 @@ export default function Home() {
         {/* Wenn Team gewählt */}
         {teamNr ? (
           <>
-            <h2 className="text-2xl font-bold mb-4">🚒 Team {teamNr}</h2>
+            <h2 className="text-2xl font-bold mb-4">🚒 Gruppe {teamNr}</h2>
 
             {activeScenarios.length > 0 ? (
               <div className="space-y-6">
