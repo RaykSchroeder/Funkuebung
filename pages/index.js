@@ -40,7 +40,7 @@ export default function Home() {
     const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
 
     if (!sub) {
-      setError("Ungültiger Code oder gehört nicht zu diese Gruppe.");
+      setError("Ungültiger Code oder gehört nicht zu dieser Gruppe.");
       setCode("");
       return;
     }
