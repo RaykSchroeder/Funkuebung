@@ -21,7 +21,7 @@ export default function Home() {
     // --- 1) Teamnummer wählen ---
     if (!teamNr) {
       if (!/^[1-6]$/.test(cleaned)) {
-        setError("Bitte eine gültige Teamnummer eingeben.");
+        setError("Bitte eine gültige Gruppennummer eingeben.");
         return;
       }
       setTeamNr(Number(cleaned));
