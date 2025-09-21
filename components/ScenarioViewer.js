@@ -7,7 +7,7 @@ export default function ScenarioViewer({
   mode = "team",
   teamId,
   expandedCode,
-  setExpandedCode
+  setExpandedCode,
 }) {
   const [openImage, setOpenImage] = useState(null);
 
@@ -15,7 +15,9 @@ export default function ScenarioViewer({
   const [localExpanded, setLocalExpanded] = useState(false);
 
   // Lokaler State für Checkboxen
-  const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
+  const [checkedTasks, setCheckedTasks] = useState(
+    scenario.tasks.map(() => false)
+  );
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
@@ -27,9 +29,9 @@ export default function ScenarioViewer({
   const expanded =
     mode === "admin" ? localExpanded : scenario.code === expandedCode;
 
-  // Fortschritt laden (nur Admin)
+  // Fortschritt laden (nur Admin, keine Finals)
   useEffect(() => {
-    if (mode !== "admin") return;
+    if (mode !== "admin" || scenario.isFinal) return;
 
     async function loadProgress() {
       const res = await fetch(
@@ -41,13 +43,15 @@ export default function ScenarioViewer({
 
       const tasksState = [...checkedTasks];
       data.filter((d) => d.type === "task").forEach((d) => {
-        if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
+        if (tasksState[d.task_index] !== undefined)
+          tasksState[d.task_index] = d.done;
       });
       setCheckedTasks(tasksState);
 
       const solState = [...checkedSolutions];
       data.filter((d) => d.type === "solution").forEach((d) => {
-        if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
+        if (solState[d.task_index] !== undefined)
+          solState[d.task_index] = d.done;
       });
       setCheckedSolutions(solState);
     }
@@ -73,10 +77,16 @@ export default function ScenarioViewer({
     }
   }, [scenario.isFinal, teamId, mode]);
 
-  // Fortschritt speichern (nur Admin)
+  // Fortschritt speichern (nur Admin, keine Finals)
   const saveProgress = async (taskIndex, type, done) => {
-    if (mode !== "admin") return;
-    const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
+    if (mode !== "admin" || scenario.isFinal) return;
+    const payload = {
+      teamId,
+      scenarioCode: scenario.code,
+      taskIndex,
+      type,
+      done,
+    };
     await fetch("/api/task-progress", {
       method: "PATCH",
       headers: {
@@ -88,16 +98,20 @@ export default function ScenarioViewer({
   };
 
   const toggleTask = (index) => {
-    if (mode !== "admin") return;
+    if (mode !== "admin" || scenario.isFinal) return;
     const newVal = !checkedTasks[index];
-    setCheckedTasks((prev) => prev.map((v, i) => (i === index ? newVal : v)));
+    setCheckedTasks((prev) =>
+      prev.map((v, i) => (i === index ? newVal : v))
+    );
     saveProgress(index, "task", newVal);
   };
 
   const toggleSolution = (index) => {
-    if (mode !== "admin") return;
+    if (mode !== "admin" || scenario.isFinal) return;
     const newVal = !checkedSolutions[index];
-    setCheckedSolutions((prev) => prev.map((v, i) => (i === index ? newVal : v)));
+    setCheckedSolutions((prev) =>
+      prev.map((v, i) => (i === index ? newVal : v))
+    );
     saveProgress(index, "solution", newVal);
   };
 
@@ -107,7 +121,8 @@ export default function ScenarioViewer({
       <article className="border rounded-lg shadow bg-white p-4">
         <h2 className="text-lg font-semibold mb-2">{scenario.title}</h2>
         <p className="text-red-600 font-semibold">
-          🚫 Finale noch nicht freigeschaltet! Bitte zuerst alle Aufgaben erledigen.
+          🚫 Finale noch nicht freigeschaltet! Bitte zuerst alle Aufgaben
+          erledigen.
         </p>
       </article>
     );
@@ -160,34 +175,40 @@ export default function ScenarioViewer({
           )}
 
           {/* Aufgaben */}
-          <div>
-            <h3 className="font-semibold mt-4">Aufgaben</h3>
-            <ul className="mt-2 space-y-2">
-              {scenario.tasks.map((t, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
-                  onClick={() => toggleTask(i)}
-                >
-                  {mode === "admin" && (
-                    <input type="checkbox" checked={checkedTasks[i]} readOnly />
-                  )}
-                  <span
-                    className={
-                      mode === "admin" && checkedTasks[i]
-                        ? "line-through text-gray-500"
-                        : ""
-                    }
+          {!scenario.isFinal && (
+            <div>
+              <h3 className="font-semibold mt-4">Aufgaben</h3>
+              <ul className="mt-2 space-y-2">
+                {scenario.tasks.map((t, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
+                    onClick={() => toggleTask(i)}
                   >
-                    {t}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                    {mode === "admin" && (
+                      <input
+                        type="checkbox"
+                        checked={checkedTasks[i]}
+                        readOnly
+                      />
+                    )}
+                    <span
+                      className={
+                        mode === "admin" && checkedTasks[i]
+                          ? "line-through text-gray-500"
+                          : ""
+                      }
+                    >
+                      {t}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Lösungen */}
-          {mode === "admin" && scenario.solutionTasks && (
+          {mode === "admin" && !scenario.isFinal && scenario.solutionTasks && (
             <div>
               <h3 className="font-semibold mt-4 text-green-700">Lösungen</h3>
               <ul className="mt-2 space-y-2">
@@ -197,10 +218,16 @@ export default function ScenarioViewer({
                     className="flex items-center gap-2 bg-green-100 p-2 rounded cursor-pointer"
                     onClick={() => toggleSolution(i)}
                   >
-                    <input type="checkbox" checked={checkedSolutions[i]} readOnly />
+                    <input
+                      type="checkbox"
+                      checked={checkedSolutions[i]}
+                      readOnly
+                    />
                     <span
                       className={
-                        checkedSolutions[i] ? "line-through text-gray-500" : ""
+                        checkedSolutions[i]
+                          ? "line-through text-gray-500"
+                          : ""
                       }
                     >
                       {t}
