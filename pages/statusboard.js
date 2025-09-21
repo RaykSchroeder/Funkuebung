@@ -111,7 +111,7 @@ export default function Statusboard() {
                 className="border rounded-xl p-4 bg-white shadow"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-xl font-semibold">🚒 Team {teamId}</h2>
+                  <h2 className="text-xl font-semibold">🚒 Gruppe {teamId}</h2>
                   <span className="text-2xl">
                     {getTrafficLight(subDone, subTotal)}
                   </span>
