@@ -161,7 +161,7 @@ export default function ScenarioViewer({
             <img
               src={scenario.file}
               alt={scenario.title}
-              className="w-full max-w-md rounded shadow cursor-zoom-in"
+              className="w-1/2 max-w-xs mx-auto rounded shadow cursor-zoom-in"
               onClick={() => setOpenImage(scenario.file)}
             />
           )}
