@@ -24,13 +24,18 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Keine Szenarien für Team gefunden" });
     }
 
-    // Alle relevanten Codes ohne Final
+    // Alle relevanten Codes ohne Final,
+    // nur Szenarien mit mindestens 1 Lösung
     const expectedCodes = [];
     teamScenarios.forEach((s) => {
-      if (!s.isFinal) expectedCodes.push(s.code);
+      if (!s.isFinal && s.solutionTasks?.length > 0) {
+        expectedCodes.push(s.code);
+      }
       if (s.subScenarios) {
         s.subScenarios.forEach((sub) => {
-          if (!sub.isFinal) expectedCodes.push(sub.code);
+          if (!sub.isFinal && sub.solutionTasks?.length > 0) {
+            expectedCodes.push(sub.code);
+          }
         });
       }
     });
@@ -45,7 +50,7 @@ export default async function handler(req, res) {
     const progress = await r.json();
     if (!r.ok) return res.status(r.status).json(progress);
 
-    // Szenario gilt als erfüllt, wenn mindestens eine Lösung (type=solution) erledigt ist
+    // Szenario erfüllt, wenn mindestens eine Lösung erledigt
     const fulfilledCodes = [
       ...new Set(
         progress
@@ -54,6 +59,7 @@ export default async function handler(req, res) {
       ),
     ];
 
+    // Welche fehlen?
     const missing = expectedCodes.filter((code) => !fulfilledCodes.includes(code));
 
     return res.status(200).json({
