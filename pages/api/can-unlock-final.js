@@ -25,21 +25,20 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Keine Szenarien für Team gefunden" });
     }
 
-    // Alle Codes sammeln (ohne isFinal)
+    // Alle relevanten Codes sammeln (ohne Final)
     const expectedCodes = [];
     teamScenarios.forEach((s) => {
-      if (!s.isFinal) expectedCodes.push({ code: s.code, title: s.title });
+      if (!s.isFinal) expectedCodes.push(s.code);
       if (s.subScenarios) {
         s.subScenarios.forEach((sub) => {
-          if (!sub.isFinal)
-            expectedCodes.push({ code: sub.code, title: sub.title });
+          if (!sub.isFinal) expectedCodes.push(sub.code);
         });
       }
     });
 
-    // Fortschritt abrufen
+    // Vollständigen Fortschritt abrufen
     const r = await fetch(
-      `${url}/rest/v1/task_progress?team_id=eq.${teamId}&done=eq.true`,
+      `${url}/rest/v1/task_progress?team_id=eq.${teamId}`,
       {
         headers: {
           apikey: service,
@@ -50,12 +49,18 @@ export default async function handler(req, res) {
     const progress = await r.json();
     if (!r.ok) return res.status(r.status).json(progress);
 
-    const foundCodes = [...new Set(progress.map((p) => p.scenario_code))];
+    // Erledigte Codes nach Dashboard-Logik:
+    // mindestens ein Task ODER Solution erledigt
+    const foundCodes = [
+      ...new Set(
+        progress
+          .filter((p) => p.done) // erledigt
+          .map((p) => p.scenario_code)
+      ),
+    ];
 
-    // Welche fehlen?
-    const missing = expectedCodes.filter(
-      (exp) => !foundCodes.includes(exp.code)
-    );
+    // Welche Codes fehlen?
+    const missing = expectedCodes.filter((code) => !foundCodes.includes(code));
 
     const allCovered = missing.length === 0;
 
@@ -63,7 +68,7 @@ export default async function handler(req, res) {
       allowed: allCovered,
       expectedCodes,
       foundCodes,
-      missingCodes: missing, // 👈 Neu
+      missingCodes: missing,
     });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Serverfehler" });
