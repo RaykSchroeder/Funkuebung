@@ -1,10 +1,11 @@
-// pages/api/can-unlock-final.js
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL;
   const service = process.env.SUPABASE_SERVICE_ROLE;
 
   if (!url || !service) {
-    return res.status(500).json({ error: "Supabase-Umgebungsvariablen fehlen." });
+    return res
+      .status(500)
+      .json({ error: "Supabase-Umgebungsvariablen fehlen." });
   }
 
   if (req.method !== "GET") {
@@ -22,10 +23,12 @@ export default async function handler(req, res) {
     );
 
     if (!teamScenarios.length) {
-      return res.status(404).json({ error: "Keine Szenarien für Team gefunden" });
+      return res
+        .status(404)
+        .json({ error: "Keine Szenarien für Team gefunden" });
     }
 
-    // Alle relevanten Codes sammeln (ohne Final)
+    // Alle relevanten Codes sammeln (ohne Finals)
     const expectedCodes = [];
     teamScenarios.forEach((s) => {
       if (!s.isFinal) expectedCodes.push(s.code);
@@ -36,7 +39,7 @@ export default async function handler(req, res) {
       }
     });
 
-    // Vollständigen Fortschritt abrufen
+    // kompletten Fortschritt abrufen
     const r = await fetch(
       `${url}/rest/v1/task_progress?team_id=eq.${teamId}`,
       {
@@ -49,19 +52,17 @@ export default async function handler(req, res) {
     const progress = await r.json();
     if (!r.ok) return res.status(r.status).json(progress);
 
-    // Erledigte Codes nach Dashboard-Logik:
-    // mindestens ein Task ODER Solution erledigt
+    // Szenario als erfüllt, wenn mindestens eine Task/Lösung erledigt ist
     const foundCodes = [
       ...new Set(
         progress
-          .filter((p) => p.done) // erledigt
+          .filter((p) => p.task > 0 || p.solution > 0)
           .map((p) => p.scenario_code)
       ),
     ];
 
-    // Welche Codes fehlen?
+    // Welche fehlen?
     const missing = expectedCodes.filter((code) => !foundCodes.includes(code));
-
     const allCovered = missing.length === 0;
 
     return res.status(200).json({
