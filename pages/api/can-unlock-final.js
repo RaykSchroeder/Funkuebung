@@ -3,9 +3,7 @@ export default async function handler(req, res) {
   const service = process.env.SUPABASE_SERVICE_ROLE;
 
   if (!url || !service) {
-    return res
-      .status(500)
-      .json({ error: "Supabase-Umgebungsvariablen fehlen." });
+    return res.status(500).json({ error: "Supabase-Umgebungsvariablen fehlen." });
   }
 
   if (req.method !== "GET") {
@@ -23,12 +21,10 @@ export default async function handler(req, res) {
     );
 
     if (!teamScenarios.length) {
-      return res
-        .status(404)
-        .json({ error: "Keine Szenarien für Team gefunden" });
+      return res.status(404).json({ error: "Keine Szenarien für Team gefunden" });
     }
 
-    // Alle relevanten Codes sammeln (ohne Finals)
+    // Alle relevanten Codes ohne Final
     const expectedCodes = [];
     teamScenarios.forEach((s) => {
       if (!s.isFinal) expectedCodes.push(s.code);
@@ -39,37 +35,32 @@ export default async function handler(req, res) {
       }
     });
 
-    // kompletten Fortschritt abrufen
-    const r = await fetch(
-      `${url}/rest/v1/task_progress?team_id=eq.${teamId}`,
-      {
-        headers: {
-          apikey: service,
-          Authorization: `Bearer ${service}`,
-        },
-      }
-    );
+    // kompletten Fortschritt laden
+    const r = await fetch(`${url}/rest/v1/task_progress?team_id=eq.${teamId}`, {
+      headers: {
+        apikey: service,
+        Authorization: `Bearer ${service}`,
+      },
+    });
     const progress = await r.json();
     if (!r.ok) return res.status(r.status).json(progress);
 
-    // Szenario als erfüllt, wenn mindestens eine Task/Lösung erledigt ist
-    const foundCodes = [
+    // Szenario gilt als erfüllt, wenn mindestens eine Lösung (type=solution) erledigt ist
+    const fulfilledCodes = [
       ...new Set(
         progress
-          .filter((p) => p.task > 0 || p.solution > 0)
+          .filter((p) => p.type === "solution" && p.done === true)
           .map((p) => p.scenario_code)
       ),
     ];
 
-    // Welche fehlen?
-    const missing = expectedCodes.filter((code) => !foundCodes.includes(code));
-    const allCovered = missing.length === 0;
+    const missing = expectedCodes.filter((code) => !fulfilledCodes.includes(code));
 
     return res.status(200).json({
-      allowed: allCovered,
+      allowed: missing.length === 0,
       expectedCodes,
-      foundCodes,
-      missingCodes: missing,
+      fulfilledCodes,
+      missing,
     });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Serverfehler" });
