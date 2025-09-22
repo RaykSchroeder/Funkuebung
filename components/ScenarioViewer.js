@@ -1,11 +1,24 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
+// Hilfsfunktion für Rollenzuordnung
+function getRoleFromLogin(teamId, loginCode) {
+  if (/^[1-6]$/.test(loginCode)) {
+    return "GF" + loginCode;
+  } else if (/^AT[1-6]$/.test(loginCode)) {
+    return loginCode;
+  } else if (/^WT[1-6]$/.test(loginCode)) {
+    return loginCode;
+  }
+  return null;
+}
+
 export default function ScenarioViewer({
   scenario,
   onBack,
   mode = "team",
   teamId,
+  loginCode, // 🔑 neu: Login-Code übergeben
   expandedCode,
   setExpandedCode,
 }) {
@@ -28,6 +41,16 @@ export default function ScenarioViewer({
   // Unterschied: Admin nutzt eigenen State, Team nutzt expandedCode
   const expanded =
     mode === "admin" ? localExpanded : scenario.code === expandedCode;
+
+  // 🚦 Szenarien filtern: Teams sehen nur ihre eigene Rolle
+  let visible = true;
+  if (mode === "team" && loginCode) {
+    const userRole = getRoleFromLogin(teamId, loginCode);
+    if (userRole && scenario.role && scenario.role !== userRole) {
+      visible = false;
+    }
+  }
+  if (!visible) return null;
 
   // Fortschritt laden (nur Admin, keine Finals)
   useEffect(() => {
