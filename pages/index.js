@@ -8,23 +8,25 @@ import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 export default function Home() {
   const [code, setCode] = useState("");
   const [activeScenarios, setActiveScenarios] = useState([]); // nur Subs
-  const [teamNr, setTeamNr] = useState(null); // merkt sich das aktive Team
+  const [teamNr, setTeamNr] = useState(null); // merkt sich das Team (Zahl)
+  const [loginCode, setLoginCode] = useState(null); // merkt sich den Login (GF/AT/WT)
   const [error, setError] = useState(null);
-  const [expandedCode, setExpandedCode] = useState(null); // 👈 nur 1 Szenario offen
+  const [expandedCode, setExpandedCode] = useState(null);
 
   const handleAddScenario = async (e) => {
     e.preventDefault();
     setError(null);
 
-    const cleaned = code.trim();
+    const cleaned = code.trim().toUpperCase();
 
-    // --- 1) Teamnummer wählen ---
-    if (!teamNr) {
-      if (!/^[1-6]$/.test(cleaned)) {
-        setError("Bitte eine gültige Gruppennummer eingeben.");
+    // --- 1) Login (Teamcode) ---
+    if (!loginCode) {
+      if (!/^[1-6]$/.test(cleaned) && !/^AT[1-6]$/.test(cleaned) && !/^WT[1-6]$/.test(cleaned)) {
+        setError("Bitte eine gültige Team-Kennung eingeben (1-6, AT1-6 oder WT1-6).");
         return;
       }
-      setTeamNr(Number(cleaned));
+      setLoginCode(cleaned);
+      setTeamNr(Number(cleaned.replace(/\D/g, ""))); // Zahl extrahieren
       setCode("");
       return;
     }
@@ -35,7 +37,6 @@ export default function Home() {
       return;
     }
 
-    // passendes Hauptszenario für dieses Team suchen
     const mainScenario = scenarios.find((s) => s.team === teamNr);
     const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
 
@@ -68,7 +69,7 @@ export default function Home() {
       setActiveScenarios((prev) => [...prev, { ...sub, team: teamNr }]);
     }
 
-    setExpandedCode(sub.code); // 👈 neu: nur dieses Szenario aufklappen
+    setExpandedCode(sub.code);
     setCode("");
   };
 
@@ -81,24 +82,24 @@ export default function Home() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder={
-              !teamNr
-                ? "🔑 Gruppennummer eingeben"
+              !loginCode
+                ? "🔑 Teamcode eingeben (1-6, AT1-6, WT1-6)"
                 : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
-            maxLength={teamNr ? 4 : 1}
+            maxLength={loginCode ? 4 : 4} // erlaubt auch AT1, WT1
             className="flex-1 border px-3 py-2 rounded"
           />
           <button className="px-4 py-2 bg-slate-800 text-white rounded">
-            {!teamNr ? "Start" : "Nächster Code"}
+            {!loginCode ? "Start" : "Nächster Code"}
           </button>
         </form>
 
         {error && <div className="text-red-600 mb-4">{error}</div>}
 
         {/* Wenn Team gewählt */}
-        {teamNr ? (
+        {loginCode ? (
           <>
-            <h2 className="text-2xl font-bold mb-4">🚒 Gruppe {teamNr}</h2>
+            <h2 className="text-2xl font-bold mb-4">🚒 Team {loginCode}</h2>
 
             {activeScenarios.length > 0 ? (
               <div className="space-y-6">
@@ -109,6 +110,7 @@ export default function Home() {
                     onBack={() => {}}
                     mode="team"
                     teamId={teamNr}
+                    loginCode={loginCode} // 🔑 neu: Login weitergeben
                     expandedCode={expandedCode}
                     setExpandedCode={setExpandedCode}
                   />
@@ -116,12 +118,12 @@ export default function Home() {
               </div>
             ) : (
               <p className="text-slate-500">
-                Noch kein Szenario-Code für Gruppe {teamNr} eingegeben
+                Noch kein Szenario-Code für Team {loginCode} eingegeben
               </p>
             )}
           </>
         ) : (
-          <p className="text-slate-500">Noch keine Gruppe gewählt</p>
+          <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
         <FeuerwehrAlphabetModal />
