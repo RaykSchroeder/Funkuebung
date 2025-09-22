@@ -21,7 +21,11 @@ export default function Home() {
 
     // --- 1) Login (Teamcode) ---
     if (!loginCode) {
-      if (!/^[1-6]$/.test(cleaned) && !/^AT[1-6]$/.test(cleaned) && !/^WT[1-6]$/.test(cleaned)) {
+      if (
+        !/^[1-6]$/.test(cleaned) &&
+        !/^AT[1-6]$/.test(cleaned) &&
+        !/^WT[1-6]$/.test(cleaned)
+      ) {
         setError("Bitte eine gültige Team-Kennung eingeben (1-6, AT1-6 oder WT1-6).");
         return;
       }
@@ -41,7 +45,22 @@ export default function Home() {
     const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
 
     if (!sub) {
-      setError("Ungültiger Code oder gehört nicht zu dieser Gruppe.");
+      // Prüfen: gibt es den Code überhaupt in einem anderen Team?
+      const anywhere = scenarios.some((s) =>
+        s.subScenarios?.some((sub) => sub.code === cleaned)
+      );
+      if (anywhere) {
+        setError("❌ Falsches Team – der Code gehört zu einer anderen Gruppe.");
+      } else {
+        setError("❌ Ungültiger Szenario-Code.");
+      }
+      setCode("");
+      return;
+    }
+
+    // --- 2b) Rolle prüfen ---
+    if (loginCode && sub.role !== loginCode) {
+      setError("❌ Nicht der richtige Trupp – dieser Code gehört einem anderen Trupp.");
       setCode("");
       return;
     }
