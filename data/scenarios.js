@@ -47,7 +47,7 @@ const scenarios = [
        solutionTasks: ["Aufteilung"],},
       
       {code: "4125",
-       role: "GF1",
+       role: "AT1",
        title: "Stallblick",
        description: "Sie stellen eine starke Verrauchung im nördlichen Stallabschnitt fest",
        fileType: "image",
