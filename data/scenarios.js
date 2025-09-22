@@ -109,8 +109,8 @@ const scenarios = [
       {code: "2841",
        title: "Ausweichfläche",
        description: "Sie stellen fest, dass die Sandfläche als Ausweichfläche für die Rinder ausreicht.",
-       fileType: "image",
-       file: "/images/2841.png",
+       //fileType: "image",
+       //file: "/images/2841.png",
        tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp",""],
        solutionTasks: ["WT1 Aufgabe", "Begeben Sie sich zurück zum Fahrzeug"],},
       
