@@ -50,7 +50,7 @@ export default function Home() {
         s.subScenarios?.some((sub) => sub.code === cleaned)
       );
       if (anywhere) {
-        setError("❌ Falsches Team – der Code gehört zu einer anderen Gruppe.");
+        setError("❌ Falsche Gruppe – der Code gehört zu einer anderen Gruppe.");
       } else {
         setError("❌ Ungültiger Szenario-Code.");
       }
