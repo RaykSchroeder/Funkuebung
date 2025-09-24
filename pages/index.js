@@ -102,7 +102,7 @@ export default function Home() {
             onChange={(e) => setCode(e.target.value)}
             placeholder={
               !loginCode
-                ? "🔑 Teamcode eingeben (1-6, AT1-6, WT1-6)"
+                ? "🔑 Teamcode eingeben (GF1-6, AT1-6, WT1-6)"
                 : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
             maxLength={loginCode ? 4 : 4} // erlaubt auch AT1, WT1
