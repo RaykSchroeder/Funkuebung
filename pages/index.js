@@ -22,11 +22,11 @@ export default function Home() {
     // --- 1) Login (Teamcode) ---
     if (!loginCode) {
       if (
-        !/^[1-6]$/.test(cleaned) &&
+        !/^GF[1-6]$/.test(cleaned) &&
         !/^AT[1-6]$/.test(cleaned) &&
         !/^WT[1-6]$/.test(cleaned)
       ) {
-        setError("Bitte eine gültige Team-Kennung eingeben (1-6, AT1-6 oder WT1-6).");
+        setError("Bitte eine gültige Team-Kennung eingeben (GF1-6, AT1-6 oder WT1-6).");
         return;
       }
       setLoginCode(cleaned);
