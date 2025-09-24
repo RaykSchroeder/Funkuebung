@@ -20,7 +20,7 @@ const scenarios = [
     solutionTasks: [],
     subScenarios: [
       {code: "5934",
-       role: "1",
+       role: "GF1",
        title: "Ausfahrt",
        description: "Herzlich Willkommen zur Funkübung der Feuerwehr Stadt Geestland in Imsum. Folgenden Sie der folgenden Navigaion zu Ihrem Einsatzort",
        fileType: "image",
@@ -29,7 +29,7 @@ const scenarios = [
        solutionTasks: ["Alle Aufgaben erledigt",],},
       
       {code: "4633",
-       role: "1",
+       role: "GF1",
        title: "Auf Sicht",
        description: "Sie haben die Einsatzstelle erreicht und sehen eine deutliche Rauchentwicklung aus einem Kuhstall",
        fileType: "image",
