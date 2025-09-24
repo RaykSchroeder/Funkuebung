@@ -3,8 +3,8 @@ import { X } from "lucide-react";
 
 // Hilfsfunktion für Rollenzuordnung
 function getRoleFromLogin(teamId, loginCode) {
-  if (/^[1-6]$/.test(loginCode)) {
-    return "GF" + loginCode;
+  if (/^GF[1-6]$/.test(loginCode)) {
+    return loginCode;
   } else if (/^AT[1-6]$/.test(loginCode)) {
     return loginCode;
   } else if (/^WT[1-6]$/.test(loginCode)) {
