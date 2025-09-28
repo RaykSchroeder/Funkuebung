@@ -191,13 +191,48 @@ const scenarios = [
        tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp","Kehren Sie zum Fahrzeug zurück."],
        solutionTasks: ["Vollstädig abgesucht","keine Feststellung"], },
       
-      { code: "7041",role: "WT2", title: "Nachbar", description: "",fileType: "image",file: "/images/7041.jpg",tasks: ["",""],solutionTasks: ["",""], },
-      { code: "8327",role: "WT2", title: "Telefon", description: "",fileType: "image",file: "/images/8327.jpg",tasks: ["",""],solutionTasks: ["",""], },
-      { code: "5294",role: "WT2", title: "Sicht", description: "",fileType: "image",file: "/images/5294.jpg",tasks: ["",""],solutionTasks: ["",""], },
-      { code: "1653",role: "WT2", title: "Person", description: "",fileType: "image",file: "/images/1653.jpg",tasks: ["",""],solutionTasks: ["",""], },
-      { code: "9245",role: "AT2", title: "Rettung", description: "",fileType: "image",file: "/images/9245.jpg",tasks: ["",""],solutionTasks: ["",""], },
-      { code: "4529",role: "AT2", title: "Rettungsdienst", description: "",fileType: "image",file: "/images/4529.jpg",tasks: ["",""],solutionTasks: ["",""], },
-      { code: "6258",role: "GF2",title: "Abschluss",description: "",fileType: "image",file: "/images/6258.jpg",tasks: ["",""],solutionTasks: ["",""], },
+      { code: "7041",role: "WT2", title: "Nachbar", 
+       description: "Sie haben einen Nachbarn angetroffen. Dieser gibt an die Person zuletzt im Bereich des Schutthaufens gesehen zu haben.",
+       fileType: "image",file: "/images/7041.jpg",
+       tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp","Setzen sie im Anschluss ihre Erkundung in fort."],
+       solutionTasks: ["Standort","Sichtung"], },
+      
+      { code: "8327",role: "WT2", title: "Telefon", 
+       description: "Der Landwirt kommt Ihnen nachgelaufen. Er hat die gesuchte Person am Telefon. Sie liegt wohl verletzt an einem Maisfeld.",
+       fileType: "image",file: "/images/8327.jpg",
+       tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp","Setzen sie im Anschluss ihre Erkundung in fort."],
+       solutionTasks: ["Kontakt","Ort"], },
+      
+      { code: "5294",role: "WT2", title: "Sicht", 
+       description: "Sie haben von Ihrem Standort Sicht auf die gesuchte Person. ",
+       fileType: "image",file: "/images/5294.jpg",
+       tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp","Setzen Sie die Erkundung fort."],
+       solutionTasks: ["Sichtkontakt"], },
+      
+      { code: "1653",role: "WT2", title: "Person", 
+       description: "Sie haben die Person gefunden. Person reagiert auf Ansprache, hat Verletzungen am Kopf und Oberschenkel.",
+       fileType: "image",file: "/images/1653.jpg",
+       tasks: ["Sie können die Person nicht eigenständig transportieren.","Geben Sie ihre Feststellung an den GF-Trupp weiter und fordern Sie einen weiteren Trupp mit einer Trage nach."],
+       solutionTasks: ["Pat.-Zustand","Nachforderung"], },
+      
+      { code: "9245",role: "AT2", title: "Rettung", 
+       description: "Sie unterstützen nun den Wassertrupp.",
+       fileType: "image",file: "/images/9245.jpg",
+       tasks: ["Retten Sie die Person gemeinsam zur Position auf dem Foto."],
+       solutionTasks: ["Rettung"], },
+      
+      { code: "4529",role: "AT2", title: "Rettungsdienst", 
+       description: "Der Rettungsdienst ist an Ihrem Standort eingetroffen. Sie können den Patienten an den RD übergeben.",
+       fileType: "image",file: "/images/4529.jpg",
+       tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp","Kehren Sie zum Fahrzeug zurück"],
+       solutionTasks: ["An RD übergeben"], },
+      
+      { code: "6258",role: "GF2",title: "Abschluss",
+       description: "Sie haben den Einsatz erfolgreich abgearbeitet. Die Einsatzstellewurde an den Eigentümer übergeben.",
+       fileType: "image",file: "/images/6258.jpg",
+       tasks: ["Geben Sie eine abschließende Lagemeldung ab","Begeben Sie sich zurück zum Feuerwehrhaus Imsum."],
+       solutionTasks: ["Geben Sie eine abschließende Lagemeldung ab","Begeben Sie sich zurück zum Feuerwehrhaus Imsum."], },
+      
   },
 
   // ==================================================
