@@ -231,7 +231,7 @@ const scenarios = [
        description: "Sie haben den Einsatz erfolgreich abgearbeitet. Die Einsatzstellewurde an den Eigentümer übergeben.",
        fileType: "image",file: "/images/6258.jpg",
        tasks: ["Geben Sie eine abschließende Lagemeldung ab","Begeben Sie sich zurück zum Feuerwehrhaus Imsum."],
-       solutionTasks: ["Geben Sie eine abschließende Lagemeldung ab","Begeben Sie sich zurück zum Feuerwehrhaus Imsum."], },
+       solutionTasks: ["Geben Sie eine abschließende Lagemeldung ab","Begeben Sie sich zurück zum Feuerwehrhaus Imsum."], },],
       
   },
 
