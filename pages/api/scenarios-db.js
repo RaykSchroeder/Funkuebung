@@ -1,79 +1,54 @@
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
   const service = process.env.SUPABASE_SERVICE_ROLE;
-  const adminPass = process.env.ADMIN_PASS;
-  const publicPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
-  // === Grundcheck ===
-  if (!url || !service) {
-    return res
-      .status(500)
-      .json({ error: "Supabase-Umgebungsvariablen fehlen." });
-  }
+  if (!url || !anon || !service)
+    return res.status(500).json({ error: "Supabase-Variablen fehlen." });
 
-  // === Authentifizierung ===
-  const clientPass = req.headers["x-admin-pass"];
-  if (clientPass !== adminPass && clientPass !== publicPass) {
+  const pass = req.headers["x-admin-pass"];
+  if (pass !== process.env.NEXT_PUBLIC_ADMIN_PASS)
     return res.status(401).json({ error: "Unauthorized" });
-  }
 
-  // === GET: Alle Szenarien laden ===
-  if (req.method === "GET") {
-    try {
+  try {
+    // === ALLE SZENARIEN LADEN ===
+    if (req.method === "GET") {
       const r = await fetch(`${url}/rest/v1/scenarios?select=*`, {
         headers: {
           apikey: service,
           Authorization: `Bearer ${service}`,
         },
       });
-
       const data = await r.json();
-      if (!r.ok)
-        return res.status(r.status).json({
-          error: data?.message || "Fehler beim Laden der Szenarien",
-        });
-
+      if (!r.ok) return res.status(r.status).json(data);
       return res.status(200).json(data);
-    } catch (e) {
-      console.error("❌ Fehler beim Laden:", e);
-      return res
-        .status(500)
-        .json({ error: e.message || "Unbekannter Serverfehler" });
     }
-  }
 
-  // === PATCH: Szenario aktualisieren ===
-  if (req.method === "PATCH") {
-    try {
+    // === NEUES SZENARIO ANLEGEN ===
+    if (req.method === "POST") {
+      const body = req.body;
+      const r = await fetch(`${url}/rest/v1/scenarios`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: service,
+          Authorization: `Bearer ${service}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const err = await r.text();
+        return res.status(r.status).json({ error: err || "Fehler beim Einfügen" });
+      }
+      return res.status(200).json({ success: true });
+    }
+
+    // === SZENARIO AKTUALISIEREN ===
+    if (req.method === "PATCH") {
       const body = req.body;
       if (!body.code)
-        return res.status(400).json({ error: "Code fehlt im Request." });
-
-      // Nur bekannte Felder erlauben (deine Supabase-Struktur)
-      const allowedKeys = [
-        "gruppe",
-        "rolle",
-        "code",
-        "titel",
-        "bilder",
-        "beschreibung",
-        "aufgabe1",
-        "aufgabe2",
-        "aufgabe3",
-        "aufgabe4",
-        "aufgabe5",
-        "loesung1",
-        "loesung2",
-        "loesung3",
-      ];
-
-      // Nur vorhandene Felder übernehmen
-      const cleanBody = {};
-      for (const k of allowedKeys) {
-        if (body[k] !== undefined) cleanBody[k] = body[k];
-      }
-
-      console.log("🔹 PATCH Szenario:", cleanBody);
+        return res.status(400).json({ error: "Code fehlt (zur Identifikation)" });
 
       const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${body.code}`, {
         method: "PATCH",
@@ -81,31 +56,42 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
           apikey: service,
           Authorization: `Bearer ${service}`,
-          Prefer: "return=representation",
+          Prefer: "return=minimal",
         },
-        body: JSON.stringify(cleanBody),
+        body: JSON.stringify(body),
       });
-
-      const data = await r.json();
       if (!r.ok) {
-        console.error("❌ Supabase-Fehler:", data);
-        return res.status(r.status).json({
-          error: data?.message || "Fehler beim Speichern",
-          details: data,
-        });
+        const err = await r.text();
+        return res.status(r.status).json({ error: err || "Fehler beim Aktualisieren" });
       }
-
-      console.log("✅ Szenario gespeichert:", data);
-      return res.status(200).json(data);
-    } catch (e) {
-      console.error("❌ Fehler beim PATCH:", e);
-      return res
-        .status(500)
-        .json({ error: e.message || "Unbekannter Serverfehler" });
+      return res.status(200).json({ success: true });
     }
-  }
 
-  // === Methodenbeschränkung ===
-  res.setHeader("Allow", ["GET", "PATCH"]);
-  return res.status(405).json({ error: "Method not allowed" });
+    // === SZENARIO LÖSCHEN ===
+    if (req.method === "DELETE") {
+      const { code } = req.query;
+      if (!code)
+        return res.status(400).json({ error: "Code muss angegeben werden" });
+
+      const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${code}`, {
+        method: "DELETE",
+        headers: {
+          apikey: service,
+          Authorization: `Bearer ${service}`,
+        },
+      });
+      if (!r.ok) {
+        const err = await r.text();
+        return res.status(r.status).json({ error: err || "Fehler beim Löschen" });
+      }
+      return res.status(200).json({ success: true });
+    }
+
+    // === Methode nicht erlaubt ===
+    res.setHeader("Allow", ["GET", "POST", "PATCH", "DELETE"]);
+    return res.status(405).json({ error: "Method not allowed" });
+  } catch (e) {
+    console.error("Fehler in /api/scenarios-db:", e);
+    return res.status(500).json({ error: e.message || "Serverfehler" });
+  }
 }
