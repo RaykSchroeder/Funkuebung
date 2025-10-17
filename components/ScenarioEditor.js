@@ -6,7 +6,7 @@ export default function ScenarioEditor({ onBack }) {
   const [statusDB, setStatusDB] = useState("Lade Szenarien …");
   const [editing, setEditing] = useState(null);
 
-  // Szenarien aus Supabase laden
+  // Szenarien laden
   useEffect(() => {
     async function loadScenarios() {
       try {
@@ -24,7 +24,7 @@ export default function ScenarioEditor({ onBack }) {
     loadScenarios();
   }, []);
 
-  // Speichern eines Eintrags
+  // Speichern
   const handleSave = async (scenario) => {
     try {
       const res = await fetch("/api/scenarios-db", {
@@ -43,123 +43,132 @@ export default function ScenarioEditor({ onBack }) {
     }
   };
 
-  // Alle Spalten deiner Supabase-Tabelle
-  const fieldNames = [
-    "gruppe",
-    "rolle",
-    "code",
-    "titel",
-    "bilder",
-    "beschreibung",
-    "aufgabe1",
-    "aufgabe2",
-    "aufgabe3",
-    "aufgabe4",
-    "aufgabe5",
-    "loesung1",
-    "loesung2",
-    "loesung3",
+  // Feldreihenfolge
+  const fieldGroups = [
+    { label: "Allgemein", fields: ["gruppe", "rolle", "code", "titel", "bilder"] },
+    { label: "Beschreibung", fields: ["beschreibung"] },
+    {
+      label: "Aufgaben",
+      fields: ["aufgabe1", "aufgabe2", "aufgabe3", "aufgabe4", "aufgabe5"],
+    },
+    { label: "Lösungen", fields: ["loesung1", "loesung2", "loesung3"] },
+  ];
+
+  // Kartenfarben (abwechslend)
+  const cardColors = [
+    "bg-slate-50",
+    "bg-white",
+    "bg-slate-100",
+    "bg-slate-200",
+    "bg-slate-50",
   ];
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto bg-white shadow rounded-xl p-6">
+      <div className="max-w-6xl mx-auto bg-white shadow rounded-xl p-6">
         <button
           onClick={onBack}
-          className="text-red-600 hover:underline flex items-center mb-4"
+          className="text-red-600 hover:underline flex items-center mb-6"
         >
           <span className="mr-2">⬅️</span> Zurück
         </button>
 
-        <h1 className="text-2xl font-bold mb-4">📝 Szenarien bearbeiten</h1>
+        <h1 className="text-2xl font-bold mb-6">📝 Szenarien bearbeiten</h1>
 
         {statusDB && <p className="text-slate-500">{statusDB}</p>}
 
         {!statusDB && scenariosDB.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full border text-xs md:text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  {fieldNames.map((f) => (
-                    <th key={f} className="p-2 border whitespace-nowrap">
-                      {f}
-                    </th>
-                  ))}
-                  <th className="p-2 border">Aktion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {scenariosDB.map((s) => (
-                  <tr key={s.code} className="border-t align-top">
-                    {fieldNames.map((f) => (
-                      <td key={f} className="p-2 border">
-                        {editing === s.code ? (
-                          f === "beschreibung" ? (
-                            <textarea
-                              value={s[f] ?? ""}
-                              onChange={(e) =>
-                                setScenariosDB((prev) =>
-                                  prev.map((p) =>
-                                    p.code === s.code
-                                      ? { ...p, [f]: e.target.value }
-                                      : p
-                                  )
-                                )
-                              }
-                              className="border w-full h-16 px-1 text-xs"
-                            />
-                          ) : (
-                            <input
-                              value={s[f] ?? ""}
-                              onChange={(e) =>
-                                setScenariosDB((prev) =>
-                                  prev.map((p) =>
-                                    p.code === s.code
-                                      ? { ...p, [f]: e.target.value }
-                                      : p
-                                  )
-                                )
-                              }
-                              className="border w-full px-1 text-xs"
-                            />
-                          )
-                        ) : (
-                          <div className="max-w-[250px] truncate">
-                            {s[f] ?? ""}
-                          </div>
-                        )}
-                      </td>
-                    ))}
+          <div className="space-y-6">
+            {scenariosDB.map((s, index) => (
+              <div
+                key={s.code}
+                className={`rounded-xl border shadow-sm p-4 ${cardColors[index % cardColors.length]}`}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="font-semibold text-lg">
+                    {s.titel || "(kein Titel)"}{" "}
+                    <span className="text-slate-500 text-sm">({s.code})</span>
+                  </h2>
+                  {editing === s.code ? (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSave(s)}
+                        className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                      >
+                        💾 Speichern
+                      </button>
+                      <button
+                        onClick={() => setEditing(null)}
+                        className="bg-gray-500 text-white px-3 py-1 rounded text-sm"
+                      >
+                        ✖ Abbrechen
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setEditing(s.code)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                    >
+                      ✏️ Bearbeiten
+                    </button>
+                  )}
+                </div>
 
-                    <td className="p-2 border text-center whitespace-nowrap">
-                      {editing === s.code ? (
-                        <>
-                          <button
-                            onClick={() => handleSave(s)}
-                            className="bg-green-600 text-white px-2 py-1 rounded mr-2"
-                          >
-                            💾 Speichern
-                          </button>
-                          <button
-                            onClick={() => setEditing(null)}
-                            className="bg-gray-400 text-white px-2 py-1 rounded"
-                          >
-                            ✖ Abbrechen
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setEditing(s.code)}
-                          className="bg-blue-600 text-white px-2 py-1 rounded"
-                        >
-                          ✏️ Bearbeiten
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+                {/* Abschnittsweise Darstellung */}
+                {fieldGroups.map((group) => (
+                  <div key={group.label} className="mt-4">
+                    <h3 className="font-medium text-slate-600 mb-1">
+                      {group.label}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {group.fields.map((f) => (
+                        <div key={f}>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">
+                            {f}
+                          </label>
+                          {editing === s.code ? (
+                            f === "beschreibung" ? (
+                              <textarea
+                                value={s[f] ?? ""}
+                                onChange={(e) =>
+                                  setScenariosDB((prev) =>
+                                    prev.map((p) =>
+                                      p.code === s.code
+                                        ? { ...p, [f]: e.target.value }
+                                        : p
+                                    )
+                                  )
+                                }
+                                className="border rounded-md w-full p-2 text-sm"
+                                rows={3}
+                              />
+                            ) : (
+                              <input
+                                value={s[f] ?? ""}
+                                onChange={(e) =>
+                                  setScenariosDB((prev) =>
+                                    prev.map((p) =>
+                                      p.code === s.code
+                                        ? { ...p, [f]: e.target.value }
+                                        : p
+                                    )
+                                  )
+                                }
+                                className="border rounded-md w-full p-2 text-sm"
+                              />
+                            )
+                          ) : (
+                            <p className="p-2 bg-white border rounded-md min-h-[36px] text-sm whitespace-pre-wrap">
+                              {s[f] || "—"}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ))}
           </div>
         )}
       </div>
