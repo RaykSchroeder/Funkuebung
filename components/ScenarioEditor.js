@@ -5,6 +5,8 @@ export default function ScenarioEditor({ onBack }) {
   const [scenariosDB, setScenariosDB] = useState([]);
   const [statusDB, setStatusDB] = useState("Lade Szenarien …");
   const [editing, setEditing] = useState(null);
+  const [filterGroup, setFilterGroup] = useState(""); // 🔍 Gruppe-Filter
+  const [filterRole, setFilterRole] = useState(""); // 🔍 Rolle-Filter
 
   // Szenarien laden
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function ScenarioEditor({ onBack }) {
     { label: "Lösungen", fields: ["loesung1", "loesung2", "loesung3"] },
   ];
 
-  // Kartenfarben (abwechslend)
+  // Kartenfarben
   const cardColors = [
     "bg-slate-50",
     "bg-white",
@@ -62,6 +64,19 @@ export default function ScenarioEditor({ onBack }) {
     "bg-slate-200",
     "bg-slate-50",
   ];
+
+  // 🔎 Filter anwenden
+  const filteredScenarios = scenariosDB.filter((s) => {
+    const matchesGroup =
+      !filterGroup || (s.gruppe && s.gruppe.toLowerCase() === filterGroup.toLowerCase());
+    const matchesRole =
+      !filterRole || (s.rolle && s.rolle.toLowerCase() === filterRole.toLowerCase());
+    return matchesGroup && matchesRole;
+  });
+
+  // 🔧 Dynamische Optionen
+  const uniqueGroups = [...new Set(scenariosDB.map((s) => s.gruppe).filter(Boolean))];
+  const uniqueRoles = [...new Set(scenariosDB.map((s) => s.rolle).filter(Boolean))];
 
   return (
     <Layout>
@@ -73,13 +88,67 @@ export default function ScenarioEditor({ onBack }) {
           <span className="mr-2">⬅️</span> Zurück
         </button>
 
-        <h1 className="text-2xl font-bold mb-6">📝 Szenarien bearbeiten</h1>
+        <h1 className="text-2xl font-bold mb-4">📝 Szenarien bearbeiten</h1>
+
+        {/* 🔍 Filterleiste */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-semibold text-slate-600">
+              Gruppe:
+            </label>
+            <select
+              value={filterGroup}
+              onChange={(e) => setFilterGroup(e.target.value)}
+              className="border rounded-md px-2 py-1 text-sm"
+            >
+              <option value="">Alle</option>
+              {uniqueGroups.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-semibold text-slate-600">
+              Rolle / Trupp:
+            </label>
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="border rounded-md px-2 py-1 text-sm"
+            >
+              <option value="">Alle</option>
+              {uniqueRoles.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Reset Button */}
+          <button
+            onClick={() => {
+              setFilterGroup("");
+              setFilterRole("");
+            }}
+            className="ml-auto bg-gray-200 hover:bg-gray-300 text-sm px-3 py-1 rounded"
+          >
+            🔄 Filter zurücksetzen
+          </button>
+        </div>
 
         {statusDB && <p className="text-slate-500">{statusDB}</p>}
 
-        {!statusDB && scenariosDB.length > 0 && (
+        {!statusDB && filteredScenarios.length === 0 && (
+          <p className="text-slate-500 italic">Keine Szenarien gefunden.</p>
+        )}
+
+        {!statusDB && filteredScenarios.length > 0 && (
           <div className="space-y-6">
-            {scenariosDB.map((s, index) => (
+            {filteredScenarios.map((s, index) => (
               <div
                 key={s.code}
                 className={`rounded-xl border shadow-sm p-4 ${cardColors[index % cardColors.length]}`}
@@ -115,7 +184,15 @@ export default function ScenarioEditor({ onBack }) {
                 </div>
 
                 {/* Abschnittsweise Darstellung */}
-                {fieldGroups.map((group) => (
+                {[
+                  { label: "Allgemein", fields: ["gruppe", "rolle", "code", "titel", "bilder"] },
+                  { label: "Beschreibung", fields: ["beschreibung"] },
+                  {
+                    label: "Aufgaben",
+                    fields: ["aufgabe1", "aufgabe2", "aufgabe3", "aufgabe4", "aufgabe5"],
+                  },
+                  { label: "Lösungen", fields: ["loesung1", "loesung2", "loesung3"] },
+                ].map((group) => (
                   <div key={group.label} className="mt-4">
                     <h3 className="font-medium text-slate-600 mb-1">
                       {group.label}
