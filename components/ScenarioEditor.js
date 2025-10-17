@@ -5,24 +5,25 @@ export default function ScenarioEditor({ onBack }) {
   const [scenariosDB, setScenariosDB] = useState([]);
   const [statusDB, setStatusDB] = useState("Lade Szenarien …");
   const [editing, setEditing] = useState(null);
-  const [filterGroup, setFilterGroup] = useState(""); // 🔍 Gruppe-Filter
-  const [filterRole, setFilterRole] = useState(""); // 🔍 Rolle-Filter
+  const [filterGroup, setFilterGroup] = useState("");
+  const [filterRole, setFilterRole] = useState("");
 
   // Szenarien laden
-  useEffect(() => {
-    async function loadScenarios() {
-      try {
-        const res = await fetch("/api/scenarios-db", {
-          headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Fehler beim Laden");
-        setScenariosDB(data);
-        setStatusDB("");
-      } catch (e) {
-        setStatusDB(e.message);
-      }
+  async function loadScenarios() {
+    try {
+      const res = await fetch("/api/scenarios-db", {
+        headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Fehler beim Laden");
+      setScenariosDB(data);
+      setStatusDB("");
+    } catch (e) {
+      setStatusDB(e.message);
     }
+  }
+
+  useEffect(() => {
     loadScenarios();
   }, []);
 
@@ -40,43 +41,87 @@ export default function ScenarioEditor({ onBack }) {
       if (!res.ok) throw new Error("Fehler beim Speichern");
       alert("✅ Gespeichert!");
       setEditing(null);
+      await loadScenarios();
     } catch (e) {
       alert("❌ " + e.message);
     }
   };
 
-  // Feldreihenfolge
-  const fieldGroups = [
-    { label: "Allgemein", fields: ["gruppe", "rolle", "code", "titel", "bilder"] },
-    { label: "Beschreibung", fields: ["beschreibung"] },
-    {
-      label: "Aufgaben",
-      fields: ["aufgabe1", "aufgabe2", "aufgabe3", "aufgabe4", "aufgabe5"],
-    },
-    { label: "Lösungen", fields: ["loesung1", "loesung2", "loesung3"] },
-  ];
+  // Neues Szenario anlegen
+  const handleAdd = async () => {
+    const neues = {
+      gruppe: "Gruppe X",
+      rolle: "",
+      code: "",
+      titel: "Neues Szenario",
+      bilder: "",
+      beschreibung: "",
+      aufgabe1: "",
+      aufgabe2: "",
+      aufgabe3: "",
+      aufgabe4: "",
+      aufgabe5: "",
+      loesung1: "",
+      loesung2: "",
+      loesung3: "",
+    };
 
-  // Kartenfarben
-  const cardColors = [
-    "bg-slate-50",
-    "bg-white",
-    "bg-slate-100",
-    "bg-slate-200",
-    "bg-slate-50",
-  ];
+    try {
+      const res = await fetch("/api/scenarios-db", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS,
+        },
+        body: JSON.stringify(neues),
+      });
+      if (!res.ok) throw new Error("Fehler beim Anlegen");
+      alert("✅ Neues Szenario angelegt!");
+      await loadScenarios();
+    } catch (e) {
+      alert("❌ " + e.message);
+    }
+  };
 
-  // 🔎 Filter anwenden
+  // Szenario löschen
+  const handleDelete = async (code) => {
+    if (!confirm(`⚠️ Szenario ${code} wirklich löschen?`)) return;
+    try {
+      const res = await fetch(`/api/scenarios-db?code=${code}`, {
+        method: "DELETE",
+        headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS },
+      });
+      if (!res.ok) throw new Error("Fehler beim Löschen");
+      alert("🗑️ Szenario gelöscht!");
+      await loadScenarios();
+    } catch (e) {
+      alert("❌ " + e.message);
+    }
+  };
+
+  // Filter
   const filteredScenarios = scenariosDB.filter((s) => {
     const matchesGroup =
-      !filterGroup || (s.gruppe && s.gruppe.toLowerCase() === filterGroup.toLowerCase());
+      !filterGroup ||
+      (s.gruppe && s.gruppe.toLowerCase() === filterGroup.toLowerCase());
     const matchesRole =
-      !filterRole || (s.rolle && s.rolle.toLowerCase() === filterRole.toLowerCase());
+      !filterRole ||
+      (s.rolle && s.rolle.toLowerCase() === filterRole.toLowerCase());
     return matchesGroup && matchesRole;
   });
 
-  // 🔧 Dynamische Optionen
   const uniqueGroups = [...new Set(scenariosDB.map((s) => s.gruppe).filter(Boolean))];
   const uniqueRoles = [...new Set(scenariosDB.map((s) => s.rolle).filter(Boolean))];
+
+  // Layout-Definition
+  const cardColors = ["bg-slate-50", "bg-white", "bg-slate-100", "bg-slate-200"];
+
+  const sections = [
+    { label: "Allgemein", fields: ["gruppe", "rolle", "code", "titel", "bilder"] },
+    { label: "Beschreibung", fields: ["beschreibung"] },
+    { label: "Aufgaben", fields: ["aufgabe1", "aufgabe2", "aufgabe3", "aufgabe4", "aufgabe5"] },
+    { label: "Lösungen", fields: ["loesung1", "loesung2", "loesung3"] },
+  ];
 
   return (
     <Layout>
@@ -88,9 +133,18 @@ export default function ScenarioEditor({ onBack }) {
           <span className="mr-2">⬅️</span> Zurück
         </button>
 
-        <h1 className="text-2xl font-bold mb-4">📝 Szenarien bearbeiten</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">📝 Szenarien bearbeiten</h1>
 
-        {/* 🔍 Filterleiste */}
+          <button
+            onClick={handleAdd}
+            className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700"
+          >
+            ➕ Neues Szenario
+          </button>
+        </div>
+
+        {/* Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
           <div className="flex items-center gap-2">
             <label className="text-sm font-semibold text-slate-600">
@@ -128,7 +182,6 @@ export default function ScenarioEditor({ onBack }) {
             </select>
           </div>
 
-          {/* Reset Button */}
           <button
             onClick={() => {
               setFilterGroup("");
@@ -174,25 +227,24 @@ export default function ScenarioEditor({ onBack }) {
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => setEditing(s.code)}
-                      className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                    >
-                      ✏️ Bearbeiten
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditing(s.code)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                      >
+                        ✏️ Bearbeiten
+                      </button>
+                      <button
+                        onClick={() => handleDelete(s.code)}
+                        className="bg-red-600 text-white px-3 py-1 rounded text-sm"
+                      >
+                        🗑️ Löschen
+                      </button>
+                    </div>
                   )}
                 </div>
 
-                {/* Abschnittsweise Darstellung */}
-                {[
-                  { label: "Allgemein", fields: ["gruppe", "rolle", "code", "titel", "bilder"] },
-                  { label: "Beschreibung", fields: ["beschreibung"] },
-                  {
-                    label: "Aufgaben",
-                    fields: ["aufgabe1", "aufgabe2", "aufgabe3", "aufgabe4", "aufgabe5"],
-                  },
-                  { label: "Lösungen", fields: ["loesung1", "loesung2", "loesung3"] },
-                ].map((group) => (
+                {sections.map((group) => (
                   <div key={group.label} className="mt-4">
                     <h3 className="font-medium text-slate-600 mb-1">
                       {group.label}
