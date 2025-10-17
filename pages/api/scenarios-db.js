@@ -35,31 +35,23 @@ export default async function handler(req, res) {
     }
   }
 
-  // --- Ein Szenario aktualisieren ---
+  // --- Szenario aktualisieren ---
   if (req.method === "PATCH") {
     try {
       const body = req.body;
       if (!body.code)
         return res.status(400).json({ error: "Code fehlt im Request." });
 
-      const r = await fetch(
-        `${url}/rest/v1/scenarios?code=eq.${body.code}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: service,
-            Authorization: `Bearer ${service}`,
-            Prefer: "return=minimal",
-          },
-          body: JSON.stringify({
-            titel: body.titel,
-            beschreibung: body.beschreibung,
-            gruppe: body.gruppe,
-            rolle: body.rolle,
-          }),
-        }
-      );
+      const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${body.code}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: service,
+          Authorization: `Bearer ${service}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(body), // alles übernehmen
+      });
 
       if (!r.ok) {
         const errText = await r.text();
