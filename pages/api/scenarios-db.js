@@ -4,15 +4,25 @@ export default async function handler(req, res) {
   const anon = process.env.SUPABASE_ANON_KEY;
   const service = process.env.SUPABASE_SERVICE_ROLE;
 
-  // === Plausibilitätsprüfung ===
+  // Plausibilitätsprüfung
   if (!url || !anon || !service) {
     console.error("❌ Supabase-Variablen fehlen:", { url, anon: !!anon, service: !!service });
     return res.status(500).json({ error: "Supabase-Variablen fehlen." });
   }
 
-  // === Admin-Pass prüfen ===
-  const pass = req.headers["x-admin-pass"];
-  if (pass !== process.env.NEXT_PUBLIC_ADMIN_PASS) {
+  // Admin-Pass prüfen — aber nur, wenn eins gesetzt ist.
+  const passFromHeader = req.headers["x-admin-pass"];
+  const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS || ""; // leer = kein Schutz
+
+  // Debug (kannst du entfernen, wenn alles läuft)
+  console.log("DEBUG /api/scenarios-db:", {
+    method: req.method,
+    adminPassSet: adminPass !== "",
+    passFromHeaderPresent: typeof passFromHeader !== "undefined",
+    query: req.query,
+  });
+
+  if (adminPass && passFromHeader !== adminPass) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
