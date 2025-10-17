@@ -6,6 +6,7 @@ export default function ScenarioEditor({ onBack }) {
   const [statusDB, setStatusDB] = useState("Lade Szenarien …");
   const [editing, setEditing] = useState(null);
 
+  // Szenarien aus Supabase laden
   useEffect(() => {
     async function loadScenarios() {
       try {
@@ -23,6 +24,7 @@ export default function ScenarioEditor({ onBack }) {
     loadScenarios();
   }, []);
 
+  // Speichern eines Eintrags
   const handleSave = async (scenario) => {
     try {
       const res = await fetch("/api/scenarios-db", {
@@ -41,9 +43,27 @@ export default function ScenarioEditor({ onBack }) {
     }
   };
 
+  // Alle Spalten deiner Supabase-Tabelle
+  const fieldNames = [
+    "gruppe",
+    "rolle",
+    "code",
+    "titel",
+    "bilder",
+    "beschreibung",
+    "aufgabe1",
+    "aufgabe2",
+    "aufgabe3",
+    "aufgabe4",
+    "aufgabe5",
+    "loesung1",
+    "loesung2",
+    "loesung3",
+  ];
+
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto bg-white shadow rounded-xl p-6">
+      <div className="max-w-7xl mx-auto bg-white shadow rounded-xl p-6">
         <button
           onClick={onBack}
           className="text-red-600 hover:underline flex items-center mb-4"
@@ -56,90 +76,91 @@ export default function ScenarioEditor({ onBack }) {
         {statusDB && <p className="text-slate-500">{statusDB}</p>}
 
         {!statusDB && scenariosDB.length > 0 && (
-          <table className="w-full border text-sm">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="p-2 border">Gruppe</th>
-                <th className="p-2 border">Rolle</th>
-                <th className="p-2 border">Code</th>
-                <th className="p-2 border">Titel</th>
-                <th className="p-2 border">Beschreibung</th>
-                <th className="p-2 border">Aktion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scenariosDB.map((s) => (
-                <tr key={s.code} className="border-t">
-                  <td className="p-2 border">{s.gruppe}</td>
-                  <td className="p-2 border">{s.rolle}</td>
-                  <td className="p-2 border">{s.code}</td>
-                  <td className="p-2 border">
-                    {editing === s.code ? (
-                      <input
-                        value={s.titel}
-                        onChange={(e) =>
-                          setScenariosDB((prev) =>
-                            prev.map((p) =>
-                              p.code === s.code
-                                ? { ...p, titel: e.target.value }
-                                : p
-                            )
-                          )
-                        }
-                        className="border px-1 w-full"
-                      />
-                    ) : (
-                      s.titel
-                    )}
-                  </td>
-                  <td className="p-2 border">
-                    {editing === s.code ? (
-                      <textarea
-                        value={s.beschreibung}
-                        onChange={(e) =>
-                          setScenariosDB((prev) =>
-                            prev.map((p) =>
-                              p.code === s.code
-                                ? { ...p, beschreibung: e.target.value }
-                                : p
-                            )
-                          )
-                        }
-                        className="border px-1 w-full"
-                      />
-                    ) : (
-                      <span className="line-clamp-2">{s.beschreibung}</span>
-                    )}
-                  </td>
-                  <td className="p-2 border text-center">
-                    {editing === s.code ? (
-                      <>
-                        <button
-                          onClick={() => handleSave(s)}
-                          className="bg-green-600 text-white px-2 py-1 rounded mr-2"
-                        >
-                          💾 Speichern
-                        </button>
-                        <button
-                          onClick={() => setEditing(null)}
-                          className="bg-gray-400 text-white px-2 py-1 rounded"
-                        >
-                          ✖ Abbrechen
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => setEditing(s.code)}
-                        className="bg-blue-600 text-white px-2 py-1 rounded"
-                      >
-                        ✏️ Bearbeiten
-                      </button>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border text-xs md:text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  {fieldNames.map((f) => (
+                    <th key={f} className="p-2 border whitespace-nowrap">
+                      {f}
+                    </th>
+                  ))}
+                  <th className="p-2 border">Aktion</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {scenariosDB.map((s) => (
+                  <tr key={s.code} className="border-t align-top">
+                    {fieldNames.map((f) => (
+                      <td key={f} className="p-2 border">
+                        {editing === s.code ? (
+                          f === "beschreibung" ? (
+                            <textarea
+                              value={s[f] ?? ""}
+                              onChange={(e) =>
+                                setScenariosDB((prev) =>
+                                  prev.map((p) =>
+                                    p.code === s.code
+                                      ? { ...p, [f]: e.target.value }
+                                      : p
+                                  )
+                                )
+                              }
+                              className="border w-full h-16 px-1 text-xs"
+                            />
+                          ) : (
+                            <input
+                              value={s[f] ?? ""}
+                              onChange={(e) =>
+                                setScenariosDB((prev) =>
+                                  prev.map((p) =>
+                                    p.code === s.code
+                                      ? { ...p, [f]: e.target.value }
+                                      : p
+                                  )
+                                )
+                              }
+                              className="border w-full px-1 text-xs"
+                            />
+                          )
+                        ) : (
+                          <div className="max-w-[250px] truncate">
+                            {s[f] ?? ""}
+                          </div>
+                        )}
+                      </td>
+                    ))}
+
+                    <td className="p-2 border text-center whitespace-nowrap">
+                      {editing === s.code ? (
+                        <>
+                          <button
+                            onClick={() => handleSave(s)}
+                            className="bg-green-600 text-white px-2 py-1 rounded mr-2"
+                          >
+                            💾 Speichern
+                          </button>
+                          <button
+                            onClick={() => setEditing(null)}
+                            className="bg-gray-400 text-white px-2 py-1 rounded"
+                          >
+                            ✖ Abbrechen
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setEditing(s.code)}
+                          className="bg-blue-600 text-white px-2 py-1 rounded"
+                        >
+                          ✏️ Bearbeiten
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </Layout>
