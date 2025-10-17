@@ -414,10 +414,10 @@ const scenarios = [
   // TEAM 5
   // ==================================================
   {
-    team: 4,
-    code: "4",
-    role: "GF2",
-    title: "Team 4",
+    team: 5,
+    code: "5",
+    role: "GF5",
+    title: "Team 5",
     description: "",
     tasks: [],
     solutionTasks: [],
@@ -502,10 +502,10 @@ const scenarios = [
   // TEAM 6
   // ==================================================
     {
-    team: 4,
-    code: "4",
-    role: "GF2",
-    title: "Team 4",
+    team: 6,
+    code: "6",
+    role: "GF6",
+    title: "Team 6",
     description: "",
     tasks: [],
     solutionTasks: [],
