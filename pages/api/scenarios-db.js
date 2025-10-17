@@ -1,17 +1,18 @@
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY;
   const service = process.env.SUPABASE_SERVICE_ROLE;
 
-  if (!url || !anon || !service)
+  if (!url || !service) {
     return res.status(500).json({ error: "Supabase-Variablen fehlen." });
+  }
 
   const pass = req.headers["x-admin-pass"];
-  if (pass !== process.env.NEXT_PUBLIC_ADMIN_PASS)
+  if (pass !== process.env.NEXT_PUBLIC_ADMIN_PASS) {
     return res.status(401).json({ error: "Unauthorized" });
+  }
 
   try {
-    // === ALLE SZENARIEN LADEN ===
+    // === ALLE LADEN ===
     if (req.method === "GET") {
       const r = await fetch(`${url}/rest/v1/scenarios?select=*`, {
         headers: {
@@ -20,13 +21,16 @@ export default async function handler(req, res) {
         },
       });
       const data = await r.json();
-      if (!r.ok) return res.status(r.status).json(data);
-      return res.status(200).json(data);
+      return res.status(r.ok ? 200 : r.status).json(data);
     }
 
-    // === NEUES SZENARIO ANLEGEN ===
+    // === NEUES SZENARIO ===
     if (req.method === "POST") {
-      const body = req.body;
+      const body = req.body || {};
+      // wenn kein Code gesetzt -> automatisch generieren
+      if (!body.code || body.code.trim() === "") {
+        body.code = Math.floor(1000 + Math.random() * 9000).toString();
+      }
       const r = await fetch(`${url}/rest/v1/scenarios`, {
         method: "POST",
         headers: {
@@ -41,16 +45,16 @@ export default async function handler(req, res) {
         const err = await r.text();
         return res.status(r.status).json({ error: err || "Fehler beim Einfügen" });
       }
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, code: body.code });
     }
 
-    // === SZENARIO AKTUALISIEREN ===
+    // === UPDATE ===
     if (req.method === "PATCH") {
-      const body = req.body;
-      if (!body.code)
-        return res.status(400).json({ error: "Code fehlt (zur Identifikation)" });
-
-      const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${body.code}`, {
+      const body = req.body || {};
+      if (!body.code) {
+        return res.status(400).json({ error: "Code fehlt zur Identifikation" });
+      }
+      const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${encodeURIComponent(body.code)}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -67,13 +71,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // === SZENARIO LÖSCHEN ===
+    // === LÖSCHEN ===
     if (req.method === "DELETE") {
       const { code } = req.query;
-      if (!code)
+      if (!code) {
         return res.status(400).json({ error: "Code muss angegeben werden" });
-
-      const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${code}`, {
+      }
+      const r = await fetch(`${url}/rest/v1/scenarios?code=eq.${encodeURIComponent(code)}`, {
         method: "DELETE",
         headers: {
           apikey: service,
@@ -87,7 +91,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // === Methode nicht erlaubt ===
+    // === Ungültige Methode ===
     res.setHeader("Allow", ["GET", "POST", "PATCH", "DELETE"]);
     return res.status(405).json({ error: "Method not allowed" });
   } catch (e) {
