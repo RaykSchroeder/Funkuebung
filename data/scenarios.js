@@ -261,13 +261,13 @@ const scenarios = [
       
       { code: "7628",role: "GF3", title: "Einsatzauftrag",
        description: "Sie haben Ihre Einsatzstelle erreicht. ",
-       fileType: "image",file: "/images/7628.png",
+       //fileType: "image",file: "/images/7628.png",
        tasks: ["Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 309 im DMO","Der Angriffstruppe erhält den Teamcode AT3, der Wassertrupp WT3 zur Eingabe in der App. Gefundene Zahlecodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle Relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur Rechtengebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der Linkengebäudeseite (Brandobjekt) über Siloplatte vor.",],
        solutionTasks: [],},
       
       { code: "5094",role: "AT3", title: "Erkundung",
        description: "Sie sind auf dem Weg zum Brandobjekt",
-       fileType: "image",file: "/images/5094.png",
+       //fileType: "image",file: "/images/5094.png",
        tasks: ["An der nächsten Möglichkeit biegen Sie rechts ab und setzen Ihre Erkundung fort.","",],
        solutionTasks: ["Ausbreitung",],},
       
@@ -285,7 +285,7 @@ const scenarios = [
       
       { code: "4536",role: "AT3", title: "Behälter geborgen",
        description: "Sie haben den Behälter aus dem Gefahrenbereich geborgen",
-       fileType: "image",file: "/images/4536.png",
+       //fileType: "image",file: "/images/4536.png",
        tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp",],
        solutionTasks: ["Feuer","Heuballen","Ausbreitung",],},
       
@@ -303,7 +303,7 @@ const scenarios = [
       
       { code: "2674",role: "WT3", title: "Baumreihe",
        description: "Sie stellen eine Brandausbreitung auf die angrenzende Baumreihe fest",
-       fileType: "image",file: "/images/2674.png",
+       //fileType: "image",file: "/images/2674.png",
        tasks: ["Setzen sie im Anschluss ihre Erkundung in fort.",],
        solutionTasks: ["","",],},
       
@@ -315,7 +315,7 @@ const scenarios = [
       
       {code: "7284",role: "GF3",title: "Abschluss",
        description: "Sie haben den Einsatz erfolgreich abgearbeitet. Die Einsatzstellewurde an den Eigentümer übergeben.",
-       fileType: "image",file: "/images/3981.png",
+       //fileType: "image",file: "/images/3981.png",
        tasks: ["Geben Sie eine abschließende Lagemeldung ab","Begeben Sie sich zurück zum Feuerwehrhaus Imsum."],
        solutionTasks: [""],
        isFinal: true,},    
@@ -348,7 +348,7 @@ const scenarios = [
       
       { code: "6824",role: "GF4",title: "Einsatzauftrag",
        description: "Sie haben Ihre Einsatzstelle erreicht. ",
-       fileType: "image",file: "/images/6824.jpg",
+       //fileType: "image",file: "/images/6824.jpg",
        tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 309 im DMO. ","Der Angriffstruppe erhält den Teamcode AT4, der Wassertrupp WT4 zur Eingabe in der App. Gefundene Zahlecodes dürfen nicht über Funk vermittelt werden. ","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle Relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur Rechtengebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der Linkengebäudeseite (Brandobjekt) über Siloplatte vor.",],
        solutionTasks: ["Aufteilung",],},
       
@@ -372,7 +372,7 @@ const scenarios = [
       
       { code: "7312",role: "AT4",title: "Wasserentnahme",
        description: "Sie haben einen Bohrbrunnen festgestellt.",
-       fileType: "image",file: "/images/7312.jpg",
+       //fileType: "image",file: "/images/7312.jpg",
        tasks: ["Übermitteln sie Ihre Information über Funk an den GF-Trupp","Kehren Sie zum Fahrzeug zurück",],
        solutionTasks: ["Brunnen",],},
       
@@ -390,7 +390,7 @@ const scenarios = [
       
       { code: "9831",role: "WT4",title: "PV-Anlage",
        description: "Sie konnten eine technische Einheit feststelle, welche zu einer PV-Anlage gehört. ",
-       fileType: "image",file: "/images/9831.jpg",
+       //fileType: "image",file: "/images/9831.jpg",
        tasks: ["Übermitteln sie Ihre Information  über Funk an den GF-Trupp","Setzen sie im Anschluss ihre Erkundung in fort.",],
        solutionTasks: ["PV-Anlage",],},
       
@@ -436,7 +436,7 @@ const scenarios = [
       
       { code: "8627",role: "GF5",title: "Einsatzauftrag",
        description: "Sie haben Ihre Einsatzstelle erreicht. ",       
-       fileType: "image",file: "/images/8627.jpg",
+       //fileType: "image",file: "/images/8627.jpg",
        tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 309 im DMO. ","Der Angriffstruppe erhält den Teamcode AT5, der Wassertrupp WT5 zur Eingabe in der App. Gefundene Zahlecodes dürfen nicht über Funk vermittelt werden. ","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle Relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur Rechtengebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der Linkengebäudeseite (Brandobjekt) über Siloplatte vor.",],
        solutionTasks: ["Aufteilung",],},
       
