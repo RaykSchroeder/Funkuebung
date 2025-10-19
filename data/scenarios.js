@@ -443,7 +443,7 @@ const scenarios = [
       { code: "1129",role: "AT5",title: "Sie stellen ein Motorad auf der Straße fest. Den Fahrer können Sie nicht finden.",
        description: "Motorrad",
        fileType: "image",file: "/images/1129.jpg",
-       tasks: ["Übermitteln sie Ihre Information  über Funk an den GF-Trupp","Setzen sie im Anschluss ihre Erkundung in fort."],,
+       tasks: ["Übermitteln sie Ihre Information  über Funk an den GF-Trupp","Setzen sie im Anschluss ihre Erkundung in fort."],
        solutionTasks: ["Motorrad","kein Fahrer",],},
       
       { code: "2746",role: "AT5",title: "Sie können Hilfeschreie aus nordwestlicher Richtung wahrnehmen.",
