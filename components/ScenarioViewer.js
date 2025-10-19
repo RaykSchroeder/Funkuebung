@@ -164,7 +164,7 @@ export default function ScenarioViewer({
           }
         }}
       >
-        <h2 className="text-lg font-semibold">{scenario.title}</h2>
+        <h2 className="text-lg font-semibold">{scenario.title} - {scenario.code}</h2>
         <span className="text-sm text-slate-600">
           {expanded ? "▲ Einklappen" : "▼ Aufklappen"}
         </span>
