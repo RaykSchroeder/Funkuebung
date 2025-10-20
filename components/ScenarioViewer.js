@@ -3,13 +3,9 @@ import { X } from "lucide-react";
 
 // Hilfsfunktion für Rollenzuordnung
 function getRoleFromLogin(teamId, loginCode) {
-  if (/^GF[1-6]$/.test(loginCode)) {
-    return loginCode;
-  } else if (/^AT[1-6]$/.test(loginCode)) {
-    return loginCode;
-  } else if (/^WT[1-6]$/.test(loginCode)) {
-    return loginCode;
-  }
+  if (/^GF[1-6]$/.test(loginCode)) return loginCode;
+  if (/^AT[1-6]$/.test(loginCode)) return loginCode;
+  if (/^WT[1-6]$/.test(loginCode)) return loginCode;
   return null;
 }
 
@@ -18,19 +14,13 @@ export default function ScenarioViewer({
   onBack,
   mode = "team",
   teamId,
-  loginCode, // 🔑 neu: Login-Code übergeben
+  loginCode,
   expandedCode,
   setExpandedCode,
 }) {
   const [openImage, setOpenImage] = useState(null);
-
-  // Lokaler State für Admin (kann mehrere Szenarien offen haben)
   const [localExpanded, setLocalExpanded] = useState(false);
-
-  // Lokaler State für Checkboxen
-  const [checkedTasks, setCheckedTasks] = useState(
-    scenario.tasks.map(() => false)
-  );
+  const [checkedTasks, setCheckedTasks] = useState(scenario.tasks.map(() => false));
   const [checkedSolutions, setCheckedSolutions] = useState(
     scenario.solutionTasks ? scenario.solutionTasks.map(() => false) : []
   );
@@ -38,78 +28,47 @@ export default function ScenarioViewer({
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
   const [canShowFinal, setCanShowFinal] = useState(!scenario.isFinal);
 
-  // Unterschied: Admin nutzt eigenen State, Team nutzt expandedCode
-  const expanded =
-    mode === "admin" ? localExpanded : scenario.code === expandedCode;
+  const expanded = mode === "admin" ? localExpanded : scenario.code === expandedCode;
 
-  // 🚦 Szenarien filtern: Teams sehen nur ihre eigene Rolle
+  // 🚦 Sichtbarkeit nach Rolle
   let visible = true;
   if (mode === "team" && loginCode) {
     const userRole = getRoleFromLogin(teamId, loginCode);
-    if (userRole && scenario.role && scenario.role !== userRole) {
-      visible = false;
-    }
+    if (userRole && scenario.role && scenario.role !== userRole) visible = false;
   }
   if (!visible) return null;
 
-  // Fortschritt laden (nur Admin, keine Finals)
+  // Fortschritt laden (nur Admin)
   useEffect(() => {
     if (mode !== "admin" || scenario.isFinal) return;
 
     async function loadProgress() {
-      const res = await fetch(
-        `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
-        { headers: { "x-admin-pass": adminPass } }
-      );
+      const res = await fetch(`/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`, {
+        headers: { "x-admin-pass": adminPass },
+      });
       const data = await res.json();
       if (!res.ok) return;
 
       const tasksState = [...checkedTasks];
       data.filter((d) => d.type === "task").forEach((d) => {
-        if (tasksState[d.task_index] !== undefined)
-          tasksState[d.task_index] = d.done;
+        if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
       });
       setCheckedTasks(tasksState);
 
       const solState = [...checkedSolutions];
       data.filter((d) => d.type === "solution").forEach((d) => {
-        if (solState[d.task_index] !== undefined)
-          solState[d.task_index] = d.done;
+        if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
       });
       setCheckedSolutions(solState);
     }
 
     loadProgress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario.code, teamId, mode]);
 
-  // Finale prüfen (nur Team)
-  useEffect(() => {
-    if (mode === "team" && scenario.isFinal) {
-      async function checkFinal() {
-        try {
-          const res = await fetch(`/api/can-unlock-final?teamId=${teamId}`);
-          const data = await res.json();
-          setCanShowFinal(data.allowed);
-        } catch (e) {
-          console.error("❌ Fehler bei can-unlock-final:", e);
-          setCanShowFinal(false);
-        }
-      }
-      checkFinal();
-    }
-  }, [scenario.isFinal, teamId, mode]);
-
-  // Fortschritt speichern (nur Admin, keine Finals)
+  // Fortschritt speichern (Admin)
   const saveProgress = async (taskIndex, type, done) => {
     if (mode !== "admin" || scenario.isFinal) return;
-    const payload = {
-      teamId,
-      scenarioCode: scenario.code,
-      taskIndex,
-      type,
-      done,
-    };
+    const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
     await fetch("/api/task-progress", {
       method: "PATCH",
       headers: {
@@ -123,33 +82,16 @@ export default function ScenarioViewer({
   const toggleTask = (index) => {
     if (mode !== "admin" || scenario.isFinal) return;
     const newVal = !checkedTasks[index];
-    setCheckedTasks((prev) =>
-      prev.map((v, i) => (i === index ? newVal : v))
-    );
+    setCheckedTasks((prev) => prev.map((v, i) => (i === index ? newVal : v)));
     saveProgress(index, "task", newVal);
   };
 
   const toggleSolution = (index) => {
     if (mode !== "admin" || scenario.isFinal) return;
     const newVal = !checkedSolutions[index];
-    setCheckedSolutions((prev) =>
-      prev.map((v, i) => (i === index ? newVal : v))
-    );
+    setCheckedSolutions((prev) => prev.map((v, i) => (i === index ? newVal : v)));
     saveProgress(index, "solution", newVal);
   };
-
-  // 🚫 Block: Finale für Team, aber nicht freigeschaltet
-  if (scenario.isFinal && mode === "team" && !canShowFinal) {
-    return (
-      <article className="border rounded-lg shadow bg-white p-4">
-        <h2 className="text-lg font-semibold mb-2">{scenario.title}</h2>
-        <p className="text-red-600 font-semibold">
-          🚫 Finale noch nicht freigeschaltet! Bitte zuerst alle Aufgaben
-          erledigen.
-        </p>
-      </article>
-    );
-  }
 
   return (
     <article className="border rounded-lg shadow bg-white">
@@ -157,14 +99,16 @@ export default function ScenarioViewer({
       <header
         className="flex justify-between items-center px-4 py-2 cursor-pointer bg-slate-100 rounded-t-lg"
         onClick={() => {
-          if (mode === "admin") {
-            setLocalExpanded((prev) => !prev);
-          } else {
-            setExpandedCode(expanded ? null : scenario.code);
-          }
+          if (mode === "admin") setLocalExpanded((prev) => !prev);
+          else setExpandedCode(expanded ? null : scenario.code);
         }}
       >
-        <h2 className="text-lg font-semibold">{scenario.title} - {scenario.code}</h2>
+        <h2 className="text-lg font-semibold">
+          {scenario.title} - {scenario.code}
+          {scenario.row ? (
+            <span className="text-slate-500"> (Reihe {scenario.row})</span>
+          ) : null}
+        </h2>
         <span className="text-sm text-slate-600">
           {expanded ? "▲ Einklappen" : "▼ Aufklappen"}
         </span>
@@ -208,13 +152,7 @@ export default function ScenarioViewer({
                     className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
                     onClick={() => toggleTask(i)}
                   >
-                    {mode === "admin" && (
-                      <input
-                        type="checkbox"
-                        checked={checkedTasks[i]}
-                        readOnly
-                      />
-                    )}
+                    {mode === "admin" && <input type="checkbox" checked={checkedTasks[i]} readOnly />}
                     <span
                       className={
                         mode === "admin" && checkedTasks[i]
@@ -241,17 +179,9 @@ export default function ScenarioViewer({
                     className="flex items-center gap-2 bg-green-100 p-2 rounded cursor-pointer"
                     onClick={() => toggleSolution(i)}
                   >
-                    <input
-                      type="checkbox"
-                      checked={checkedSolutions[i]}
-                      readOnly
-                    />
+                    <input type="checkbox" checked={checkedSolutions[i]} readOnly />
                     <span
-                      className={
-                        checkedSolutions[i]
-                          ? "line-through text-gray-500"
-                          : ""
-                      }
+                      className={checkedSolutions[i] ? "line-through text-gray-500" : ""}
                     >
                       {t}
                     </span>
