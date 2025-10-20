@@ -61,6 +61,7 @@ const scenarios = [
       
       {code: "5632",
        role: "AT1",
+       row: "2",
        title: "Landwirt",
        description: "Sie treffen den Landwirt an, er gibt an, dass er eine Personen im Stall vermisst.Dem Landwirt geht es gut, er kann vor Ort verbleiben",
        //fileType: "image",
@@ -70,6 +71,7 @@ const scenarios = [
       
       {code: "8421",
        role: "AT1",
+       row: "3",
        title: "Person",
        description: "Von ihrem Standort haben Sie Sicht auf eine Person. Person liegt ca. 5m weit im Stall auf dem Boden und bewegt sich nicht. Sie können die Person ohne Eigengefährdung retten.",
        //fileType: "image",
@@ -79,6 +81,7 @@ const scenarios = [
       
       {code: "9210",
        role: "AT1",
+       row: "4",
        title: "Erste Hilfe",
        description: "Person reagiert nicht auf Ansprache, atmet und hat einen regelmäßigen Puls.",
        fileType: "image",
@@ -88,6 +91,7 @@ const scenarios = [
       
       {code: "3307",
        role: "AT1",
+       row: "5",
        title: "Rettungsdienst",
        description: "Der Rettungsdienst ist an Ihrem Standort eingetroffen. Sie können den Patienten an den RD übergeben.",
        fileType: "image",
@@ -97,6 +101,7 @@ const scenarios = [
       
       {code: "1358",
        role: "WT1",
+       row: "1",
        title: "Feuer",
        description: "Sie stellen deutlichen Feuerschein hinter der Stallwand fest. Sie finden keinen Zugang zum Gebäude",
        fileType: "image",
@@ -106,6 +111,7 @@ const scenarios = [
       
       {code: "6472",
        role: "WT1",
+       row: "2",
        title: "Ausbreitung",
        description: "Sie stellen einen Funkenflug vom Brandobjekt zu Ihrem Standort fest.",
        fileType: "image",
@@ -115,6 +121,7 @@ const scenarios = [
       
       {code: "8703",
        role: "WT1",
+       row: "3",
        title: "Kuhstall",
        description: "Sie stellen haben Sicht auf mehrere eingeschlossene Rinder im nördlichen Stallabschnitt. Die Rinder wirken panisch.",
        fileType: "image",
@@ -124,6 +131,7 @@ const scenarios = [
       
       {code: "2841",
        role: "WT1",
+       row: "4",
        title: "Ausweichfläche",
        description: "Sie stellen fest, dass die Sandfläche als Ausweichfläche für die Rinder ausreicht.",
        //fileType: "image",
@@ -133,6 +141,7 @@ const scenarios = [
       
       {code: "6854",
        role: "GF1",
+       row: "4",
        title: "Abschluss",
        description: "Sie haben den Einsatz erfolgreich abgearbeitet. Alle festgestellten Gefahren konnten beseitigt werden. Die Einsatzstellewurde an den Eigentümer übergeben.",
        tasks: ["Abschlussmeldung erstellen"],
