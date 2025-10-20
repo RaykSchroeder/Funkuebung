@@ -21,6 +21,7 @@ const scenarios = [
     subScenarios: [
       {code: "5934",
        role: "GF1",
+       row: "1",
        title: "Ausfahrt",
        description: "Herzlich Willkommen zur Funkübung der Feuerwehr Stadt Geestland in Imsum. Folgenden Sie der folgenden Navigaion zu Ihrem Einsatzort",
        fileType: "image",
@@ -30,6 +31,7 @@ const scenarios = [
       
       {code: "4633",
        role: "GF1",
+       row: "2",
        title: "Auf Sicht",
        description: "Sie haben die Einsatzstelle erreicht und sehen eine deutliche Rauchentwicklung aus einem Kuhstall",
        fileType: "image",
@@ -39,6 +41,7 @@ const scenarios = [
       
       {code: "1987",
        role: "GF1",
+       row: "3",
        title: "Eisatzauftrag",
        description: "Sie haben Ihre Einsatzstelle erreicht.",
        //fileType: "image",
@@ -48,6 +51,7 @@ const scenarios = [
       
       {code: "4125",
        role: "AT1",
+       row: "1",
        title: "Stallblick",
        description: "Sie stellen eine starke Verrauchung im nördlichen Stallabschnitt fest",
        fileType: "image",
