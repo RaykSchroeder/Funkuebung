@@ -6,33 +6,28 @@ import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [activeScenarios, setActiveScenarios] = useState([]); // aktive Szenarien
-  const [teamNr, setTeamNr] = useState(null); // merkt sich das aktive Team
+  const [activeScenarios, setActiveScenarios] = useState([]);
+  const [teamNr, setTeamNr] = useState(null);
   const [error, setError] = useState(null);
-  const [expandedCode, setExpandedCode] = useState(null); // nur 1 Szenario offen
+  const [expandedCode, setExpandedCode] = useState(null);
   const [showAlphabet, setShowAlphabet] = useState(false);
 
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
-  // 🧩 Szenario-Code prüfen und laden
+  // ⬇️ Nur diese Funktion wurde erweitert
   const handleAddScenario = async (e) => {
     e.preventDefault();
     setError(null);
 
     const cleaned = code.trim();
+    if (!cleaned) return setError("Bitte Code eingeben.");
 
-    // --- 1️⃣ Teamnummer prüfen ---
-    if (!teamNr || !/^[1-6]$/.test(teamNr)) {
-      return setError("Bitte zuerst eine gültige Teamnummer (1–6) wählen.");
-    }
+    if (!teamNr) return setError("Bitte zuerst Teamnummer (1–6) wählen.");
 
-    // --- 2️⃣ Szenario anhand Code finden ---
     const found = scenarios.find((s) => s.code === cleaned);
-    if (!found) {
-      return setError("❌ Szenario nicht gefunden.");
-    }
+    if (!found) return setError("❌ Szenario nicht gefunden.");
 
-    // --- 3️⃣ Wenn Szenario eine höhere Row hat → vorheriges prüfen ---
+    // 🔒 Neue Freischalt-Prüfung
     if (Number(found.row) > 1) {
       const prevRow = Number(found.row) - 1;
       const prevScenario = scenarios.find(
@@ -46,31 +41,30 @@ export default function Home() {
             { headers: { "x-admin-pass": adminPass } }
           );
           const data = await res.json();
-          const ok = res.ok && Array.isArray(data);
 
-          // prüfen, ob mindestens eine Lösung erledigt wurde
-          const hasAnySolution =
-            ok &&
+          const hasSolution =
+            Array.isArray(data) &&
             data.some((d) => d.type === "solution" && d.done === true);
 
-          if (!hasAnySolution) {
-            return setError(
-              `🚫 Dieses Szenario (${found.title}) ist noch nicht freigeschaltet. Bitte zuerst "${prevScenario.title}" beginnen oder eine Lösung dort abhaken.`
+          if (!hasSolution) {
+            setError(
+              `🚫 Dieses Szenario (${found.title}) ist noch nicht freigeschaltet. Bitte zuerst "${prevScenario.title}" beginnen.`
             );
+            return;
           }
         } catch (err) {
           console.error("Fehler bei Freigabeprüfung:", err);
-          return setError("Serverfehler bei der Freigabeprüfung.");
+          setError("Serverfehler bei der Freigabeprüfung.");
+          return;
         }
       }
     }
 
-    // --- 4️⃣ Wenn erlaubt → Szenario aktivieren ---
+    // ✅ Wenn erlaubt → anzeigen
     setActiveScenarios([found]);
     setExpandedCode(found.code);
   };
 
-  // 🧹 Reset-Funktion
   const handleReset = () => {
     setActiveScenarios([]);
     setCode("");
@@ -99,7 +93,10 @@ export default function Home() {
         </div>
 
         {/* Codeeingabe */}
-        <form onSubmit={handleAddScenario} className="flex gap-2 mb-4 justify-center">
+        <form
+          onSubmit={handleAddScenario}
+          className="flex gap-2 mb-4 justify-center"
+        >
           <input
             type="text"
             value={code}
@@ -115,12 +112,10 @@ export default function Home() {
           </button>
         </form>
 
-        {/* Fehleranzeige */}
         {error && (
           <p className="text-red-600 font-semibold text-center mb-4">{error}</p>
         )}
 
-        {/* Steuerung */}
         <div className="flex justify-center gap-3 mt-3">
           <button
             onClick={handleReset}
@@ -137,7 +132,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Szenarienanzeige */}
+      {/* Szenarioanzeige */}
       {activeScenarios.length > 0 && (
         <div className="max-w-4xl mx-auto mt-6 space-y-4">
           {activeScenarios.map((scenario) => (
@@ -154,7 +149,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Funkalphabet-Modal */}
       {showAlphabet && (
         <FeuerwehrAlphabetModal onClose={() => setShowAlphabet(false)} />
       )}
