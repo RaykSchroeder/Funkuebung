@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Supabase-Umgebungsvariablen fehlen." });
   }
 
-  // 🔒 Admin-Check
+  // 🔒 Admin-Check (wie gehabt)
   if (!process.env.ADMIN_PASS) {
     return res.status(500).json({ error: "ADMIN_PASS ist nicht gesetzt." });
   }
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // ✅ GET (alle Tasks eines Teams oder nur für ein Szenario)
+  // ✅ GET
   if (req.method === "GET") {
     const { teamId, scenarioCode } = req.query;
     if (!teamId) {
@@ -37,13 +37,24 @@ export default async function handler(req, res) {
 
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
+
+      // ✨ NEU: alle Szenarien gruppiert zurückgeben
+      if (scenarioCode === "*") {
+        const grouped = data.reduce((acc, entry) => {
+          if (!acc[entry.scenario_code]) acc[entry.scenario_code] = [];
+          acc[entry.scenario_code].push(entry);
+          return acc;
+        }, {});
+        return res.status(200).json(grouped);
+      }
+
       return res.status(200).json(data);
     } catch (e) {
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
   }
 
-  // ✅ PATCH (Task speichern oder überschreiben)
+  // ✅ PATCH (wie gehabt)
   if (req.method === "PATCH") {
     const { teamId, scenarioCode, taskIndex, type, done } = req.body;
 
