@@ -1,157 +1,162 @@
 import { useState } from "react";
 import ScenarioViewer from "../components/ScenarioViewer";
+import FeedbackForm from "../components/FeedbackForm";
 import Layout from "../components/Layout";
 import scenarios from "../data/scenarios";
 import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [activeScenarios, setActiveScenarios] = useState([]);
-  const [teamNr, setTeamNr] = useState(null);
+  const [activeScenarios, setActiveScenarios] = useState([]); // nur Subs
+  const [teamNr, setTeamNr] = useState(null); // merkt sich das Team (Zahl)
+  const [loginCode, setLoginCode] = useState(null); // merkt sich den Login (GF/AT/WT)
   const [error, setError] = useState(null);
   const [expandedCode, setExpandedCode] = useState(null);
-  const [showAlphabet, setShowAlphabet] = useState(false);
 
-  const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
-
-  // ⬇️ Nur diese Funktion wurde erweitert
   const handleAddScenario = async (e) => {
     e.preventDefault();
     setError(null);
 
-    const cleaned = code.trim();
-    if (!cleaned) return setError("Bitte Code eingeben.");
+    const cleaned = code.trim().toUpperCase();
 
-    if (!teamNr) return setError("Bitte zuerst Teamnummer (1–6) wählen.");
+    // --- 1) Login (Teamcode) ---
+    if (!loginCode) {
+      if (
+        !/^GF[1-6]$/.test(cleaned) &&
+        !/^AT[1-6]$/.test(cleaned) &&
+        !/^WT[1-6]$/.test(cleaned)
+      ) {
+        setError("Bitte eine gültige Team-Kennung eingeben (GF1-6, AT1-6 oder WT1-6).");
+        return;
+      }
+      setLoginCode(cleaned);
+      setTeamNr(Number(cleaned.replace(/\D/g, ""))); // Zahl extrahieren
+      setCode("");
+      return;
+    }
 
-    const found = scenarios.find((s) => s.code === cleaned);
-    if (!found) return setError("❌ Szenario nicht gefunden.");
+    // --- 2) Sub-Szenario (nur 4-stellig erlaubt) ---
+    if (!/^\d{4}$/.test(cleaned)) {
+      setError("Bitte einen gültigen 4-stelligen Szenario-Code eingeben.");
+      return;
+    }
 
-    // 🔒 Neue Freischalt-Prüfung
-    if (Number(found.row) > 1) {
-      const prevRow = Number(found.row) - 1;
-      const prevScenario = scenarios.find(
-        (s) => s.role === found.role && Number(s.row) === prevRow
+    const mainScenario = scenarios.find((s) => s.team === teamNr);
+    const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
+
+    if (!sub) {
+      // Prüfen: gibt es den Code überhaupt in einem anderen Team?
+      const anywhere = scenarios.some((s) =>
+        s.subScenarios?.some((sub) => sub.code === cleaned)
       );
+      if (anywhere) {
+        setError("❌ Falsche Gruppe – der Code gehört zu einer anderen Gruppe.");
+      } else {
+        setError("❌ Ungültiger Szenario-Code.");
+      }
+      setCode("");
+      return;
+    }
 
-      if (prevScenario) {
-        try {
-          const res = await fetch(
-            `/api/task-progress?teamId=${teamNr}&scenarioCode=${prevScenario.code}`,
-            { headers: { "x-admin-pass": adminPass } }
-          );
-          const data = await res.json();
+    // --- 2b) Rolle prüfen ---
+    if (loginCode && sub.role !== loginCode) {
+      setError("❌ Nicht der richtige Trupp – dieser Code gehört einem anderen Trupp.");
+      setCode("");
+      return;
+    }
 
-          const hasSolution =
-            Array.isArray(data) &&
-            data.some((d) => d.type === "solution" && d.done === true);
-
-          if (!hasSolution) {
-            setError(
-              `🚫 Dieses Szenario (${found.title}) ist noch nicht freigeschaltet. Bitte zuerst "${prevScenario.title}" beginnen.`
-            );
-            return;
-          }
-        } catch (err) {
-          console.error("Fehler bei Freigabeprüfung:", err);
-          setError("Serverfehler bei der Freigabeprüfung.");
+    // --- 3) Finale prüfen ---
+    if (sub.isFinal || sub.title === "Übung Ende") {
+      try {
+        const res = await fetch(`/api/can-unlock-final?teamId=${teamNr}`);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.allowed) {
+          setError("Abschlusslage noch nicht freigeschaltet.");
+          setCode("");
           return;
         }
+      } catch (err) {
+        console.error("Fehler bei Freigabeprüfung:", err);
+        setError("Serverfehler bei Freigabeprüfung.");
+        setCode("");
+        return;
       }
     }
 
-    // ✅ Wenn erlaubt → anzeigen
-    setActiveScenarios([found]);
-    setExpandedCode(found.code);
-  };
+    // --- 4) Sub-Szenario hinzufügen (nur einmal) ---
+    if (!activeScenarios.some((s) => s.code === sub.code)) {
+      setActiveScenarios((prev) => [...prev, { ...sub, team: teamNr }]);
+    }
 
-  const handleReset = () => {
-    setActiveScenarios([]);
+    setExpandedCode(sub.code);
     setCode("");
-    setError(null);
-    setExpandedCode(null);
   };
 
   return (
     <Layout>
-      <div className="max-w-xl mx-auto mt-6 p-4 bg-white rounded shadow">
-        <h1 className="text-xl font-bold mb-4 text-center">🚒 Funkübung</h1>
-
-        {/* Teamnummer */}
-        <div className="mb-4 text-center">
-          <label className="block mb-2 font-medium">
-            Teamnummer (1–6) wählen:
-          </label>
+      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6 mx-auto">
+        {/* Code-Eingabe */}
+        <form onSubmit={handleAddScenario} className="flex gap-2 mb-4">
           <input
-            type="number"
-            min="1"
-            max="6"
-            value={teamNr || ""}
-            onChange={(e) => setTeamNr(e.target.value)}
-            className="border p-2 rounded w-24 text-center"
-          />
-        </div>
-
-        {/* Codeeingabe */}
-        <form
-          onSubmit={handleAddScenario}
-          className="flex gap-2 mb-4 justify-center"
-        >
-          <input
-            type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Szenario-Code eingeben"
-            className="border p-2 rounded flex-grow"
+            placeholder={
+              !loginCode
+                ? "🔑 Teamcode eingeben (GF1-6, AT1-6, WT1-6)"
+                : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
+            }
+            maxLength={loginCode ? 4 : 4} // erlaubt auch AT1, WT1
+            className="flex-1 border px-3 py-2 rounded"
           />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Öffnen
+          <button className="px-4 py-2 bg-slate-800 text-white rounded">
+            {!loginCode ? "Start" : "Nächster Code"}
           </button>
         </form>
 
-        {error && (
-          <p className="text-red-600 font-semibold text-center mb-4">{error}</p>
+        {error && <div className="text-red-600 mb-4">{error}</div>}
+
+        {/* Wenn Team gewählt */}
+        {loginCode ? (
+          <>
+            <h2 className="text-2xl font-bold mb-4">🚒 Team {loginCode}</h2>
+
+            {activeScenarios.length > 0 ? (
+              <div className="space-y-6">
+                {activeScenarios.map((s) => (
+                  <ScenarioViewer
+                    key={s.code}
+                    scenario={s}
+                    onBack={() => {}}
+                    mode="team"
+                    teamId={teamNr}
+                    loginCode={loginCode} // 🔑 neu: Login weitergeben
+                    expandedCode={expandedCode}
+                    setExpandedCode={setExpandedCode}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500">
+                Noch kein Szenario-Code für Team {loginCode} eingegeben
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
-        <div className="flex justify-center gap-3 mt-3">
+        <FeuerwehrAlphabetModal />
+        <FeedbackForm />
+
+        <div className="mt-6 text-right">
           <button
-            onClick={handleReset}
-            className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+            onClick={() => (window.location.href = "/admin-dashboard")}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Zurücksetzen
-          </button>
-          <button
-            onClick={() => setShowAlphabet(true)}
-            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            🔡 Funkalphabet
+            🔑 Admin
           </button>
         </div>
       </div>
-
-      {/* Szenarioanzeige */}
-      {activeScenarios.length > 0 && (
-        <div className="max-w-4xl mx-auto mt-6 space-y-4">
-          {activeScenarios.map((scenario) => (
-            <ScenarioViewer
-              key={scenario.code}
-              scenario={scenario}
-              teamId={teamNr}
-              loginCode={code}
-              mode="team"
-              expandedCode={expandedCode}
-              setExpandedCode={setExpandedCode}
-            />
-          ))}
-        </div>
-      )}
-
-      {showAlphabet && (
-        <FeuerwehrAlphabetModal onClose={() => setShowAlphabet(false)} />
-      )}
     </Layout>
   );
 }
