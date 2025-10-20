@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ScenarioList from "@/components/ScenarioList";
-import scenarios from "@/data/scenarios"; // dein Rohdaten-Array
-import Layout from "@/components/Layout";
+import ScenarioList from "/components/ScenarioList";
+import scenarios from "/data/scenarios"; // dein Rohdaten-Array
+import Layout from "/components/Layout";
 
 export default function Home() {
   const [code, setCode] = useState("");
