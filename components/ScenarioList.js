@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ScenarioViewer from "./ScenarioViewer";
 
-// gleiche Funktion wie in ScenarioViewer
+// Hilfsfunktion für Rollenzuordnung (gleich wie in ScenarioViewer)
 function getRoleFromLogin(teamId, loginCode) {
   if (/^GF[1-6]$/.test(loginCode)) return loginCode;
   if (/^AT[1-6]$/.test(loginCode)) return loginCode;
@@ -10,12 +10,9 @@ function getRoleFromLogin(teamId, loginCode) {
 }
 
 /**
- * Props:
- * - scenarios: Array aller Roh-Szenarien (mit {code, role, row, ...})
- * - teamId: Zahl/String
- * - loginCode: z.B. "AT1"
- * - mode: "team" | "admin" (hier i.d.R. "team")
- * - expandedCode, setExpandedCode: wie gehabt
+ * Rendert nur freigeschaltete Szenarien nach row-Reihenfolge.
+ * Das nächste Szenario wird erst angezeigt,
+ * wenn beim vorherigen mindestens eine "solution" abgehakt wurde.
  */
 export default function ScenarioList({
   scenarios,
@@ -26,54 +23,54 @@ export default function ScenarioList({
   setExpandedCode,
 }) {
   const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;
-  const [progressByScenario, setProgressByScenario] = useState({}); // { [scenario_code]: [entries...] }
+  const [progressByScenario, setProgressByScenario] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Nur Szenarien der eigenen Rolle + nach row sortiert
+  // Rolle aus Login ermitteln
   const userRole = useMemo(() => getRoleFromLogin(teamId, loginCode), [teamId, loginCode]);
 
+  // Szenarien nach Rolle und Reihenfolge filtern/sortieren
   const roleScenariosSorted = useMemo(() => {
     return (scenarios || [])
-      .filter(s => !userRole || !s.role || s.role === userRole)
+      .filter((s) => !userRole || !s.role || s.role === userRole)
       .sort((a, b) => Number(a.row) - Number(b.row));
   }, [scenarios, userRole]);
 
-  // Progress einmal laden (alle Szenarien)
+  // Fortschritt einmalig laden (alle Szenarien)
   useEffect(() => {
     let isMounted = true;
     async function loadAllProgress() {
       try {
         const res = await fetch(`/api/task-progress?teamId=${teamId}&scenarioCode=*`, {
-          headers: { "x-admin-pass": adminPass }, // folgt deinem bisherigen Muster
+          headers: { "x-admin-pass": adminPass },
         });
         const data = await res.json();
         if (!isMounted) return;
         if (res.ok) {
           setProgressByScenario(data || {});
         } else {
-          console.error("Progress-Fehler:", data);
+          console.error("Fehler beim Laden des Fortschritts:", data);
           setProgressByScenario({});
         }
       } catch (e) {
-        console.error("Progress-Load Fehler:", e);
+        console.error("Fehler bei loadAllProgress:", e);
         setProgressByScenario({});
       } finally {
         if (isMounted) setLoading(false);
       }
     }
     loadAllProgress();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [teamId, adminPass]);
 
-  // Ermitteln, welche Szenarien freigeschaltet sind:
-  // Regel: erstes (kleinstes row) ist erlaubt; jedes nächste nur, wenn beim direkten Vorgänger
-  // mindestens eine solution als done=true vorliegt.
+  // Berechnen, welche Szenarien erlaubt sind
   const allowedCodes = useMemo(() => {
     if (loading || roleScenariosSorted.length === 0) return new Set();
 
     const allowed = new Set();
-    // Start mit der kleinsten row
-    allowed.add(roleScenariosSorted[0].code);
+    allowed.add(roleScenariosSorted[0].code); // Erstes Szenario immer erlaubt
 
     for (let i = 1; i < roleScenariosSorted.length; i++) {
       const prev = roleScenariosSorted[i - 1];
@@ -81,24 +78,25 @@ export default function ScenarioList({
       const hasAnySolution = prevEntries.some(
         (e) => e.type === "solution" && e.done === true
       );
+
       if (hasAnySolution) {
         allowed.add(roleScenariosSorted[i].code);
       } else {
-        // Sobald eins gesperrt ist, brechen wir ab (alles dahinter unsichtbar)
-        break;
+        break; // Stop: alles danach unsichtbar
       }
     }
+
     return allowed;
   }, [loading, roleScenariosSorted, progressByScenario]);
 
   if (loading) {
-    return <p className="text-slate-500">Lade Fortschritt…</p>;
+    return <p className="text-slate-500">Lade Szenarien …</p>;
   }
 
   return (
     <div className="space-y-4">
       {roleScenariosSorted
-        .filter(s => allowedCodes.has(s.code)) // 👈 nur erlaubte anzeigen
+        .filter((s) => allowedCodes.has(s.code))
         .map((scenario) => (
           <ScenarioViewer
             key={scenario.code}
