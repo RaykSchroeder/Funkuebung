@@ -45,7 +45,6 @@ export default function Home() {
     const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
 
     if (!sub) {
-      // Prüfen: gibt es den Code überhaupt in einem anderen Team?
       const anywhere = scenarios.some((s) =>
         s.subScenarios?.some((sub) => sub.code === cleaned)
       );
@@ -65,7 +64,43 @@ export default function Home() {
       return;
     }
 
-    // --- 3) Finale prüfen ---
+    // --- 3) Vorheriges Szenario prüfen (row > 1) ---
+    if (sub.row && Number(sub.row) > 1) {
+      try {
+        // Vorheriges Szenario mit gleicher Rolle und row-1 finden
+        const prevScenario = mainScenario.subScenarios.find(
+          (s) => s.role === sub.role && Number(s.row) === Number(sub.row) - 1
+        );
+
+        if (prevScenario) {
+          const res = await fetch(
+            `/api/task-progress?teamId=${teamNr}&scenarioCode=${prevScenario.code}`,
+            { headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS } }
+          );
+          const data = await res.json();
+
+          // Prüfen, ob mindestens eine erledigte Aufgabe existiert
+          const isPrevDone = Array.isArray(data)
+            ? data.some((entry) => entry.done)
+            : data.data?.some((entry) => entry.done);
+
+          if (!isPrevDone) {
+            setError(
+              "Scenario noch nicht verfügbar... zunächst vorheriges Scenario bearbeiten."
+            );
+            setCode("");
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Fehler bei der Überprüfung des vorherigen Szenarios:", err);
+        setError("Serverfehler bei der Überprüfung des vorherigen Szenarios.");
+        setCode("");
+        return;
+      }
+    }
+
+    // --- 4) Finale prüfen (wie gehabt) ---
     if (sub.isFinal || sub.title === "Übung Ende") {
       try {
         const res = await fetch(`/api/can-unlock-final?teamId=${teamNr}`);
@@ -83,7 +118,7 @@ export default function Home() {
       }
     }
 
-    // --- 4) Sub-Szenario hinzufügen (nur einmal) ---
+    // --- 5) Sub-Szenario hinzufügen (nur einmal) ---
     if (!activeScenarios.some((s) => s.code === sub.code)) {
       setActiveScenarios((prev) => [...prev, { ...sub, team: teamNr }]);
     }
@@ -105,7 +140,7 @@ export default function Home() {
                 ? "🔑 Teamcode eingeben (GF1-6, AT1-6, WT1-6)"
                 : "➡️ Nächsten Szenario-Code (4-stellig) eingeben"
             }
-            maxLength={loginCode ? 4 : 4} // erlaubt auch AT1, WT1
+            maxLength={loginCode ? 4 : 4}
             className="flex-1 border px-3 py-2 rounded"
           />
           <button className="px-4 py-2 bg-slate-800 text-white rounded">
@@ -129,7 +164,7 @@ export default function Home() {
                     onBack={() => {}}
                     mode="team"
                     teamId={teamNr}
-                    loginCode={loginCode} // 🔑 neu: Login weitergeben
+                    loginCode={loginCode}
                     expandedCode={expandedCode}
                     setExpandedCode={setExpandedCode}
                   />
