@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Supabase-Umgebungsvariablen fehlen." });
   }
 
-  // 🔒 Admin-Check (wie gehabt)
+  // 🔒 Admin-Check
   if (!process.env.ADMIN_PASS) {
     return res.status(500).json({ error: "ADMIN_PASS ist nicht gesetzt." });
   }
@@ -15,9 +15,9 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // ✅ GET
+  // ✅ GET (inkl. neuer Prüfung)
   if (req.method === "GET") {
-    const { teamId, scenarioCode } = req.query;
+    const { teamId, scenarioCode, role, row } = req.query; // 👈 role & row neu
     if (!teamId) {
       return res.status(400).json({ error: "teamId ist erforderlich" });
     }
@@ -38,23 +38,42 @@ export default async function handler(req, res) {
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
 
-      // ✨ NEU: alle Szenarien gruppiert zurückgeben
+      // ✨ NEU: Prüfung auf vorherige "row"
+      let previousDone = true; // Standard: erlaubt, wenn row=1 oder nicht angegeben
+      if (row && Number(row) > 1 && role) {
+        const prevRow = Number(row) - 1;
+
+        // Hole alle Szenarien mit row-1 und gleicher Rolle (role)
+        const prevQuery = `${url}/rest/v1/task_progress?team_id=eq.${teamId}&role=eq.${role}&row=eq.${prevRow}&done=eq.true`;
+        const rPrev = await fetch(prevQuery, {
+          headers: {
+            apikey: service,
+            Authorization: `Bearer ${service}`,
+          },
+        });
+        const prevData = await rPrev.json();
+
+        previousDone = Array.isArray(prevData) && prevData.length > 0;
+      }
+
+      // Falls gruppiert zurückgegeben wird
       if (scenarioCode === "*") {
         const grouped = data.reduce((acc, entry) => {
           if (!acc[entry.scenario_code]) acc[entry.scenario_code] = [];
           acc[entry.scenario_code].push(entry);
           return acc;
         }, {});
-        return res.status(200).json(grouped);
+        return res.status(200).json({ grouped, previousDone });
       }
 
-      return res.status(200).json(data);
+      // Einzelnes Szenario
+      return res.status(200).json({ data, previousDone });
     } catch (e) {
       return res.status(500).json({ error: e.message || "Serverfehler" });
     }
   }
 
-  // ✅ PATCH (wie gehabt)
+  // ✅ PATCH (unverändert)
   if (req.method === "PATCH") {
     const { teamId, scenarioCode, taskIndex, type, done } = req.body;
 
