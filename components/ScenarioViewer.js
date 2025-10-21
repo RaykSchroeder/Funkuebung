@@ -38,34 +38,46 @@ export default function ScenarioViewer({
   }
   if (!visible) return null;
 
-  // Fortschritt laden (nur Admin)
+  // 🟢 Fortschritt laden (Admin)
   useEffect(() => {
     if (mode !== "admin" || scenario.isFinal) return;
 
     async function loadProgress() {
-      const res = await fetch(`/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`, {
-        headers: { "x-admin-pass": adminPass },
-      });
-      const data = await res.json();
-      if (!res.ok) return;
+      try {
+        const res = await fetch(
+          `/api/task-progress?teamId=${teamId}&scenarioCode=${scenario.code}`,
+          { headers: { "x-admin-pass": adminPass } }
+        );
+        let data = await res.json();
+        if (!res.ok) return;
 
-      const tasksState = [...checkedTasks];
-      data.filter((d) => d.type === "task").forEach((d) => {
-        if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
-      });
-      setCheckedTasks(tasksState);
+        // 🔧 Kompatibilität: falls data Objekt mit .data enthält
+        if (data && typeof data === "object" && Array.isArray(data.data)) {
+          data = data.data;
+        }
 
-      const solState = [...checkedSolutions];
-      data.filter((d) => d.type === "solution").forEach((d) => {
-        if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
-      });
-      setCheckedSolutions(solState);
+        // --- Aufgaben aktualisieren ---
+        const tasksState = [...checkedTasks];
+        data.filter((d) => d.type === "task").forEach((d) => {
+          if (tasksState[d.task_index] !== undefined) tasksState[d.task_index] = d.done;
+        });
+        setCheckedTasks(tasksState);
+
+        // --- Lösungen aktualisieren ---
+        const solState = [...checkedSolutions];
+        data.filter((d) => d.type === "solution").forEach((d) => {
+          if (solState[d.task_index] !== undefined) solState[d.task_index] = d.done;
+        });
+        setCheckedSolutions(solState);
+      } catch (err) {
+        console.error("Fehler beim Laden des Fortschritts:", err);
+      }
     }
 
     loadProgress();
   }, [scenario.code, teamId, mode]);
 
-  // Fortschritt speichern (Admin)
+  // 🟡 Fortschritt speichern (Admin)
   const saveProgress = async (taskIndex, type, done) => {
     if (mode !== "admin" || scenario.isFinal) return;
     const payload = { teamId, scenarioCode: scenario.code, taskIndex, type, done };
@@ -104,7 +116,7 @@ export default function ScenarioViewer({
         }}
       >
         <h2 className="text-lg font-semibold">
-          {scenario.title} - {scenario.role} - {scenario.code}
+          {scenario.title} - {scenario.code}
           {scenario.row ? (
             <span className="text-slate-500"> (Reihe {scenario.row})</span>
           ) : null}
@@ -152,7 +164,9 @@ export default function ScenarioViewer({
                     className="flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer"
                     onClick={() => toggleTask(i)}
                   >
-                    {mode === "admin" && <input type="checkbox" checked={checkedTasks[i]} readOnly />}
+                    {mode === "admin" && (
+                      <input type="checkbox" checked={checkedTasks[i]} readOnly />
+                    )}
                     <span
                       className={
                         mode === "admin" && checkedTasks[i]
