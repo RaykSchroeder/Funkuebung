@@ -173,16 +173,16 @@ const scenarios = [
       
       { code: "2890",role: "GF2", title: "Erste Lage",
        row: "2",
-       description: "Sie haben die Einsatzstelle erreicht und sehen eine deutliche Rauchentwicklung aus einem Kuhstall.",
+       description: "Sie haben den Einsatzort erreicht. Der Landwirt teilt Ihnen mit, dass eine Person vermisst wird. Zuletzt gesehen wurde Sie am Güllebehälter.",
        //fileType: "image",file: "/images/2890.png",
-       tasks: ["Geben Sie eine erste Lagemeldung auf Sicht anhand des Bildes ab","Positionieren sie nach ihrer Meldung ihr Fahrzeug auf der Freifläche am Güllebehälter"],
+       tasks: ["Geben Sie die Information in einer ersten Lagemeldung weiter","Folgen Sie der Beschreibung des Landwirtes zu Ihrem Zielort (blaue Pfeile)"],
        solutionTasks: ["EST an","Lage auf Sicht"], },
       
-      { code: "7598",role: "GF2", title: "Eisatzauftrag",
+      { code: "7598",role: "GF2", title: "Einsatzauftrag",
        row: "3",
        description: "Sie haben Ihre Einsatzstelle erreicht.",
        //fileType: "image",file: "/images/7598.png",
-       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus, Sie nutzen den Kanal 309 im DMO","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle Relevanten Informationen über TMO an den FC 24/11/25"],
+       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus, Sie nutzen den Kanal 310 im DMO","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25"],
        solutionTasks: ["Aufteilung"], },
       
       { code: "6504",role: "AT2", title: "Güllebehälter",
