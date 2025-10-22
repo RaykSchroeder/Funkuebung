@@ -4,6 +4,7 @@ import FeedbackForm from "../components/FeedbackForm";
 import Layout from "../components/Layout";
 import scenarios from "../data/scenarios";
 import FeuerwehrAlphabetModal from "../components/FeuerwehrAlphabetModal";
+import ImageModalButton from "../components/ImageModalButton";
 
 export default function Home() {
   const [code, setCode] = useState("");
@@ -67,7 +68,6 @@ export default function Home() {
     // --- 3) Vorheriges Szenario prüfen (row > 1) ---
     if (sub.row && Number(sub.row) > 1) {
       try {
-        // Vorheriges Szenario mit gleicher Rolle und row-1 finden
         const prevScenario = mainScenario.subScenarios.find(
           (s) => s.role === sub.role && Number(s.row) === Number(sub.row) - 1
         );
@@ -79,7 +79,6 @@ export default function Home() {
           );
           const data = await res.json();
 
-          // Prüfen, ob mindestens eine erledigte Aufgabe existiert
           const isPrevDone = Array.isArray(data)
             ? data.some((entry) => entry.done)
             : data.data?.some((entry) => entry.done);
@@ -180,7 +179,30 @@ export default function Home() {
           <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
+        {/* Floating-Buttons (unten rechts gestapelt) */}
         <FeuerwehrAlphabetModal />
+        <ImageModalButton
+          title="Lageplan"
+          buttonLabel="🗺️ Lageplan"
+          imageSrc="/images/lageplan.jpg"      // <-- lege dein Bild hier ab
+          imageAlt="Lageplan"
+          className="fixed right-6 bottom-24"  // etwas höher als ABC
+        />
+        <ImageModalButton
+          title="Einsatzkarte"
+          buttonLabel="🧭 Einsatzkarte"
+          imageSrc="/images/einsatzkarte.jpg"  // <-- lege dein Bild hier ab
+          imageAlt="Einsatzkarte"
+          className="fixed right-6 bottom-40"  // noch eine Stufe höher
+        />
+        <ImageModalButton
+          title="Funkkanäle / TMO"
+          buttonLabel="📡 Funkkanäle"
+          imageSrc="/images/funkkanaele.jpg"   // <-- lege dein Bild hier ab
+          imageAlt="Funkkanäle"
+          className="fixed right-6 bottom-56"  // höchste Position
+        />
+
         <FeedbackForm />
 
         <div className="mt-6 text-right">
