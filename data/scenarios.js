@@ -46,7 +46,7 @@ const scenarios = [
        description: "Sie haben Ihre Einsatzstelle erreicht.",
        //fileType: "image",
        //file: "/images/1987.png",
-       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus, Sie nutzen den Kanal 309 im DMO","Der Angriffstruppe erhält den Teamcode AT1, der Wassertrupp WT1 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden. ","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur linken Gebäudeseite und Wassertrupp zur Erkundung zur rechten Gebäudeseite vor."],
+       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus, Sie nutzen den Kanal 309 im DMO","Der Angriffstruppe erhält den Teamcode AT1, der Wassertrupp WT1 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur linken Gebäudeseite und Wassertrupp zur Erkundung zur rechten Gebäudeseite vor."],
        solutionTasks: ["Aufteilung"],},
       
       {code: "4125",
@@ -182,7 +182,7 @@ const scenarios = [
        row: "3",
        description: "Sie haben Ihre Einsatzstelle erreicht.",
        //fileType: "image",file: "/images/7598.png",
-       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus, Sie nutzen den Kanal 310 im DMO","Der Angriffstruppe erhält den Teamcode AT2, der Wassertrupp WT2 zur Eingabe in der App. Gefundene Zahlecodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25"],
+       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus, Sie nutzen den Kanal 310 im DMO","Der Angriffstruppe erhält den Teamcode AT2, der Wassertrupp WT2 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25"],
        solutionTasks: ["Aufteilung"], },
       
       { code: "6504",role: "AT2", title: "Güllebehälter",
@@ -397,7 +397,7 @@ const scenarios = [
        row: "3",
        description: "Sie haben Ihre Einsatzstelle erreicht. ",
        //fileType: "image",file: "/images/6824.png",
-       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 310 im DMO. ","Der Angriffstrupp erhält den Teamcode AT4, der Wassertrupp WT4 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden. ","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur Rechtengebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der Linkengebäudeseite (Brandobjekt) über Siloplatte vor.",],
+       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 310 im DMO. ","Der Angriffstrupp erhält den Teamcode AT4, der Wassertrupp WT4 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur Rechtengebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der Linkengebäudeseite (Brandobjekt) über Siloplatte vor.",],
        solutionTasks: ["Aufteilung",],},
       
       { code: "3589",role: "AT4",title: "Rauchentwicklung",
@@ -498,7 +498,7 @@ const scenarios = [
        row: "3",
        description: "Sie haben Ihre Einsatzstelle erreicht. ",       
        //fileType: "image",file: "/images/8627.png",
-       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 309 im DMO. ","Der Angriffstruppe erhält den Teamcode AT5, der Wassertrupp WT5 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden. ","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung in Richtung Straßenkreuzung, Wassertrupp zur Erkundung in Richtung Deich vor.",],
+       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 309 im DMO. ","Der Angriffstruppe erhält den Teamcode AT5, der Wassertrupp WT5 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung in Richtung Straßenkreuzung, Wassertrupp zur Erkundung in Richtung Deich vor.",],
        solutionTasks: ["Aufteilung",],},
       
       { code: "1129",role: "AT5",title: "Motorrad",
