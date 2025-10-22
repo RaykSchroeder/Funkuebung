@@ -295,16 +295,16 @@ const scenarios = [
       
       { code: "7628",role: "GF3", title: "Einsatzauftrag",
        row: "3",
-       description: "Sie haben Ihre Einsatzstelle erreicht. ",
+       description: "Sie haben Ihre Einsatzstelle erreicht.",
        //fileType: "image",file: "/images/7628.png",
        tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 309 im DMO","Der Angriffstruppe erhält den Teamcode AT3, der Wassertrupp WT3 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur rechten Gebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der linken Gebäudeseite (Brandobjekt) über Siloplatte vor.",],
-       solutionTasks: ["Aufteilung],},
+       solutionTasks: ["Aufteilung"],},
       
       { code: "5094",role: "AT3", title: "Erkundung",
        row: "1",
        description: "Sie sind auf dem Weg zum Brandobjekt",
        //fileType: "image",file: "/images/5094.png",
-       tasks: ["An der nächsten Möglichkeit biegen Sie rechts ab und setzen Ihre Erkundung fort.",],
+       tasks: ["An der nächsten Möglichkeit biegen Sie rechts ab und setzen Ihre Erkundung fort",],
        solutionTasks: ["Keine Lösung immer abhaken",],},
       
       { code: "1735",role: "AT3", title: "Gebäuderückseite",
