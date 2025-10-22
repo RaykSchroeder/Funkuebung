@@ -166,7 +166,7 @@ const scenarios = [
     subScenarios: [
       { code: "5248",role: "GF2", title: "Ausfahrt",
        row: "1",
-       description: "Herzlich Willkommen zur Funkübung der Feuerwehr Stadt Geestland in Imsum. Folgenden Sie der folgenden Navigaion zu Ihrem Einsatzort",
+       description: "Herzlich Willkommen zur Funkübung der Feuerwehr Stadt Geestland in Imsum. Folgen Sie der folgenden Navigation zu Ihrem Einsatzort",
        fileType: "image",file: "/images/FFImsum2.png",
        tasks: ["Auf Alte Bahnhofstraße in Richtung Wurster Landstraße starten","Links abbiegen auf Wurster Landstraße","Nach 1 km rechts abbiegen auf Am Büttel","Links abbiegen um auf Am Büttel zu bleiben","Nehmen Sie die zweite Hofeinfahrt"],
        solutionTasks: ["Alle Aufgaben erledigt"], },
