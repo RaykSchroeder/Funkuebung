@@ -182,24 +182,24 @@ export default function Home() {
         {/* Floating-Buttons (unten rechts gestapelt) */}
         <FeuerwehrAlphabetModal />
         <ImageModalButton
-          title="Lageplan"
-          buttonLabel="🗺️ Lageplan"
-          imageSrc="/images/lageplan.jpg"      // <-- lege dein Bild hier ab
-          imageAlt="Lageplan"
+          title="DMO"
+          buttonLabel="DMO wechseln"
+          imageSrc="/images/DMO.png"      // <-- lege dein Bild hier ab
+          imageAlt="DMO"
           className="fixed right-6 bottom-24"  // etwas höher als ABC
         />
         <ImageModalButton
-          title="Einsatzkarte"
-          buttonLabel="🧭 Einsatzkarte"
-          imageSrc="/images/einsatzkarte.jpg"  // <-- lege dein Bild hier ab
+          title="Funktgerät DC20"
+          buttonLabel="Funktgerät SC20"
+          imageSrc="/images/SC20.png"  // <-- lege dein Bild hier ab
           imageAlt="Einsatzkarte"
           className="fixed right-6 bottom-40"  // noch eine Stufe höher
         />
         <ImageModalButton
-          title="Funkkanäle / TMO"
-          buttonLabel="📡 Funkkanäle"
-          imageSrc="/images/funkkanaele.jpg"   // <-- lege dein Bild hier ab
-          imageAlt="Funkkanäle"
+          title="Meldung abgeben"
+          buttonLabel="Meldung"
+          imageSrc="/images/MELDEN.png"   // <-- lege dein Bild hier ab
+          imageAlt="Melden"
           className="fixed right-6 bottom-56"  // höchste Position
         />
 
