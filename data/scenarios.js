@@ -143,7 +143,7 @@ const scenarios = [
        role: "GF1",
        row: "4",
        title: "Abschluss",
-       description: "Sie haben den Einsatz erfolgreich abgearbeitet. Alle festgestellten Gefahren konnten beseitigt werden. Die Einsatzstelle wurde an den Eigentümer übergeben. Geben Sie eine abschließende Lagemeldung ab. Begeben Sie sich zurück zum Feuerwehrhaus Imsum."
+       description: "Sie haben den Einsatz erfolgreich abgearbeitet. Alle festgestellten Gefahren konnten beseitigt werden. Die Einsatzstelle wurde an den Eigentümer übergeben. Geben Sie eine abschließende Lagemeldung ab. Begeben Sie sich zurück zum Feuerwehrhaus Imsum.",
        fileType: "image",
        file: "/images/Abschluss.png",
        tasks: ["Abschlussmeldung erstellen"],
