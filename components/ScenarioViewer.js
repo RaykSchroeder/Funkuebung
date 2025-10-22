@@ -116,7 +116,7 @@ export default function ScenarioViewer({
         }}
       >
         <h2 className="text-lg font-semibold">
-          {scenario.title} - {scenario.code}
+          {scenario.title} - {scenario.code} - {scenario.role}
           {scenario.row ? (
             <span className="text-slate-500"> (Reihe {scenario.row})</span>
           ) : null}
