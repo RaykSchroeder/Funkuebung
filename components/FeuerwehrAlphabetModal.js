@@ -35,12 +35,12 @@ export default function FeuerwehrAlphabetModal() {
 
   return (
     <>
-      {/* 👉 Kein fixed mehr – wird vom Eltern-Grid positioniert */}
+      {/* Button (identisch wie ImageModalButton) */}
       <button
         onClick={() => setOpen(true)}
-        className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+        className="text-xs px-3 py-2 bg-orange-200 text-black rounded-lg shadow hover:bg-orange-300 w-24 text-center"
       >
-        📖 ABC
+        ABC
       </button>
 
       {/* Modal */}
@@ -62,6 +62,7 @@ export default function FeuerwehrAlphabetModal() {
             </button>
 
             <h2 className="text-xl font-bold mb-4">Feuerwehralphabet</h2>
+
             <ul className="space-y-2">
               {alphabet.map(([letter, word]) => (
                 <li key={letter} className="flex justify-between border-b pb-1">
