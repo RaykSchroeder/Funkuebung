@@ -397,7 +397,7 @@ const scenarios = [
        row: "3",
        description: "Sie haben Ihre Einsatzstelle erreicht. ",
        //fileType: "image",file: "/images/6824.png",
-       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 310 im DMO. ","Der Angriffstrupp erhält den Teamcode AT4, der Wassertrupp WT4 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung zur Rechtengebäudeseite (Brandobjekt), Wassertrupp zur Erkundung der Linkengebäudeseite (Brandobjekt) über Siloplatte vor.",],
+       tasks: ["Teilen Sie die Gruppe möglichst gleichmäßig in folgende drei Trupps auf: Gruppenführer(-Trupp), Angriffstrupp, Wassertrupp","Jeder Trupp rüstet sich mit einem Funkgerät aus und nutzt den Kanal 310 im DMO. ","Der Angriffstrupp erhält den Teamcode AT4, der Wassertrupp WT4 zur Eingabe in der App. Gefundene Zahlencodes dürfen nicht über Funk vermittelt werden","Der GF-Trupp verbleibt am Fahrzeug und übermittelt alle relevanten Informationen über TMO an den FC 24/11/25","Der GF-Trupp erteilt folgende Aufträge: AT zur Erkundung in den östlichen Stall, Wassertrupp zur Erkundung den südöstlichen Stall vor (Zugänge sind markiert!).",],
        solutionTasks: ["Aufteilung",],},
       
       { code: "3589",role: "AT4",title: "Rauchentwicklung",
