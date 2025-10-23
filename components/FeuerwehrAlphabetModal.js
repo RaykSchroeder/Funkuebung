@@ -1,4 +1,3 @@
-//components/FeuerwehrAlphabetModal.js
 import { useState } from "react";
 import { X } from "lucide-react";
 
@@ -36,15 +35,13 @@ export default function FeuerwehrAlphabetModal() {
 
   return (
     <>
-      {/* Button unten rechts */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={() => setOpen(true)}
-          className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-        >
-          📖 ABC
-        </button>
-      </div>
+      {/* 👉 Kein fixed mehr – wird vom Eltern-Grid positioniert */}
+      <button
+        onClick={() => setOpen(true)}
+        className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+      >
+        📖 ABC
+      </button>
 
       {/* Modal */}
       {open && (
