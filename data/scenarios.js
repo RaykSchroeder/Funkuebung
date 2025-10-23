@@ -86,7 +86,7 @@ const scenarios = [
        description: "Person reagiert nicht auf Ansprache, atmet und hat einen regelmäßigen Puls.",
        fileType: "image",
        file: "/images/9210.jpg",
-       tasks: ["Retten sie die Person zu folgender Position","Übermitteln sie den Zustand der Person, ihre Maßnahmen und die Rettung an den GF-Trupp.","Setzen Sie die Erkundung an Ihrem Standort fort."],
+       tasks: ["Retten sie die Person zu folgender Position (siehe Bild)","Übermitteln sie den Zustand der Person, ihre Maßnahmen und die Rettung an den GF-Trupp.","Setzen Sie die Erkundung an Ihrem Standort fort."],
        solutionTasks: ["Person nicht Ansprechbar", "Erste Hilfe"],},
       
       {code: "3307",
