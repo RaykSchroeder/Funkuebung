@@ -8,47 +8,48 @@ import ImageModalButton from "../components/ImageModalButton";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [activeScenarios, setActiveScenarios] = useState([]); // nur Subs
-  const [teamNr, setTeamNr] = useState(null); // merkt sich das Team (Zahl)
-  const [loginCode, setLoginCode] = useState(null); // merkt sich den Login (GF/AT/WT)
+  const [activeScenarios, setActiveScenarios] = useState([]);
+  const [teamNr, setTeamNr] = useState(null);
+  const [loginCode, setLoginCode] = useState(null);
   const [error, setError] = useState(null);
   const [expandedCode, setExpandedCode] = useState(null);
-  const [showHelpers, setShowHelpers] = useState(false); // 👈 neuer Zustand für die Buttons
+  const [showHelpers, setShowHelpers] = useState(false); // 👈 steuert das Hilfemenü
 
   const handleAddScenario = async (e) => {
     e.preventDefault();
     setError(null);
-
     const cleaned = code.trim().toUpperCase();
 
-    // --- 1) Login (Teamcode) ---
+    // --- 1) Login ---
     if (!loginCode) {
       if (
         !/^GF[1-6]$/.test(cleaned) &&
         !/^AT[1-6]$/.test(cleaned) &&
         !/^WT[1-6]$/.test(cleaned)
       ) {
-        setError("Bitte eine gültige Team-Kennung eingeben (GF1-6, AT1-6 oder WT1-6).");
+        setError(
+          "Bitte eine gültige Team-Kennung eingeben (GF1-6, AT1-6, WT1-6)."
+        );
         return;
       }
       setLoginCode(cleaned);
-      setTeamNr(Number(cleaned.replace(/\D/g, ""))); // Zahl extrahieren
+      setTeamNr(Number(cleaned.replace(/\D/g, "")));
       setCode("");
       return;
     }
 
-    // --- 2) Sub-Szenario (nur 4-stellig erlaubt) ---
+    // --- 2) Sub-Szenario ---
     if (!/^\d{4}$/.test(cleaned)) {
       setError("Bitte einen gültigen 4-stelligen Szenario-Code eingeben.");
       return;
     }
 
     const mainScenario = scenarios.find((s) => s.team === teamNr);
-    const sub = mainScenario?.subScenarios?.find((sub) => sub.code === cleaned);
+    const sub = mainScenario?.subScenarios?.find((x) => x.code === cleaned);
 
     if (!sub) {
       const anywhere = scenarios.some((s) =>
-        s.subScenarios?.some((sub) => sub.code === cleaned)
+        s.subScenarios?.some((x) => x.code === cleaned)
       );
       if (anywhere) {
         setError("❌ Falsche Gruppe – der Code gehört zu einer anderen Gruppe.");
@@ -66,24 +67,21 @@ export default function Home() {
       return;
     }
 
-    // --- 3) Vorheriges Szenario prüfen (row > 1) ---
+    // --- 3) Vorheriges Szenario prüfen ---
     if (sub.row && Number(sub.row) > 1) {
       try {
         const prevScenario = mainScenario.subScenarios.find(
           (s) => s.role === sub.role && Number(s.row) === Number(sub.row) - 1
         );
-
         if (prevScenario) {
           const res = await fetch(
             `/api/task-progress?teamId=${teamNr}&scenarioCode=${prevScenario.code}`,
             { headers: { "x-admin-pass": process.env.NEXT_PUBLIC_ADMIN_PASS } }
           );
           const data = await res.json();
-
           const isPrevDone = Array.isArray(data)
             ? data.some((entry) => entry.done)
             : data.data?.some((entry) => entry.done);
-
           if (!isPrevDone) {
             setError(
               "Scenario noch nicht verfügbar... zunächst vorheriges Scenario bearbeiten."
@@ -92,15 +90,14 @@ export default function Home() {
             return;
           }
         }
-      } catch (err) {
-        console.error("Fehler bei der Überprüfung des vorherigen Szenarios:", err);
+      } catch {
         setError("Serverfehler bei der Überprüfung des vorherigen Szenarios.");
         setCode("");
         return;
       }
     }
 
-    // --- 4) Finale prüfen (wie gehabt) ---
+    // --- 4) Finale prüfen ---
     if (sub.isFinal || sub.title === "Übung Ende") {
       try {
         const res = await fetch(`/api/can-unlock-final?teamId=${teamNr}`);
@@ -110,27 +107,25 @@ export default function Home() {
           setCode("");
           return;
         }
-      } catch (err) {
-        console.error("Fehler bei Freigabeprüfung:", err);
+      } catch {
         setError("Serverfehler bei Freigabeprüfung.");
         setCode("");
         return;
       }
     }
 
-    // --- 5) Sub-Szenario hinzufügen (nur einmal) ---
+    // --- 5) Sub-Szenario hinzufügen ---
     if (!activeScenarios.some((s) => s.code === sub.code)) {
       setActiveScenarios((prev) => [...prev, { ...sub, team: teamNr }]);
     }
-
     setExpandedCode(sub.code);
     setCode("");
   };
 
   return (
     <Layout>
+      {/* Hauptinhalt */}
       <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6 mx-auto">
-        {/* Code-Eingabe */}
         <form onSubmit={handleAddScenario} className="flex gap-2 mb-4">
           <input
             value={code}
@@ -150,11 +145,9 @@ export default function Home() {
 
         {error && <div className="text-red-600 mb-4">{error}</div>}
 
-        {/* Wenn Team gewählt */}
         {loginCode ? (
           <>
             <h2 className="text-2xl font-bold mb-4">🚒 Team {loginCode}</h2>
-
             {activeScenarios.length > 0 ? (
               <div className="space-y-6">
                 {activeScenarios.map((s) => (
@@ -180,45 +173,6 @@ export default function Home() {
           <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
-        {/* --- Floating-Button + versteckte Helferbuttons --- */}
-        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
-          {/* 1. Umschaltknopf */}
-          <button
-            onClick={() => setShowHelpers(!showHelpers)}
-            className="w-12 h-12 rounded-full bg-slate-800 text-white text-2xl shadow-lg hover:bg-slate-700"
-          >
-            {showHelpers ? "×" : "?"}
-          </button>
-
-          {/* 2. Helferbuttons (ein-/ausblendbar) */}
-          {showHelpers && (
-            <div className="grid grid-cols-2 gap-2 p-2 bg-white rounded-lg shadow-lg border">
-              <ImageModalButton
-                title="DMO"
-                buttonLabel="DMO"
-                imageSrc="/images/DMO.png"
-                imageAlt="DMO"
-                className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-              />
-              <ImageModalButton
-                title="SC20 Funkgerät"
-                buttonLabel="SC20"
-                imageSrc="/images/SC20.png"
-                imageAlt="Funkgerät"
-                className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-              />
-              <ImageModalButton
-                title="Meldung abgeben"
-                buttonLabel="Meldung"
-                imageSrc="/images/MELDEN.png"
-                imageAlt="Melden"
-                className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-              />
-              <FeuerwehrAlphabetModal />
-            </div>
-          )}
-        </div>
-
         <FeedbackForm />
 
         <div className="mt-6 text-right">
@@ -229,6 +183,45 @@ export default function Home() {
             🔑 Admin
           </button>
         </div>
+      </div>
+
+      {/* --- Hilfemenü unten rechts --- */}
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        {/* Hauptbutton ? / × */}
+        <button
+          onClick={() => setShowHelpers(!showHelpers)}
+          className="w-12 h-12 rounded-full bg-slate-800 text-white text-2xl shadow-lg hover:bg-slate-700 flex items-center justify-center"
+        >
+          {showHelpers ? "×" : "?"}
+        </button>
+
+        {/* Unterbuttons */}
+        {showHelpers && (
+          <div className="grid grid-cols-2 gap-2 p-2 bg-white rounded-lg shadow-lg border">
+            <ImageModalButton
+              title="DMO"
+              buttonLabel="DMO"
+              imageSrc="/images/DMO.png"
+              imageAlt="DMO"
+              className="relative text-xs px-2 py-1 bg-orange-200 rounded shadow"
+            />
+            <ImageModalButton
+              title="SC20 Funkgerät"
+              buttonLabel="SC20"
+              imageSrc="/images/SC20.png"
+              imageAlt="Funkgerät"
+              className="relative text-xs px-2 py-1 bg-orange-200 rounded shadow"
+            />
+            <ImageModalButton
+              title="MELDEN"
+              buttonLabel="MELDEN"
+              imageSrc="/images/MELDEN.png"
+              imageAlt="Melden"
+              className="relative text-xs px-2 py-1 bg-orange-200 rounded shadow"
+            />
+            <FeuerwehrAlphabetModal />
+          </div>
+        )}
       </div>
     </Layout>
   );
