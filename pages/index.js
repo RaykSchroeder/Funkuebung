@@ -13,6 +13,7 @@ export default function Home() {
   const [loginCode, setLoginCode] = useState(null); // merkt sich den Login (GF/AT/WT)
   const [error, setError] = useState(null);
   const [expandedCode, setExpandedCode] = useState(null);
+  const [showHelpers, setShowHelpers] = useState(false); // 👈 neuer Zustand für die Buttons
 
   const handleAddScenario = async (e) => {
     e.preventDefault();
@@ -179,30 +180,43 @@ export default function Home() {
           <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
-        {/* --- Kompakte Floating-Buttons (unten rechts als 2×2 Grid) --- */}
-        <div className="fixed bottom-4 right-4 grid grid-cols-2 gap-2 z-50">
-          <ImageModalButton
-            title="DMO"
-            buttonLabel="DMO"
-            imageSrc="/images/DMO.png"
-            imageAlt="DMO"
-            className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-          />
-          <ImageModalButton
-            title="SC20 Funkgerät"
-            buttonLabel="SC20"
-            imageSrc="/images/SC20.png"
-            imageAlt="Funkgerät"
-            className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-          />
-          <ImageModalButton
-            title="Meldung abgeben"
-            buttonLabel="Meldung"
-            imageSrc="/images/MELDEN.png"
-            imageAlt="Melden"
-            className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
-          />
-          <FeuerwehrAlphabetModal />
+        {/* --- Floating-Button + versteckte Helferbuttons --- */}
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+          {/* 1. Umschaltknopf */}
+          <button
+            onClick={() => setShowHelpers(!showHelpers)}
+            className="w-12 h-12 rounded-full bg-slate-800 text-white text-2xl shadow-lg hover:bg-slate-700"
+          >
+            {showHelpers ? "×" : "?"}
+          </button>
+
+          {/* 2. Helferbuttons (ein-/ausblendbar) */}
+          {showHelpers && (
+            <div className="grid grid-cols-2 gap-2 p-2 bg-white rounded-lg shadow-lg border">
+              <ImageModalButton
+                title="DMO"
+                buttonLabel="DMO"
+                imageSrc="/images/DMO.png"
+                imageAlt="DMO"
+                className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+              />
+              <ImageModalButton
+                title="SC20 Funkgerät"
+                buttonLabel="SC20"
+                imageSrc="/images/SC20.png"
+                imageAlt="Funkgerät"
+                className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+              />
+              <ImageModalButton
+                title="Meldung abgeben"
+                buttonLabel="Meldung"
+                imageSrc="/images/MELDEN.png"
+                imageAlt="Melden"
+                className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+              />
+              <FeuerwehrAlphabetModal />
+            </div>
+          )}
         </div>
 
         <FeedbackForm />
