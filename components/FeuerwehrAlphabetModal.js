@@ -40,7 +40,7 @@ export default function FeuerwehrAlphabetModal() {
       <div className="fixed bottom-6 right-6">
         <button
           onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
+          className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
         >
           📖 ABC
         </button>
