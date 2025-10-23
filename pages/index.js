@@ -179,29 +179,31 @@ export default function Home() {
           <p className="text-slate-500">Noch kein Team gewählt</p>
         )}
 
-        {/* Floating-Buttons (unten rechts gestapelt) */}
-        <FeuerwehrAlphabetModal />
-        <ImageModalButton
-          title="DMO"
-          buttonLabel="DMO wechseln"
-          imageSrc="/images/DMO.png"      // <-- lege dein Bild hier ab
-          imageAlt="DMO"
-          className="fixed right-6 bottom-24"  // etwas höher als ABC
-        />
-        <ImageModalButton
-          title="Funktgerät DC20"
-          buttonLabel="Funktgerät SC20"
-          imageSrc="/images/SC20.png"  // <-- lege dein Bild hier ab
-          imageAlt="Einsatzkarte"
-          className="fixed right-6 bottom-40"  // noch eine Stufe höher
-        />
-        <ImageModalButton
-          title="Meldung abgeben"
-          buttonLabel="Meldung"
-          imageSrc="/images/MELDEN.png"   // <-- lege dein Bild hier ab
-          imageAlt="Melden"
-          className="fixed right-6 bottom-56"  // höchste Position
-        />
+        {/* --- Kompakte Floating-Buttons (unten rechts als 2×2 Grid) --- */}
+        <div className="fixed bottom-4 right-4 grid grid-cols-2 gap-2 z-50">
+          <ImageModalButton
+            title="DMO"
+            buttonLabel="DMO"
+            imageSrc="/images/DMO.png"
+            imageAlt="DMO"
+            className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+          />
+          <ImageModalButton
+            title="SC20 Funkgerät"
+            buttonLabel="SC20"
+            imageSrc="/images/SC20.png"
+            imageAlt="Funkgerät"
+            className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+          />
+          <ImageModalButton
+            title="Meldung abgeben"
+            buttonLabel="Meldung"
+            imageSrc="/images/MELDEN.png"
+            imageAlt="Melden"
+            className="text-xs px-2 py-1 bg-orange-200 rounded shadow"
+          />
+          <FeuerwehrAlphabetModal />
+        </div>
 
         <FeedbackForm />
 
