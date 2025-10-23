@@ -14,16 +14,54 @@ export default function Impressum() {
           <span className="mr-2">⬅️</span> Zurück
         </Link>
 
-        <h1 className="text-2xl font-bold">Inpressumtest</h1>
-        <p>Feuerwehr Stadt Geestland - OT Imsum</p>
-        <p>Vertreten durch: [TvH, Wehrführer]</p>
-        <p>Verantwortliche Funkübung: [TM, Funkwart]</p>
-        <p>Technischer Support: [RS, Kinderwart AD]</p>
-        <p>Auch mit dabei: [TS, Alles, aber nichts richtig]</p>
-        <p>Adresse: [Straße: Alte Bahnhofstraße, PLZ: 27607]</p>
-        <p>Telefon: [112]</p>
-        <p>E-Mail: [ichbinboss@geestland.de]</p>
-        <p>Stadt Geestland</p>
+        <h1 className="text-2xl font-bold text-center text-red-700 mb-4">
+          📜 Impressum
+        </h1>
+
+        <p>
+          <strong>Angaben gemäß § 5 TMG</strong>
+        </p>
+
+        <p>
+          Förderverein der Freiwilligen Feuerwehr Stadt Geestland – Ortswehr
+          Imsum – e.V.
+          <br />
+          Alte Bahnhofstraße 36
+          <br />
+          27607 Geestland
+        </p>
+
+        <p>
+          <strong>Vereinsregister:</strong> VR 200467
+          <br />
+          <strong>Registergericht:</strong> Amtsgericht Tostedt
+        </p>
+
+        <p>
+          <strong>Vertreten durch:</strong>
+          <br />
+          Ortsbrandmeister Thomas von Holten
+          <br />
+          stv. Ortsbrandmeister Henning Pyrek
+        </p>
+
+        <p>
+          <strong>Kontakt:</strong>
+          <br />
+          <a
+            href="mailto:ortsbrandmeister@feuerwehr-imsum.de"
+            className="text-blue-600 hover:underline"
+          >
+            ortsbrandmeister@feuerwehr-imsum.de
+          </a>
+        </p>
+
+        <hr className="my-4 border-gray-300" />
+
+        <p className="text-sm text-gray-500 text-center">
+          © {new Date().getFullYear()} Förderverein der Freiwilligen Feuerwehr
+          Stadt Geestland – Ortswehr Imsum – e.V.
+        </p>
       </div>
     </Layout>
   );
